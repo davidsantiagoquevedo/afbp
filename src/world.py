@@ -8,11 +8,12 @@ class Agent():
     def __init__(self, **kwargs):
     
         self.alpha = kwargs.get('alpha')
+        self.H = kwargs.get('H')
         self.Tf = kwargs.get('Tf')
         self.h = kwargs.get('h')
         self.T0 = kwargs.get('T0', 0)
         self.phi0 = kwargs.get('phi0', 0)
-        self.thetaR = kwargs.get('thetaR', 10)
+        self.thetaR = kwargs.get('thetaR', 1)
         self.n = kwargs.get('n')
 
         # Initialize solution of fractional Langevin equation
@@ -20,14 +21,13 @@ class Agent():
         self.phi_vec = []
         self.phi_prev = self.phi0
 
-    # def make_B_H(self, method = 'daviesharte'):
+        # Define fractional noise BH specific for this agent
         n = self.n
-        H = (2 - self.alpha)/2
+        # H = (2 - self.alpha)/2
         Tf = self.Tf
         
-        f = FBM(n = n, hurst = H, length = Tf, method = 'daviesharte')
+        f = FBM(n = n, hurst = self.H, length = Tf, method = 'daviesharte')
         self.B_H = f.fbm()
-        self.dB_H = n/Tf*np.diff(self.B_H)
         self.t_BH = f.times()
         self.t = self.t_BH[:self.n]
 
@@ -52,6 +52,7 @@ class Env():
     def __init__(self, 
                  numb_agents,
                  alpha,
+                 H,
                  Tf, 
                  h = 1e-4,
                  T0 = 0, 
@@ -60,6 +61,7 @@ class Env():
         
         self.numb_agents = numb_agents
         self.alpha = alpha
+        self.H = H
         self.Tf = Tf
         self.h = h
         self.T0 = T0

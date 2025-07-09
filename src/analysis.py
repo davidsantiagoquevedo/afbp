@@ -7,6 +7,11 @@ def phi_correlation(env):
 
     """
     Computes < [phi(t) - phi0]^2 > averaged over all agents.
+    
+    Parameters:
+    
+    ...
+    
     Returns:
         corr: array of shape (n,)
     """
@@ -23,8 +28,9 @@ def phi_correlation(env):
         corr.append(corr_value/env.numb_agents)
 
     return corr
-
-env = Env(numb_agents=100, alpha = 1, Tf = 1, h=1e-3)
+alpha = 0.5
+H = (2 - alpha)/2
+env = Env(numb_agents=1000, alpha = alpha, H = H, Tf = 10, h=1e-3)
 
 correlation = phi_correlation(env)
 
