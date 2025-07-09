@@ -12,10 +12,8 @@ class Agent():
         self.h = kwargs.get('h')
         self.T0 = kwargs.get('T0', 0)
         self.phi0 = kwargs.get('phi0', 0)
-        self.thetaR = kwargs.get('thetaR', 1)
+        self.thetaR = kwargs.get('thetaR', 10)
         self.n = kwargs.get('n')
-        
-        
 
         # Initialize solution of fractional Langevin equation
 
@@ -35,30 +33,18 @@ class Agent():
 
     def update_phi(self, time):
 
-        print(f'-----time {time}-----')
-
         sum_term = 0
         if time-2>=0:
             for i in range(time-2):
                 sum_term += (self.phi_vec[i]+self.phi_vec[i+1])*((time-i)**(1-self.alpha)-(time-i-1)**(1-self.alpha))
-                if i==time-3:
-                    print(i, self.phi_vec[i], self.phi_vec[i+1], (self.phi_vec[i]+self.phi_vec[i+1]),((time-i)**(1-self.alpha)-(time-i-1)**(1-self.alpha)))
 
-        print('time', time, 'phi prev', self.phi_prev)
-
-        phi_current = self.phi_prev + 2*(self.h)**(self.alpha-1)*(self.phi0+self.thetaR*gamma(2-self.alpha)*self.B_H[time]) - sum_term
-
-        print('second term', 2*(self.h)**(self.alpha-1)*(self.phi0+self.thetaR*gamma(2-self.alpha)*self.B_H[time]) )
-        print('third term', sum_term)
-        print('current', phi_current)
+        phi_current = - self.phi_prev + 2*(self.h)**(self.alpha-1)*(self.phi0+self.thetaR*gamma(2-self.alpha)*self.B_H[time]) - sum_term
 
         self.phi_vec.append(phi_current)
         self.phi_prev = np.copy(phi_current)
 
     def trajectory(self):
-
         for time in range(self.n):
-
             self.update_phi(time)
 
 class Env():

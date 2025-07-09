@@ -24,7 +24,7 @@ def phi_correlation(env):
 
     return corr
 
-env = Env(numb_agents=1, alpha = 0.1, Tf = 0.03, h=1e-3)
+env = Env(numb_agents=100, alpha = 1, Tf = 1, h=1e-3)
 
 correlation = phi_correlation(env)
 

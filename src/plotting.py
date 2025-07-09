@@ -5,7 +5,7 @@ axis_fontsize = 19
 size_ticks = 20
 marker_size = 10
 
-msd = {
+msd_style = {
     'phi': dict(c = 'dodgerblue', lw=2, label = 'sim')  
 }
 
@@ -17,7 +17,7 @@ def plot_msd(ax, msd, delta_t, variable):
 
     time = np.arange(0,len(msd))*delta_t
 
-    ax.plot(time, msd, **msd[f'{variable}'], zorder=1)
+    ax.plot(time, msd, **msd_style[variable], zorder=1)
     # ax.plot(time, time**, **msd[f'{variable}'], zorder=1)
 
     ax.set_xlabel('t', fontsize = axis_fontsize)
