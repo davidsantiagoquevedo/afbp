@@ -12,16 +12,26 @@ msd_style = {
 # -- FUNCTIONS --
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.special import gamma
 
-def plot_msd(ax, msd, delta_t, alpha, variable):
+
+def plot_msd(ax, msd, delta_t, alpha, H, variable):
 
     time = np.arange(0,len(msd))*delta_t
 
     ax.plot(time, msd, lw=2, zorder=1, label=fr'$\alpha$={alpha}')
-    # ax.plot(time, time**, **msd[f'{variable}'], zorder=1)
+    # ax.plot(time, (gamma(2*H)**2/(2*H*(gamma(H+1/2)**2)))*time**(alpha), c='red', zorder=1)
 
     ax.set_xlabel('t', fontsize = axis_fontsize)
     ax.tick_params(axis='both', labelsize=size_ticks)
     ax.set_ylabel(r'MSD$\langle (\phi(t)-\phi_0)^2 \rangle$', fontsize = axis_fontsize)
     ax.grid(':')
     ax.legend(fontsize = legend_size)
+
+def plot_pdf(ax, phi_matrix, time, alpha):
+    
+    trajectories_points = phi_matrix[:, time]
+    
+    ax.hist(trajectories_points, bins=150, color='skyblue', edgecolor='black', alpha=0.6, label=rf't={time}', density=True)
+    ax.legend(fontsize = legend_size)
+

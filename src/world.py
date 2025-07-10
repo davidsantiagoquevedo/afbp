@@ -15,7 +15,7 @@ class Agent():
         self.h = kwargs.get('h')
         self.T0 = kwargs.get('T0', 0)
         self.phi0 = kwargs.get('phi0', 0)
-        self.thetaR = kwargs.get('thetaR', 1)
+        self.thetaR = kwargs.get('thetaR', 100)
         self.n = kwargs.get('n')
 
         # Initialize solution of fractional Langevin equation
@@ -38,8 +38,10 @@ class Agent():
         if time-2>=0:
             for i in range(time-2):
                 sum_term += (self.phi_vec[i]+self.phi_vec[i+1])*((time-i)**(1-self.alpha)-(time-i-1)**(1-self.alpha))
+                # sum_term += (self.phi_vec[i]+self.phi_vec[i+1])*((time-i-1)**(1-self.alpha)-(time-i)**(1-self.alpha))
 
         phi_current = - self.phi_prev + 2*(self.h)**(self.alpha-1)*(self.phi0+self.thetaR*gamma(2-self.alpha)*self.B_H[time]) - sum_term
+        # phi_current = - self.phi_prev - 2*(self.h)**(self.alpha-1)*(self.phi0+self.thetaR*gamma(2-self.alpha)*self.B_H[time]) + sum_term
 
         self.phi_vec[time] = phi_current
         self.phi_prev = np.copy(phi_current)
@@ -116,7 +118,6 @@ class Env():
         if self.phi_matrix is None:
             raise ValueError("Run the simulation first to generate phi_matrix.")
 
-        # Example: take final time step
         phi_time = self.phi_matrix[:, time]
         hist, bin_edges = np.histogram(phi_time, bins=bins, density=True)
         return hist, bin_edges

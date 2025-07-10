@@ -4,17 +4,18 @@ import matplotlib.pyplot as plt
 import plotting
 import time
 
+
 start_time = time.time()
 
-alphas = [0.5]
-run = False
+alphas = [1, 0.5]
+run = True
 envs=[]
 
 for alpha in alphas:
     
     H = (2 - alpha) / 2
     
-    env = Env(numb_agents=1000, alpha=alpha, H=H, Tf=5, h=1e-3)
+    env = Env(numb_agents=1000, alpha=alpha, H=H, Tf=10, h=1e-3)
     
     if run:
         print("----Running for alpha", env.alpha)
@@ -32,8 +33,6 @@ for alpha in alphas:
             f"Tf_{env.Tf}_"
             f"h_{env.h}.pkl"
         )
-        # print(filepath)
-        # env = Env.load(filepath='data/numbag_1000_alpha_0.50_H_0.75_Tf_5_h_0.001.pkl')
         env = Env.load(filepath)
     
     envs.append(env)
@@ -41,9 +40,18 @@ for alpha in alphas:
 fig, ax = plt.subplots()
 for alpha_index in range(len(alphas)):
     env = envs[alpha_index]
-    plotting.plot_msd(ax, env.phi_corr, env.h, env.alpha, 'phi')
+    plotting.plot_msd(ax, env.phi_corr, env.h, env.alpha, env.H, 'phi')
 fig.tight_layout()
 plt.savefig(f"phi_corr.pdf")
+
+
+# alpha=1
+# fig, ax = plt.subplots()
+# plotting.plot_pdf(ax, env.phi_matrix, time = 100, alpha = alpha)
+# plotting.plot_pdf(ax, env.phi_matrix, time = 500, alpha = alpha)
+# plotting.plot_pdf(ax, env.phi_matrix, time = 1000, alpha = alpha)
+# fig.tight_layout()
+# plt.savefig(f"phi_histogram.pdf")
 
 end_time = time.time()
 elapsed_time = end_time - start_time
