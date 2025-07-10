@@ -3,6 +3,8 @@ from scipy.special import gamma
 import pandas as pd
 import mittag_leffler as ml
 from fbm import FBM
+import os
+import pickle
 
 class Agent():
     def __init__(self, **kwargs):
@@ -17,7 +19,6 @@ class Agent():
         self.n = kwargs.get('n')
 
         # Initialize solution of fractional Langevin equation
-
         self.phi_vec = np.zeros(self.n)
         self.phi_prev = self.phi0
 
@@ -72,15 +73,20 @@ class Env():
         # Number of time steps
         self.n = int(self.Tf/self.h)
 
-        # Define agents part of the env with their fractional noise
-        self.agents = [Agent(**self.__dict__) for _ in range(self.numb_agents)]
         
         # Initialize 
         self.phi_matrix = None
         self.phi_corr = None
 
+    def define_agents(self):
+        
+        # Define agents part of the env with their fractional noise
+        self.agents = [Agent(**self.__dict__) for _ in range(self.numb_agents)]
+
     def run(self):
-            for agent in self.agents:
+            for agent_index, agent in enumerate(self.agents):
+                print("----Running for alpha", self.alpha, 'agent', agent_index)
+
                 agent.trajectory()
 
             # Store all trajectories in phi_matrix
@@ -105,17 +111,43 @@ class Env():
         self.phi_corr = np.mean((self.phi_matrix - self.phi0)**2, axis=0)
         return self.phi_corr
 
-    def compute_phi_pdf(self, bins=50):
+    def compute_pdf(self, time, bins=150):
 
         if self.phi_matrix is None:
             raise ValueError("Run the simulation first to generate phi_matrix.")
 
         # Example: take final time step
-        phi_final = self.phi_matrix[:, -1]
-        hist, bin_edges = np.histogram(phi_final, bins=bins, density=True)
+        phi_time = self.phi_matrix[:, time]
+        hist, bin_edges = np.histogram(phi_time, bins=bins, density=True)
         return hist, bin_edges
 
-
+    def save(self, folder="data"):
+        """
+        Save the entire Env object to a .pkl file in the specified folder.
+        The filename includes key parameters.
+        """
+        os.makedirs(folder, exist_ok=True)
+        
+        filename = (
+            f"numbag_{self.numb_agents}_"
+            f"alpha_{self.alpha}_"
+            f"H_{self.H}_"
+            f"Tf_{self.Tf}_"
+            f"h_{self.h}.pkl"
+        )
+        
+        filepath = os.path.join(folder, filename)
+        
+        with open(filepath, "wb") as f:
+            pickle.dump(self, f)
     
-
+    @classmethod
+    def load(cls, filepath):
+        """
+        Load an Env object from a .pkl file.
+        """
+        with open(filepath, "rb") as f:
+            env = pickle.load(f)
+            
+        return env
     

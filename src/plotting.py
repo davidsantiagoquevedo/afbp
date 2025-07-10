@@ -13,11 +13,11 @@ msd_style = {
 import matplotlib.pyplot as plt
 import numpy as np
 
-def plot_msd(ax, msd, delta_t, variable):
+def plot_msd(ax, msd, delta_t, alpha, variable):
 
     time = np.arange(0,len(msd))*delta_t
 
-    ax.plot(time, msd, **msd_style[variable], zorder=1)
+    ax.plot(time, msd, lw=2, zorder=1, label=fr'$\alpha$={alpha}')
     # ax.plot(time, time**, **msd[f'{variable}'], zorder=1)
 
     ax.set_xlabel('t', fontsize = axis_fontsize)
