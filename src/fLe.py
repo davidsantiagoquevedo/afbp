@@ -1,14 +1,19 @@
+import sys
+sys.path.append("src/")
 import numpy as np
 from scipy.special import gamma
 import pandas as pd
 import mittag_leffler as ml
+from fbm import FBM
+import fBm_stats as fbs
+
 
 class fle():
     def __init__(self, alpha):
         self.alpha = alpha
         self.H = (2-alpha)/2
     
-    def params(self, Tf, T0 = 0, v0 = 1, M = 1, eta = 1, T = 1):
+    def params(self, h, Tf, T0 = 0, v0 = 1, M = 1, eta = 1, T = 1):
         """
         Function to set the parameters of the system to solve
         
@@ -22,11 +27,18 @@ class fle():
         self.v0 = v0
         self.v02 = self.kB*T
         
+        self.h = h
         self.Tf = Tf
         self.t = np.linspace(T0,Tf,1000)
-        
-               
-            
+        self.n = int(self.Tf/self.h)
+        self.x_n = np.zeros(self.n)
+
+        H = self.H
+        if self.alpha == 1:
+            self.A_H = 1
+        else:
+            self.A_H = 1#1/np.sqrt(H*(2*H-1)*gamma(2*H-1))
+           
             
     def relaxation_overdamped(self):
         alpha = self.alpha
@@ -77,62 +89,88 @@ class fle():
         self.relaxation_overdamped()
         self.msd_o = 2*kBT*(t**alpha)/(eta*gamma(alpha+1))
 
+    def make_B_H(self, method = 'daviesharte'):
+        n = self.n
+        H = self.H
+        Tf = self.Tf
+        A_H = self.A_H
+        np.random.seed()
+          
+        f = FBM(n = n, hurst = H, length = Tf, method = method)
+        self.B_H = f.fbm()
+        self.dB_H = n/Tf*np.diff(self.B_H)
+        self.t_BH = f.times()
+        self.t = self.t_BH[:self.n]
+        self.B = A_H*self.B_H
+        self.dB =A_H*self.dB_H
+
+    # Numerical solution
+    def a_i(self, i):
+        H = self.H
+        n = self.n
+        return (n-i)**(2*H-1) - (n-i-1)**(2*H-1)
+    
+    def x_k(self, k):
+        alpha = self.alpha
+        H = self.H
+        B = self.B
+        
+        h = self.h
+        x_n = self.x_n
+         
+        a_ii = 0
+        if k-2 >= 0:    
+            for i in range(0, k-1):
+                a_ii += self.a_i(i)*(x_n[i+1]+x_n[i])
+        gamma2h = 2*gamma(2-alpha)*(h**(alpha-1))
+        return -x_n[k-1] +  gamma2h*B[k] - a_ii
+
+    def solve(self):
+        n = self.n
+        x_n = self.x_n
+        
+        for k in range(1,n):
+            x_n[k] = self.x_k(k)
+        
+        self.numerical = x_n
+
+from tqdm import tqdm
+def get_msd(eq,realizations):
+    for r in tqdm(range(realizations)):
+        eq.make_B_H()
+        eq.solve()   
+        if r == 0:
+            df_msd = pd.DataFrame({"t": eq.t})
+        df_msd["x_"+str(r)] = eq.numerical        
+    df_msd.set_index("t", inplace = True)
+
+    msd = fbs.msd(df_msd, True)
+    return msd
+
+realizations = 100
+
+
+alpha = 1
+eq1 = fle(alpha)
+eq1.params(h=0.01, Tf=10, T0 = 0)
+msd1 = get_msd(eq1,realizations)
+
+alpha = 0.5
+eq05 = fle(alpha)
+eq05.params(h=0.01, Tf=10, T0 = 0)
+msd05 = get_msd(eq05,realizations)
+
+
+alpha = 0.3
+eq03 = fle(alpha)
+eq03.params(h=0.01, Tf=10, T0 = 0)
+msd03 = get_msd(eq03,realizations)
+
+
 import matplotlib.pyplot as plt
-
-bby1 = fle(alpha = 0.05)
-bby1.params(Tf=30, T0 = 0, v0 = 1, M = 1, eta = 1, T = 1)
-bby1.msd_underdamped()
-bby1.msd_overdamped()
-
-bby2 = fle(alpha = 0.1)
-bby2.params(Tf=30, T0 = 0, v0 = 1, M = 1, eta = 1, T = 1)
-bby2.msd_underdamped()
-bby2.msd_overdamped()
-
-bby3 = fle(alpha = 0.3)
-bby3.params(Tf=30, T0 = 0, v0 = 1, M = 1, eta = 1, T = 1)
-bby3.msd_underdamped()
-bby3.msd_overdamped()
-
-bby4 = fle(alpha = 0.5)
-bby4.params(Tf=30, T0 = 0, v0 = 1, M = 1, eta = 1, T = 1)
-bby4.msd_underdamped()
-bby4.msd_overdamped()
-
-bby5 = fle(alpha = 0.7)
-bby5.params(Tf=30, T0 = 0, v0 = 1, M = 1, eta = 1, T = 1)
-bby5.msd_underdamped()
-bby5.msd_overdamped()
-
-bby6 = fle(alpha = 0.9)
-bby6.params(Tf=30, T0 = 0, v0 = 1, M = 1, eta = 1, T = 1)
-bby6.msd_underdamped()
-bby6.msd_overdamped()
-
-bby7 = fle(alpha = 1)
-bby7.params(Tf=30, T0 = 0, v0 = 1, M = 1, eta = 1, T = 1)
-bby7.msd_underdamped()
-bby7.msd_overdamped()
-
-fig, ax = plt.subplots()
-
-ax.plot(bby1.t, bby1.msd_o, label=r"$\alpha$=0.05")
-ax.plot(bby2.t, bby2.msd_o, label=r"$\alpha$=0.1")
-ax.plot(bby3.t, bby3.msd_o, label=r"$\alpha$=0.3")
-ax.plot(bby4.t, bby4.msd_o, label=r"$\alpha$=0.5")
-ax.plot(bby5.t, bby5.msd_o, label=r"$\alpha$=0.7")
-ax.plot(bby6.t, bby6.msd_o, label=r"$\alpha$=0.9")
-ax.plot(bby7.t, bby7.msd_o, label=r"$\alpha$=1")
-fig.show()
-
-fig, ax = plt.subplots()
-
-ax.plot(bby1.t, bby1.msd_o, label=r"$\alpha$=0.05")
-ax.plot(bby1.t, bby1.msd_u, color = "red")
-ax.plot(bby2.t, bby2.msd_o, label=r"$\alpha$=0.1")
-ax.plot(bby2.t, bby2.msd_u, color = "red")
-ax.plot(bby3.t, bby3.msd_o, label=r"$\alpha$=0.3")
-ax.plot(bby3.t, bby3.msd_u, color = "red")
-ax.plot(bby4.t, bby4.msd_o, label=r"$\alpha$=0.5")
-ax.plot(bby4.t, bby4.msd_u, color = "red")
-fig.show()
+plt.plot(eq03.t,msd03, label = "0.3")
+plt.plot(eq05.t,msd05, label = "0.5")
+plt.plot(eq1.t,msd1, label = "1")
+#plt.plot(eq.t, msd_teo)
+plt.legend()
+plt.show()
