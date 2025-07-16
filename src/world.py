@@ -51,21 +51,76 @@ class afbm():
             sum_term = 0
             if time-2>=0:
                 for i in range(time-1):
-                    sum_term += (r_trajectory[i]+r_trajectory[i+1])*((time-i)**(1-self.alpha)-(time-i-1)**(1-self.alpha))
+                    sum_term += (r_trajectory[i]+r_trajectory[i+1])*((self.n-i)**(1-self.alpha)-(self.n-i-1)**(1-self.alpha))
             
             # Update rule
-            
-            # original
-            phi_current = - phi_prev + 2*(self.h)**(self.alpha-1)*(self.thetaR*gamma(2-self.alpha)*(B_H[time]-B_H[0])) - sum_term
-            
-            # print(B_H[time], sum_term)
-            
-            # tentatives
-            # phi_current = - phi_prev + 2*(self.h)**(self.alpha-1)*(self.thetaR*gamma(2-self.alpha)*(B_H[time]-B_H[time-1])) - sum_term
-            
-            # phi_current = phi_prev + (self.h)**(self.alpha-1)*(self.thetaR*gamma(2-self.alpha)*(B_H[time]-B_H[time-1])) + sum_term
-            # phi_current = phi_prev + (B_H[time] - B_H[time-1])
 
+            phi_current = - phi_prev + 2*(self.h)**(self.alpha-1)*(self.thetaR*gamma(2-self.alpha)*(B_H[time])) - sum_term
+
+            # Save and update old 
+            r_trajectory[time] = phi_current
+            phi_prev = np.copy(phi_current)
+            
+        return r_trajectory
+
+    def cnj(self, k):
+        return (k+1)**(1-self.alpha) - k**(1-self.alpha)
+
+    def trajectory_new_discr(self):
+        
+        # Generate noise 
+        f = FBM(n = self.n, hurst = self.H, length = self.Tf, method = 'daviesharte')
+        B_H = f.fbm()
+        # B_H = f.fbm()/np.sqrt(self.H*(2*self.H-1)*gamma(2*self.H-1))
+        
+        dB_H = self.n/self.Tf*np.diff(B_H)
+        
+        # Loop over timesteps
+        r_trajectory = np.zeros(self.n)
+        phi_prev = self.phi0
+        for time in range(1, self.n):
+            
+            # Sum term
+            sum_term = 0
+            for i in range(1, time-1):
+                
+                sum_term += self.cnj(time-i) * (r_trajectory[i]-r_trajectory[i+1])
+            
+            # Update rule
+            phi_current = phi_prev + ((self.h)**(self.alpha))*(gamma(2-self.alpha)*dB_H[time]) + sum_term
+
+            # Save and update old 
+            r_trajectory[time] = phi_current
+            phi_prev = np.copy(phi_current)
+            
+        return r_trajectory
+    
+    def bi(self, k):
+        
+        return (k+1)**(1-self.alpha) - k**(1-self.alpha)
+    
+    def trajectory_new_discr2(self):
+        
+        # Generate noise 
+        f = FBM(n = self.n, hurst = self.H, length = self.Tf, method = 'daviesharte')
+        B_H = f.fbm()
+        # B_H = f.fbm()/np.sqrt(self.H*(2*self.H-1)*gamma(2*self.H-1))
+        
+        dB_H = self.n/self.Tf*np.diff(B_H)
+        
+        # Loop over timesteps
+        r_trajectory = np.zeros(self.n)
+        phi_prev = self.phi0
+        for time in range(1, self.n):
+            
+            # Sum term
+            sum_term = 0
+            for i in range(1, time-1):
+                
+                sum_term += self.bi(time) * (r_trajectory[i])
+            
+            # Update rule
+            phi_current = ((self.h)**(self.alpha))*(gamma(2-self.alpha)*dB_H[time]) + sum_term
 
             # Save and update old 
             r_trajectory[time] = phi_current
@@ -75,9 +130,11 @@ class afbm():
 
     def run(self):
             for r in range(self.realizations):
-                print("----Running for alpha", self.alpha, 'realization', r)
+                # print("----Running for alpha", self.alpha, 'realization', r)
 
-                r_trajectory = self.trajectory()
+                # r_trajectory = self.trajectory()
+                r_trajectory = self.trajectory_new_discr()
+                # r_trajectory = self.trajectory_new_discr2()
 
                 self.phi_matrix = np.vstack((self.phi_matrix, r_trajectory))
                 

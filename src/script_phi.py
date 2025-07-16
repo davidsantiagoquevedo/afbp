@@ -8,11 +8,11 @@ import time
 start_time = time.time()
 
 # alphas = [0.1, 0.3, 0.5, 0.7, 0.9, 1]
-alphas = [0.5]
+alphas = [0.3, 0.5, 1]
 # H = 0.1
-realizations = 100
-Tf = 1
-h = 1e-3    
+realizations = 1000
+Tf = 10
+h = 1e-2
 run = True
 envs=[]
 

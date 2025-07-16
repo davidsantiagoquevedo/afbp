@@ -37,7 +37,7 @@ class fle():
         if self.alpha == 1:
             self.A_H = 1
         else:
-            self.A_H = 1#1/np.sqrt(H*(2*H-1)*gamma(2*H-1))
+            self.A_H = 1/np.sqrt(H*(2*H-1)*gamma(2*H-1))
            
             
     def relaxation_overdamped(self):
@@ -144,33 +144,33 @@ def get_msd(eq,realizations):
         df_msd["x_"+str(r)] = eq.numerical        
     df_msd.set_index("t", inplace = True)
 
-    msd = fbs.msd(df_msd, True)
+    msd = fbs.msd(df_msd, False)
     return msd
 
 realizations = 100
 
 
-alpha = 1
-eq1 = fle(alpha)
-eq1.params(h=0.01, Tf=10, T0 = 0)
-msd1 = get_msd(eq1,realizations)
+# alpha = 1
+# eq1 = fle(alpha)
+# eq1.params(h=0.01, Tf=10, T0 = 0)
+# msd1 = get_msd(eq1,realizations)
 
 alpha = 0.5
 eq05 = fle(alpha)
-eq05.params(h=0.01, Tf=10, T0 = 0)
+eq05.params(h=0.001, Tf=1, T0 = 0)
 msd05 = get_msd(eq05,realizations)
 
 
 alpha = 0.3
 eq03 = fle(alpha)
-eq03.params(h=0.01, Tf=10, T0 = 0)
+eq03.params(h=0.001, Tf=1, T0 = 0)
 msd03 = get_msd(eq03,realizations)
 
 
 import matplotlib.pyplot as plt
 plt.plot(eq03.t,msd03, label = "0.3")
 plt.plot(eq05.t,msd05, label = "0.5")
-plt.plot(eq1.t,msd1, label = "1")
+# plt.plot(eq1.t,msd1, label = "1")
 #plt.plot(eq.t, msd_teo)
 plt.legend()
 plt.show()
