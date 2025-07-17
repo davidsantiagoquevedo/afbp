@@ -11,7 +11,7 @@ def to_numpy_array(shared_array, shape):
     array = np.ctypeslib.as_array(shared_array)
     return array.reshape(shape)
 
-def  run_parallel(env):
+def run_trajectories_parallel(env):
     """
     Parallely runs independent Brownian trajectories.
     
