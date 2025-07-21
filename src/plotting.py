@@ -6,8 +6,8 @@ size_ticks = 20
 marker_size = 10
 
 msd_style = {
-    'phi': dict(c = 'dodgerblue', lw=2, label = 'sim'),  
-    'phi_sol': dict(c = 'magenta', lw=2, label = 'sol')  
+    'phi': dict(lw=2, label = 'sim'),  
+    'phi_sol': dict(lw=2, ls=':', label = 'sol')  
 }
 
 # -- FUNCTIONS --
@@ -16,6 +16,7 @@ import numpy as np
 from scipy.special import gamma
 import scipy.stats as stats
 import pandas as pd
+plt.style.use("/Users/monicaconte/PhD/Projects/Active_Matter/afbp/src/plotting_style.mplstyle")
 
 # Analytic functions for fitting
 
@@ -50,7 +51,6 @@ def plot_pdf(ax, phi_matrix, time, h, H, alpha, phi0=0):
     trajectories_points.hist(ax=ax, bins=20, alpha=0.6, label=rf't={time}', density=True, zorder=0)
     
     phi_range = np.arange(np.min(trajectories_points), np.max(trajectories_points), 1e-3)
-    # phi_range = np.arange(-1, 1, 1e-2)
     propagator = phi_propagator(phi_range, time*h, H, alpha)
     
     ax.plot(phi_range, propagator, lw=2, zorder=1, label=rf't={time}')

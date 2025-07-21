@@ -1,0 +1,38 @@
+# Created on Thu Jul  7 16:17:49 2022
+# @author: davidsantiagoquevedo
+# default matplotlibrc file: https://matplotlib.org/stable/tutorials/introductory/customizing.html
+
+#Ticks
+xtick.labelsize: 15
+ytick.labelsize: 15
+
+xtick.direction: in
+ytick.direction: in
+
+#Axes
+axes.labelsize: 15
+axes.titlesize: 15
+axes.titlelocation: center
+
+axes.spines.right: True
+
+#Colors
+axes.prop_cycle: cycler("color", ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"]) 
+
+#Legend
+legend.fontsize: 15
+legend.framealpha:    0.0
+legend.edgecolor:     1.0
+
+font.size:    15.0
+
+
+#Figure
+figure.figsize: 5, 5
+figure.autolayout: True
+
+#Saving
+savefig.dpi:  1000
+savefig.bbox: tight
+savefig.transparent: False
+savefig.facecolor: white
