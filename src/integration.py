@@ -26,6 +26,6 @@ def convolution(f, g, t):
         t_i = t[:i+1] # subset of the time vector
         f_eval = f(t[i] - t_i)
         integrand = f_eval * g_eval_i
-        conv[i] = np.trapezoid(integrand, dx = dt)
+        conv[i] = np.trapz(integrand, dx = dt)
             
     return conv

@@ -4,21 +4,20 @@ import plotting
 import time
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
+import parallelization
 
 start_time = time.time()
 
 # alphas = [0.1, 0.3, 0.5, 0.7, 0.9, 1]
-alphas = [0.3, 0.5]
+alphas = [0.3, 0.5, 1]
 # H = 0.1
-realizations = 100
+realizations = 1000
 Tf = 10
 h = 1e-2
 run = False
 envs=[]
 
-# tab10 = cm.get_cmap('tab10').colors
-# hex_colors = [mcolors.to_hex(c) for c in tab10]
-# print(hex_colors)
+
 for alpha in alphas:    
     
     H = (2-alpha)/2 
@@ -27,7 +26,7 @@ for alpha in alphas:
     
     if run:
         print("----Running for alpha", env.alpha)
-        env.run()
+        env.phi_matrix = parallelization.run_trajectories_parallel(env)
         env.run_solution()
         env.compute_phi_correlation()
         

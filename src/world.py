@@ -62,6 +62,8 @@ class angular_fbm():
     
     def trajectory(self):
         
+        np.random.seed()
+          
         self.make_B_H()
         
         # Loop over timesteps
@@ -105,7 +107,6 @@ class angular_fbm():
 
             self.phi_matrix_solution = np.vstack((self.phi_matrix_solution, r_trajectory))
             
-                
     def compute_phi_correlation(self):
         
         """
@@ -119,10 +120,13 @@ class angular_fbm():
             self.phi_corr: array of shape (n)
         """
         
-        if self.phi_matrix is None:
-            self.run()
+        # if self.phi_matrix is None:
+        #     print(self.phi_matrix)
+        #     self.run()
             
+        print(self.phi_matrix.shape)
         self.phi_corr = np.mean((self.phi_matrix - self.phi0)**2, axis=0)
+        print(self.phi_corr.shape)
         self.phi_corr_sol = np.mean((self.phi_matrix_solution - self.phi0)**2, axis=0)
 
     def compute_pdf(self, time, bins=150):

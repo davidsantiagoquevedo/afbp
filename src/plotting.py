@@ -16,7 +16,7 @@ import numpy as np
 from scipy.special import gamma
 import scipy.stats as stats
 import pandas as pd
-plt.style.use("/Users/monicaconte/PhD/Projects/Active_Matter/afbp/src/plotting_style.mplstyle")
+# plt.style.use("plotting_style.mplstyle")
 
 # Analytic functions for fitting
 
@@ -36,7 +36,7 @@ def plot_msd(ax, msd, delta_t, alpha, H, variable):
     ax.plot(time, msd, **msd_style[f'{variable}'])
     # ax.loglog(time, msd, lw=2, zorder=1, label=fr'$\alpha$={alpha}')
     # print((gamma(2*H)**2/(2*H*(gamma(H+1/2)**2))))
-    ax.plot(time, ((gamma(2*H)**2)/(H*(gamma(H+1/2)**2)))*time**(alpha), c='red', zorder=1)
+    ax.plot(time, ((gamma(2*H)**2)/(2*H*(gamma(H+1/2)**2)))*time**(alpha), c='red', zorder=1)
 
     ax.set_xlabel('t', fontsize = axis_fontsize)
     ax.tick_params(axis='both', labelsize=size_ticks)

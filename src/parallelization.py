@@ -1,5 +1,13 @@
 import numpy as np
 import multiprocessing as mp
+from tqdm import tqdm
+
+def single_trajectory_helper(env, p, stored_matrix, lock):
+
+    r_trajectory = env.trajectory()
+
+    with lock:
+        stored_matrix[p, :] = r_trajectory
 
 def to_shared_array(array):
     shared_array = mp.Array('d', array.size, lock=False)
@@ -29,7 +37,7 @@ def run_trajectories_parallel(env):
     batch_size = 10
 
     # Initialize matrix
-    init_matrix = np.zeros((env.n, env.realizations), dtype = np.float64)  
+    init_matrix = np.zeros((env.realizations, env.n), dtype = np.float64)  
 
     # Create multiprocessing array to which the different processes can access to. 
     # Thanks to temp, we can write a numpy array to a mp array and initialize it in this case.
@@ -40,9 +48,9 @@ def run_trajectories_parallel(env):
 
     lock = mp.Lock()
     # execute in batches
-    for r in range(0, env.realizations, batch_size):
+    for r in tqdm(range(0, env.realizations, batch_size)):
         # execute all tasks in a batch
-        processes = [mp.Process(target = env.trajectory, 
+        processes = [mp.Process(target = single_trajectory_helper, 
                                 args=(env, p, stored_matrix, lock)) for p in range(r, r + batch_size)]
 
         # start all processes
@@ -51,3 +59,5 @@ def run_trajectories_parallel(env):
         # wait for all processes to complete
         for process in processes:
             process.join()
+    
+    return stored_matrix
