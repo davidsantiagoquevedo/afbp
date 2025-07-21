@@ -11,7 +11,7 @@ start_time = time.time()
 # alphas = [0.1, 0.3, 0.5, 0.7, 0.9, 1]
 alphas = [0.3, 0.5, 1]
 # H = 0.1
-realizations = 1000
+realizations = 800
 Tf = 10
 h = 1e-2
 run = False
@@ -20,13 +20,14 @@ envs=[]
 
 for alpha in alphas:    
     
-    H = (2-alpha)/2 
+    H = (2-alpha)/2
     
     env = angular_fbm(realizations=realizations, alpha=alpha, H=H, Tf=Tf, h=h)
     
     if run:
         print("----Running for alpha", env.alpha)
         env.phi_matrix = parallelization.run_trajectories_parallel(env)
+        #env.run()
         env.run_solution()
         env.compute_phi_correlation()
         

@@ -34,7 +34,7 @@ def run_trajectories_parallel(env):
     -------
     """
         
-    batch_size = 10
+    batch_size = 16
 
     # Initialize matrix
     init_matrix = np.zeros((env.realizations, env.n), dtype = np.float64)  

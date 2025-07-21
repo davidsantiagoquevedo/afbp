@@ -36,7 +36,9 @@ def plot_msd(ax, msd, delta_t, alpha, H, variable):
     ax.plot(time, msd, **msd_style[f'{variable}'])
     # ax.loglog(time, msd, lw=2, zorder=1, label=fr'$\alpha$={alpha}')
     # print((gamma(2*H)**2/(2*H*(gamma(H+1/2)**2))))
-    ax.plot(time, ((gamma(2*H)**2)/(2*H*(gamma(H+1/2)**2)))*time**(alpha), c='red', zorder=1)
+    msd_anl = ((gamma(2*H)**2)/(H*(gamma(H+1/2)**2)))*time**(alpha)
+    msd_anl = (2/gamma(alpha+1))*time**(alpha)
+    ax.plot(time, msd_anl, c='red', zorder=1)
 
     ax.set_xlabel('t', fontsize = axis_fontsize)
     ax.tick_params(axis='both', labelsize=size_ticks)

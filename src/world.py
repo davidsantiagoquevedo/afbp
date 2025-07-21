@@ -35,9 +35,9 @@ class angular_fbm():
         
         # Noise amplitude
         if self.alpha == 1:
-            self.A_H = 1
+            self.A_H = np.sqrt(2)
         else:
-            self.A_H = 1#1/np.sqrt(H*(2*H-1)*gamma(2*H-1))
+            self.A_H = 1/np.sqrt(H*(2*H-1)*gamma(2*H-1))
         
         # Initialize matrices
         self.phi_matrix = np.full(self.n, self.phi0)
@@ -78,7 +78,7 @@ class angular_fbm():
             
             # Update rule
             coeff_noise = ((self.h)**(self.alpha)) * (gamma(2-self.alpha))
-            r_trajectory[time] = r_trajectory[time-1] + coeff_noise*self.dB_H[time] - sum_term
+            r_trajectory[time] = r_trajectory[time-1] + coeff_noise*self.dB[time] - sum_term
             
         return r_trajectory
 
@@ -97,7 +97,7 @@ class angular_fbm():
     def trajectory_solution(self):
         self.make_B_H()
         # print(self.B_H)
-        return convolution(self.relaxation, self.dB_H, np.linspace(0, self.Tf, self.n))
+        return convolution(self.relaxation, self.dB, np.linspace(0, self.Tf, self.n))
                 
     def run_solution(self):
         
