@@ -59,12 +59,12 @@ class angular_fbm():
         
     def cnj(self, k):
         return (k+1)**(1-self.alpha) - k**(1-self.alpha)
-    
+        
     def trajectory(self):
         
         np.random.seed()
           
-        self.make_B_H()
+        #self.make_B_H()
         
         # Loop over timesteps
         r_trajectory = np.zeros(self.n)
@@ -92,17 +92,17 @@ class angular_fbm():
     def relaxation(self, t):
         coeff = 1/gamma(self.alpha)
         result = coeff * (t**(self.alpha-1))
-        return np.where(np.isinf(result), 0, result)
+        return result #np.where(np.isinf(result), 0, result)
 
     def trajectory_solution(self):
-        self.make_B_H()
+        # self.make_B_H()
         # print(self.B_H)
-        return convolution(self.relaxation, self.dB, np.linspace(0, self.Tf, self.n))
+        return convolution(self.relaxation, self.dB, self.t)
                 
     def run_solution(self):
         
         for _ in tqdm(range(self.realizations)):
-
+            self.make_B_H()
             r_trajectory = self.trajectory_solution()
 
             self.phi_matrix_solution = np.vstack((self.phi_matrix_solution, r_trajectory))
