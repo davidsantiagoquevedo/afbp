@@ -1,5 +1,6 @@
 import types
 import numpy as np
+from scipy.special import gamma
 
 def convolution(f, g, t):
     """Computes the convolution between an analytical function f(x) and a secondary function
@@ -24,8 +25,39 @@ def convolution(f, g, t):
         dt = t[1] - t[0]
         g_eval_i = g_eval[:i+1] # subset of g(t)
         t_i = t[:i+1] # subset of the time vector
-        f_eval = f(t[i] - t_i)
+
+        s = t[i] - t_i
+        s[i] = 1e-4 if s[i] == 0 else s[0]
+
+        f_eval = f(s)
         integrand = f_eval * g_eval_i
         conv[i] = np.trapz(integrand, dx = dt)
             
+    return conv
+
+def convolution_by_parts(relax_primitive, d2BH, dBH, t):
+
+    conv_bparts = np.zeros(len(t))
+    term2 = convolution(relax_primitive, d2BH, t)
+    for i in range(len(t)):
+
+        term1 = dBH[0] * relax_primitive(t[i])
+
+        conv_bparts[i] = term1 + term2[i]
+            
+    return conv_bparts
+
+def convolution_weights(dBH, t, alpha):
+    dt = t[1] - t[0]
+    N = len(t)
+    conv = np.zeros(N)
+
+    weights = np.array([
+        ((k+1)**alpha - k**alpha) for k in range(N)
+    ]) * (dt**alpha / gamma(alpha + 1))
+
+
+    for n in range(N):
+        conv[n] = np.sum(weights[:n+1][::-1] * dBH[:n+1])
+
     return conv

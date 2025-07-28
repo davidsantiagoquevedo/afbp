@@ -6,7 +6,7 @@ from fbm import FBM
 import os
 import pickle
 from tqdm import tqdm
-from integration import convolution
+from integration import *
 
 class angular_fbm():
 
@@ -52,10 +52,15 @@ class angular_fbm():
 
         self.B_H = f.fbm()
         self.dB_H = self.n/self.Tf*np.diff(self.B_H)
+        self.d2B_H = self.n/self.Tf*np.diff(self.dB_H)
+
         self.t_BH = f.times()
         self.t = self.t_BH[:self.n]
+        self.t_d2BH = self.t_BH[:(self.n-1)]
+
         self.B = self.A_H*self.B_H
         self.dB = self.A_H*self.dB_H
+        self.d2B = self.A_H*self.d2B_H
         
     def cnj(self, k):
         return (k+1)**(1-self.alpha) - k**(1-self.alpha)
@@ -94,10 +99,18 @@ class angular_fbm():
         result = coeff * (t**(self.alpha-1))
         return result #np.where(np.isinf(result), 0, result)
 
+    def relaxation_primitive(self, t):
+        coeff = 1/(self.alpha*gamma(self.alpha))
+        result = coeff * (t**(self.alpha))
+        return result 
+
     def trajectory_solution(self):
         # self.make_B_H()
         # print(self.B_H)
-        return convolution(self.relaxation, self.dB, self.t)
+        # return convolution(self.relaxation, self.dB, self.t)
+        # return convolution_by_parts(self.relaxation_primitive, self.d2B, self.dB, self.t_d2BH)
+        return convolution_weights(self.dB, self.t, self.alpha)
+
                 
     def run_solution(self):
         
