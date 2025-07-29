@@ -1,20 +1,20 @@
+import sys
+sys.path.append("src/")
 from world import *
 import matplotlib.pyplot as plt
 import plotting
 import time
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
-import parallelization
 
 start_time = time.time()
 
-# alphas = [0.1, 0.3, 0.5, 0.7, 0.9, 1]
-alphas = [0.3, 0.5, 1]
+alphas = [0.5]
 # H = 0.1
-realizations = 800
+realizations = 1200
+set_index = "001"
 Tf = 10
-h = 1e-2
-run = False
+h = 0.05
 envs=[]
 
 
@@ -22,26 +22,18 @@ for alpha in alphas:
     
     H = (2-alpha)/2
     
-    env = angular_fbm(realizations=realizations, alpha=alpha, H=H, Tf=Tf, h=h)
+    env = angular_fbm(realizations=realizations, set_index=set_index, alpha=alpha, H=H, Tf=Tf, h=h)
     
-    if run:
-        print("----Running for alpha", env.alpha)
-        env.phi_matrix = parallelization.run_trajectories_parallel(env)
-        #env.run()
-        env.run_solution()
-        env.compute_phi_correlation()
-        
-        env.save(folder="data")
-        
-    else:
-        filepath = (
-            f"data/r_{env.realizations}_"
-            f"alpha_{env.alpha}_"
-            f"H_{env.H}_"
-            f"Tf_{env.Tf}_"
-            f"h_{env.h}.pkl"
-        )
-        env = angular_fbm.load(filepath)
+    filepath = (
+        f"data/r_{env.realizations}_"
+        f"alpha_{env.alpha}_"
+        f"H_{env.H}_"
+        f"Tf_{env.Tf}_"
+        f"h_{env.h}_"
+        f"set_{set_index}.pkl"
+    )
+    env = angular_fbm.load(filepath)
+    env.compute_phi_correlation()
     
     envs.append(env)
 # print(env.phi_corr_sol)
