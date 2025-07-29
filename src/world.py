@@ -12,6 +12,7 @@ class angular_fbm():
 
     def __init__(self, 
                  realizations,
+                 set_index,
                  alpha,
                  H,
                  Tf = 1, 
@@ -22,6 +23,7 @@ class angular_fbm():
         
         # Parameters in
         self.realizations = realizations
+        self.set_index = set_index
         self.alpha = alpha
         self.H = H
         self.Tf = Tf
@@ -159,7 +161,8 @@ class angular_fbm():
             f"alpha_{self.alpha}_"
             f"H_{self.H}_"
             f"Tf_{self.Tf}_"
-            f"h_{self.h}.pkl"
+            f"h_{self.h}"
+            f"set_{self.set_index}.pkl"
         )
         
         filepath = os.path.join(folder, filename)
