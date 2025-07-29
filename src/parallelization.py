@@ -3,7 +3,11 @@ import multiprocessing as mp
 from tqdm import tqdm
 
 def single_trajectory_helper(env, p, stored_matrix, lock):
+    """
+    Function that runs a single trajectory
 
+    """
+    env.make_B_H()
     r_trajectory = env.trajectory()
 
     with lock:
@@ -19,7 +23,7 @@ def to_numpy_array(shared_array, shape):
     array = np.ctypeslib.as_array(shared_array)
     return array.reshape(shape)
 
-def run_trajectories_parallel(env):
+def run_trajectories_parallel(env, batch_size = 12):
     """
     Parallely runs independent Brownian trajectories.
     
@@ -27,14 +31,11 @@ def run_trajectories_parallel(env):
     ----------
     env : env
         Environment class that defines the type of motion and paramteters
-    compute_single_trajectory : func
-        Function that runs a single trajectory
-
+    batch_size : int 
+        Number of nodes for paralell running 
     Returns
     -------
     """
-        
-    batch_size = 16
 
     # Initialize matrix
     init_matrix = np.zeros((env.realizations, env.n), dtype = np.float64)  
