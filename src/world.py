@@ -161,7 +161,7 @@ class angular_fbm():
             f"alpha_{self.alpha}_"
             f"H_{self.H}_"
             f"Tf_{self.Tf}_"
-            f"h_{self.h}"
+            f"h_{self.h}_"
             f"set_{self.set_index}.pkl"
         )
         
