@@ -65,12 +65,7 @@ class angular_fbm():
     def cnj(self, k):
         return (k+1)**(1-self.alpha) - k**(1-self.alpha)
         
-    def trajectory(self):
-        
-        np.random.seed()
-          
-        #self.make_B_H()
-        
+    def trajectory(self):       
         # Loop over timesteps
         r_trajectory = np.zeros(self.n)
         for time in range(1, self.n):
@@ -89,7 +84,8 @@ class angular_fbm():
 
     def run(self):
             for r in tqdm(range(self.realizations)):
-
+                np.random.seed()
+                self.make_B_H()
                 r_trajectory = self.trajectory()
 
                 self.phi_matrix = np.vstack((self.phi_matrix, r_trajectory))
