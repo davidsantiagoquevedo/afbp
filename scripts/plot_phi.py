@@ -61,6 +61,13 @@ for alpha_index in range(len(alphas)):
     plt.savefig(f"plots/phivar_r_{env.realizations}_Tf_{Tf}_h_{h}.png", dpi=100)
 
     fig, ax = plt.subplots()
+    plotting.plot_mean(ax, env.mean, env.h, 'phi')
+    plotting.plot_mean(ax, env.mean_sol, env.h, 'phi_sol')
+    fig.tight_layout()
+    plt.savefig(f"plots/phimean_r_{env.realizations}_Tf_{Tf}_h_{h}.png", dpi=100)
+
+
+    fig, ax = plt.subplots()
     plotting.plot_pdf(ax, env.phi_matrix, time = int(Tf/(4*h)), h = h, H = H, alpha = alpha)
     plotting.plot_pdf(ax, env.phi_matrix, time = int(Tf/(2*h)), h = h, H = H, alpha = alpha)
     plotting.plot_pdf(ax, env.phi_matrix, time = 199, h = h, H = H, alpha = alpha)

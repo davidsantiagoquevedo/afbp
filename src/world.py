@@ -47,6 +47,7 @@ class angular_fbm():
         self.phi_corr = None
         self.phi_corr_sol = None
         self.mean = None
+        self.mean_sol = None
         self.variance = None
         self.variance_sol = None
 
@@ -123,6 +124,7 @@ class angular_fbm():
     def compute_mean(self):
         
         self.mean = np.mean(self.phi_matrix, axis=0)
+        self.mean_sol = np.mean(self.phi_matrix_solution, axis=0)
      
     def compute_variance(self):
         

@@ -5,13 +5,14 @@ import matplotlib.pyplot as plt
 import plotting
 import data_analysis
 
-alpha = 0.5
+alpha = 0.9
 realizations = 1200
 Tf = 10
 h = 0.05
 sets = 10
-fit_points = 10
+# fit_points = 10
 num_bins = 40
+n = int(Tf/h)
 
 # Mean and variance from trajectories
 for set_index in range(sets):
@@ -39,32 +40,37 @@ for set_index in range(sets):
 env_multiset.compute_mean()
 env_multiset.compute_variance()
 
-mean = np.zeros(fit_points-1)
-mean_fit = np.zeros(fit_points-1)
-variance = np.zeros(fit_points-1)
-variance_fit = np.zeros(fit_points-1)
-time_period = int((Tf/h)/fit_points)
-for fit_point in range(fit_points-1):
+mean = np.zeros(n)
+mean_fit = np.zeros(n)
+variance = np.zeros(n)
+variance_fit = np.zeros(n)
+# time_period = int((Tf/h)/fit_points)
+for fit_point in range(n):
     
-    time_index = fit_point*time_period + 1
-    mean[fit_point] = env_multiset.mean[time_index]
-    variance[fit_point] = env_multiset.variance[time_index]
+    # time_index = fit_point*time_period + 1
+    mean[fit_point] = env_multiset.mean[fit_point]
+    variance[fit_point] = env_multiset.variance[fit_point]
     
-    trajectories_points = env_multiset.phi_matrix[:, time_index]
+    trajectories_points = env_multiset.phi_matrix[:, fit_point]
     coeff = data_analysis.gauss_fit(trajectories_points, num_bins)
     coeff = coeff[0]
-    mean_fit[fit_point] = coeff[1]
-    variance_fit[fit_point] = coeff[2]
-    
-t = np.arange((fit_points-1))
+    mean_fit[fit_point] = 0
+    variance_fit[fit_point] = (coeff[1])**2
+  
+t = np.arange(n)*h  
 fig, ax = plt.subplots()
 ax.plot(t, mean, label = "sim")
 ax.plot(t, mean_fit, ls=":", label = "fit")
 fig.legend()
 fig.savefig("plots/tests/pdf_fit_mean.png", dpi=500)
 
+def var_analytics(time, alpha):
+    return (2*(time**alpha))/gamma(alpha+1)
+
 fig, ax = plt.subplots()
 ax.plot(t, variance, marker='o', ls=":", label = "sim")
 ax.plot(t, variance_fit,  marker='*', markersize=10, ls=":", label = "fit")
+variance_analyt = var_analytics(t, alpha)
+ax.plot(t, variance_analyt, ls=":", label = "analytics")
 fig.legend()
 fig.savefig("plots/tests/pdf_fit_variance.png", dpi=500)
