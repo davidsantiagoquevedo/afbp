@@ -46,6 +46,9 @@ class angular_fbm():
         self.phi_matrix_solution = np.full(self.n, self.phi0)
         self.phi_corr = None
         self.phi_corr_sol = None
+        self.mean = None
+        self.variance = None
+        self.variance_sol = None
 
     def make_B_H(self, method = 'daviesharte'):
         np.random.seed()
@@ -108,7 +111,6 @@ class angular_fbm():
         # return convolution(self.relaxation, self.dB, self.t)
         # return convolution_by_parts(self.relaxation_primitive, self.d2B, self.dB, self.t_d2BH)
         return convolution_weights(self.dB, self.t, self.alpha)
-
                 
     def run_solution(self):
         
@@ -117,6 +119,15 @@ class angular_fbm():
             r_trajectory = self.trajectory_solution()
 
             self.phi_matrix_solution = np.vstack((self.phi_matrix_solution, r_trajectory))
+           
+    def compute_mean(self):
+        
+        self.mean = np.mean(self.phi_matrix, axis=0)
+     
+    def compute_variance(self):
+        
+        self.variance = np.var(self.phi_matrix, axis=0)
+        self.variance_sol = np.var(self.phi_matrix_solution, axis=0)
             
     def compute_phi_correlation(self):
         
@@ -135,9 +146,9 @@ class angular_fbm():
         #     print(self.phi_matrix)
         #     self.run()
             
-        print(self.phi_matrix.shape)
+        # print(self.phi_matrix.shape)
         self.phi_corr = np.mean((self.phi_matrix - self.phi0)**2, axis=0)
-        print(self.phi_corr.shape)
+        # print(self.phi_corr.shape)
         self.phi_corr_sol = np.mean((self.phi_matrix_solution - self.phi0)**2, axis=0)
 
     def compute_pdf(self, time, bins=150):
