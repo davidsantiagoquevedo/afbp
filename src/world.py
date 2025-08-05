@@ -1,7 +1,6 @@
 import numpy as np
 from scipy.special import gamma
 import pandas as pd
-import mittag_leffler as ml
 from fbm import FBM
 import os
 import pickle
