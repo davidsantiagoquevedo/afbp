@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "scripts/run_phi.py", line 3, in <module>
+    from world import *
+  File "src/world.py", line 1, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
