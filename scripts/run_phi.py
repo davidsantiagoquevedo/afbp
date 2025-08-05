@@ -7,13 +7,13 @@ import parallelization
 start_time = time.time()
 
 # alphas = [0.1, 0.3, 0.5, 0.7, 0.9, 1]
-alphas = [0.9]#0.3, 0.5, 0.7, 1]
+alphas = [0.5]#0.3, 0.5, 0.7, 1]
 # H = 0.1
 realizations = 1200
-sets = 10
+sets = 15
 # set_index = "010"
 Tf = 10
-h = 0.05
+h = 0.005
 envs=[]
 
 

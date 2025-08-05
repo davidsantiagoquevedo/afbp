@@ -7,11 +7,11 @@ import time
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 
-alphas = [0.9]
+alphas = [0.5]
 realizations = 1200
 Tf = 10
-h = 0.05
-sets = 10
+h = 0.005
+sets = 15
 envs = []
 
 for alpha_index, alpha in enumerate(alphas):    
@@ -32,7 +32,7 @@ for alpha_index, alpha in enumerate(alphas):
             f"set_{set_label}.pkl"
         )
         env = angular_fbm.load(filepath)
-        print(env.phi_matrix.shape)
+        
         if set_index==1:
             env_multiset = env
         else:
@@ -42,34 +42,43 @@ for alpha_index, alpha in enumerate(alphas):
     env_multiset.compute_phi_correlation()
     env_multiset.compute_mean()
     env_multiset.compute_variance()
-    print(len(env_multiset.mean))
         
     envs.append(env_multiset)
-        
+
+
+"""
+PLOTTING
+msd, mean and variance are plotted in the same figure for different value of alpha while a figure is created for each alpha containing its pdf at three different times.
+"""
+fig1, ax1 = plt.subplots()
+fig2, ax2 = plt.subplots()
+fig3, ax3 = plt.subplots()
 for alpha_index in range(len(alphas)):
-    fig, ax = plt.subplots()
     env = envs[alpha_index]
-    plotting.plot_msd(ax, env.phi_corr, env.h, env.alpha, env.H, 'phi')
-    plotting.plot_msd(ax, env.phi_corr_sol, env.h, env.alpha, env.H, 'phi_sol')
-    fig.tight_layout()
-    plt.savefig(f"plots/phicorr_r_{env.realizations}_Tf_{Tf}_h_{h}.png", dpi=100)
 
-    fig, ax = plt.subplots()
-    plotting.plot_var(ax, env.variance, env.h, 'phi')
-    plotting.plot_var(ax, env.variance_sol, env.h, 'phi_sol')
-    fig.tight_layout()
-    plt.savefig(f"plots/phivar_r_{env.realizations}_Tf_{Tf}_h_{h}.png", dpi=100)
+    plotting.plot_msd(ax1, env, 'phi')
+    plotting.plot_msd(ax1, env, 'phi_sol')
+    plotting.plot_msd(ax1, env, 'an')
 
-    fig, ax = plt.subplots()
-    plotting.plot_mean(ax, env.mean, env.h, 'phi')
-    plotting.plot_mean(ax, env.mean_sol, env.h, 'phi_sol')
-    fig.tight_layout()
-    plt.savefig(f"plots/phimean_r_{env.realizations}_Tf_{Tf}_h_{h}.png", dpi=100)
+    plotting.plot_moment(ax2, env, 'phi', 'var')
+    plotting.plot_moment(ax2, env, 'phi_sol', 'var')
+    plotting.plot_moment(ax2, env, 'an', 'var')
+    plotting.plot_moment(ax2, env, 'fit', 'var')
 
+    plotting.plot_moment(ax3, env, 'phi', 'mean')
+    plotting.plot_moment(ax3, env, 'phi_sol', 'mean')
+    plotting.plot_moment(ax3, env, 'an', 'mean')
 
-    fig, ax = plt.subplots()
-    plotting.plot_pdf(ax, env.phi_matrix, time = int(Tf/(4*h)), h = h, H = H, alpha = alpha)
-    plotting.plot_pdf(ax, env.phi_matrix, time = int(Tf/(2*h)), h = h, H = H, alpha = alpha)
-    plotting.plot_pdf(ax, env.phi_matrix, time = 199, h = h, H = H, alpha = alpha)
-    fig.tight_layout()
-    plt.savefig(f"plots/phipdf_r_{env.realizations}_Tf_{Tf}_h_{h}_alpha_{alpha}.png", dpi=100)
+    fig4, ax4 = plt.subplots()
+    plotting.plot_pdf(ax4, env, time = int(Tf/(4*h)))
+    plotting.plot_pdf(ax4, env, time = int(Tf/(2*h)))
+    plotting.plot_pdf(ax4, env, time = int((Tf/h)-1))
+    fig4.tight_layout()
+    fig4.savefig(f"plots/pdf/phipdf_r_{env.realizations}_Tf_{Tf}_h_{h}_alpha_{env.alpha}.png", dpi=100)
+
+fig1.tight_layout()
+fig1.savefig(f"plots/msd/phicorr_r_{env.realizations}_Tf_{Tf}_h_{h}.png", dpi=100)
+fig2.tight_layout()
+fig2.savefig(f"plots/var/phivar_r_{env.realizations}_Tf_{Tf}_h_{h}.png", dpi=100)
+fig3.tight_layout()
+fig3.savefig(f"plots/mean/phimean_r_{env.realizations}_Tf_{Tf}_h_{h}.png", dpi=100)

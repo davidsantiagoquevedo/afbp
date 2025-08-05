@@ -48,8 +48,8 @@ class angular_fbm():
         self.phi_corr_sol = None
         self.mean = None
         self.mean_sol = None
-        self.variance = None
-        self.variance_sol = None
+        self.var = None
+        self.var_sol = None
 
     def make_B_H(self, method = 'daviesharte'):
         np.random.seed()
@@ -128,8 +128,8 @@ class angular_fbm():
      
     def compute_variance(self):
         
-        self.variance = np.var(self.phi_matrix, axis=0)
-        self.variance_sol = np.var(self.phi_matrix_solution, axis=0)
+        self.var = np.var(self.phi_matrix, axis=0)
+        self.var_sol = np.var(self.phi_matrix_solution, axis=0)
             
     def compute_phi_correlation(self):
         
