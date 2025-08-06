@@ -8,10 +8,10 @@ import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 
 alphas = [0.5]
-realizations = 1200
+realizations = 3000
 Tf = 10
-h = 0.005
-sets = 15
+h = 0.0005
+sets = 2
 envs = []
 
 for alpha_index, alpha in enumerate(alphas):    

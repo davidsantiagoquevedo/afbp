@@ -3,23 +3,30 @@ sys.path.append("src/")
 from world import *
 import time
 import parallelization
+import argparse
 
 start_time = time.time()
 
-# alphas = [0.1, 0.3, 0.5, 0.7, 0.9, 1]
-alphas = [0.5]#0.3, 0.5, 0.7, 1]
-# H = 0.1
-realizations = 1200
-sets = 15
-# set_index = "010"
-Tf = 10
-h = 0.05
+parser = argparse.ArgumentParser()
+parser.add_argument("--alpha", nargs='+', type=float, default=0.5, help="Alpha value")
+parser.add_argument("--sets", type=int, default=5, help="Number of sets")
+parser.add_argument("--realizations", type=int, default=1200, help="Number of realizations")
+parser.add_argument("--Tf", type=float, default=10, help="Tf value")
+parser.add_argument("--h", type=float, default=0.05, help="h value")
+args = parser.parse_args()
+
+start_time = time.time()
+
+alphas = args.alpha
+sets = args.sets
+realizations = args.realizations
+Tf = args.Tf
+h = args.h
+
 envs=[]
-
-
 for alpha in alphas:    
         
-    print("----Running for alpha", env.alpha)
+    print("----Running for alpha", alpha)
 
     H = (2-alpha)/2
     for set_index in range(sets):
@@ -29,7 +36,7 @@ for alpha in alphas:
         set_index += 1
         env = angular_fbm(realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h)
         
-        env.phi_matrix = parallelization.run_trajectories_parallel(env, batch_size=12)
+        env.phi_matrix = parallelization.run_trajectories_parallel(env, batch_size=30)
         env.run_solution()
         
         env.save(folder="data")
