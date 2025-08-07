@@ -7,8 +7,8 @@ marker_size = 10
 
 msd_style = {
     'phi': dict(lw=2, label = 'sim'),  
-    'phi_sol': dict(lw=2, ls=':', label = 'sol'),  
-    'an': dict(lw=2, label = 'analytic'),  
+    'phi_sol': dict(lw=2, label = 'sol'),  
+    'an': dict(lw=3, label = 'analytic', color = 'black', ls=':'),  
     'fit': dict(lw=2, marker = 'o', label = 'fit')  
 }
 
@@ -51,10 +51,14 @@ def phi_var(time, alpha):
 # def phi_var(time):
 
 # Plotting
-def plot_msd(ax, env, variable):
+def plot_msd(ax, env, variable, label_an = True):
 
     style = msd_style[variable].copy()
-    style['label'] = rf"{style['label']} $\alpha=${env.alpha}"
+
+    if variable == 'an':
+        style['label'] = style['label'] if label_an else None
+    else:
+        style['label'] = rf"{style['label']} $\alpha=${env.alpha}"
 
     if variable == 'phi':
         msd = env.phi_corr
@@ -72,7 +76,7 @@ def plot_msd(ax, env, variable):
     ax.tick_params(axis='both', labelsize=size_ticks)
     ax.set_ylabel(r'MSD$\langle (\phi(t)-\phi_0)^2 \rangle$', fontsize = axis_fontsize)
     ax.grid(':')
-    ax.legend(fontsize = legend_size)
+    ax.legend(fontsize = legend_size, bbox_to_anchor=(1, 1))
 
 def plot_moment(ax, env, variable, mom_type):
 
