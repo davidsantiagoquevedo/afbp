@@ -43,6 +43,9 @@ def phi_msd(time, alpha):
     # msd_anl = ((gamma(2*H)**2)/(H*(gamma(H+1/2)**2)))*time**(alpha)
     return (2/gamma(alpha+1))*time**(alpha)
 
+def phi_fBm_msd(time, H):
+    return (1/(2*H*(gamma(H+1/2)**2)))*(time**(2*H))
+
 def phi_mean(time):
     return np.zeros(len(time))
 def phi_var(time, alpha):
@@ -58,7 +61,7 @@ def plot_msd(ax, env, variable, label_an = True):
     if variable == 'an':
         style['label'] = style['label'] if label_an else None
     else:
-        style['label'] = rf"{style['label']} $\alpha=${env.alpha}"
+        style['label'] = rf"{style['label']} $\alpha=${env.alpha} $H=${env.H}"
 
     if variable == 'phi':
         msd = env.phi_corr
@@ -66,6 +69,9 @@ def plot_msd(ax, env, variable, label_an = True):
     elif variable == 'phi_sol':
         msd = env.phi_corr_sol
         time = np.arange(0,len(msd))*env.h
+    elif variable == 'an' and env.alpha == 1:
+        time = np.arange(0, env.n)*env.h
+        msd = phi_fBm_msd(time, env.H)
     else:
         time = np.arange(0, env.n)*env.h
         msd = phi_msd(time, env.alpha)

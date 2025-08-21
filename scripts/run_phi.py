@@ -9,8 +9,9 @@ start_time = time.time()
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--alpha", nargs='+', type=float, default=0.5, help="Alpha value")
-parser.add_argument("--sets", type=int, default=5, help="Number of sets")
+parser.add_argument("--H", nargs='+', type=float, default=0.5, help="H value")
 parser.add_argument("--realizations", type=int, default=1200, help="Number of realizations")
+parser.add_argument("--sets", type=int, default=1, help="Number of sets")
 parser.add_argument("--Tf", type=float, default=10, help="Tf value")
 parser.add_argument("--h", type=float, default=0.05, help="h value")
 args = parser.parse_args()
@@ -18,28 +19,30 @@ args = parser.parse_args()
 start_time = time.time()
 
 alphas = args.alpha
-sets = args.sets
+Hs = args.H
 realizations = args.realizations
+sets = args.sets
 Tf = args.Tf
 h = args.h
 
 envs=[]
 for alpha in alphas:    
+    for H in Hs:
         
-    print("----Running for alpha", alpha)
+        print("----Running for alpha", alpha, "H", H)
 
-    H = (2-alpha)/2
-    for set_index in range(sets):
+        # H = (2-alpha)/2
+        for set_index in range(sets):
 
-        print("--Running for set", set_index)
-        set_label = str(set_index+1).zfill(3)
-        set_index += 1
-        env = angular_fbm(realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h)
-        
-        env.phi_matrix = parallelization.run_trajectories_parallel(env, batch_size=30)
-        env.run_solution()
-        
-        env.save(folder="data")
+            print("--Running for set", set_index)
+            set_label = str(set_index+1).zfill(3)
+            set_index += 1
+            env = angular_fbm(realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h)
+            
+            env.phi_matrix = parallelization.run_trajectories_parallel(env, batch_size=10)
+            env.run_solution()
+            
+            env.save(folder="data")
 
 end_time = time.time()
 elapsed_time = end_time - start_time

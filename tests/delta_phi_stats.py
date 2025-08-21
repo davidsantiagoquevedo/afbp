@@ -8,7 +8,7 @@ from scipy.special import gamma
 alphas = [0.5]
 realizations = 3000
 Tf = 10
-h = 0.05
+h = 0.0005
 sets = 1
 kBT = 1
 
@@ -24,9 +24,10 @@ time = np.arange(0, len(var_ref))*h
 # analytics = np.abs(time-t_ref_index)**(alphas[0])
 # analytics = (kBT/np.pi)*(1/np.tan(alphas[0]*np.pi/2))*(gamma(1-alphas[0])/alphas[0])*np.abs(time-t_ref)**(alphas[0])/2
 # analytics = (kBT)*(1/np.tan(alphas[0]*np.pi/2))*(gamma(1-alphas[0])/alphas[0])*np.abs(time-t_ref)**(alphas[0])
-analytics = -(kBT/np.pi)*(1/np.tan(alphas[0]*np.pi/2))*(gamma(-alphas[0]))*np.abs(time-t_ref)**(alphas[0])
+# analytics = -(kBT/np.pi)*(1/np.tan(alphas[0]*np.pi/2))*(gamma(-alphas[0]))*np.abs(time-t_ref)**(alphas[0])
+analytics = (2*kBT/(gamma(alphas[0]+1)))*np.abs(time-t_ref)**(alphas[0])
 
-print(np.max(analytics)/np.max(var_ref))
+# print(np.max(analytics)/np.max(var_ref))
 
 fig, ax = plt.subplots()
 ax.plot(time, var_ref, label = 'sim')
