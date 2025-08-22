@@ -39,15 +39,25 @@ def phi_propagator_ansatz(phi, time, alpha, phi0=0):
     
     return factor*np.exp(argument)
 
+def phi_fBm_propagator_ansatz(phi, time, H, phi0=0):
+    
+    factor = np.sqrt( 1 / (2*np.pi*(time**(2*H))) )
+    
+    argument = - ((phi - phi0)**2) / (2*time**(2*H))
+    
+    return factor*np.exp(argument)
+
 def phi_msd(time, alpha):
     # msd_anl = ((gamma(2*H)**2)/(H*(gamma(H+1/2)**2)))*time**(alpha)
     return (2/gamma(alpha+1))*time**(alpha)
 
 def phi_fBm_msd(time, H):
-    return (1/(2*H*(gamma(H+1/2)**2)))*(time**(2*H))
+    # return (1/(2*H*(gamma(H+1/2)**2)))*(time**(2*H))
+    return (time**(2*H))
 
 def phi_mean(time):
     return np.zeros(len(time))
+
 def phi_var(time, alpha):
     return (2*(time**alpha))/gamma(alpha+1)
 
@@ -157,7 +167,8 @@ def plot_pdf(ax, env, time):
 
     # Ansatz
     phi_range = np.arange(np.min(trajectories_points), np.max(trajectories_points), 1e-3)
-    propagator = phi_propagator_ansatz(phi_range, time*env.h, env.alpha)
+    # propagator = phi_propagator_ansatz(phi_range, time*env.h, env.alpha)
+    propagator = phi_fBm_propagator_ansatz(phi_range, time*env.h, env.H)
     label = None
     if time == int(env.Tf/(4*env.h)):
         label = 'ansatz'
@@ -174,8 +185,8 @@ def plot_pdf(ax, env, time):
     hist_fit = data_analysis.gauss(bin_centres, *coeff) 
 
     ax.bar(bin_centres, hist, width=bin_edges[1] - bin_edges[0], alpha=0.5, zorder=0)
-    ax.plot(bin_centres, hist_fit, lw=2, label=f'{time}', zorder=1)
+    ax.plot(bin_centres, hist_fit, lw=2, label=f'{time*env.h}', zorder=1)
     
-    ax.set_title(rf'$\alpha=${env.alpha}')
+    ax.set_title(rf'$\alpha=${env.alpha}, $H=${env.H}')
     ax.legend(fontsize = legend_size)
 

@@ -18,6 +18,7 @@ envs = utilities.read_envs(alphas, sets, Tf, h, realizations)
 PLOTTING
 msd, mean and variance are plotted in the same figure for different value of alpha while a figure is created for each alpha containing its pdf at three different times.
 """
+
 fig1, ax1 = plt.subplots(figsize=(12,9))
 fig2, ax2 = plt.subplots()
 fig3, ax3 = plt.subplots()
