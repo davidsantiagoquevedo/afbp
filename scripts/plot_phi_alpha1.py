@@ -7,7 +7,7 @@ import utilities
 
 alphas = [1.]
 # H = None
-Hs = [0.3,  0.7]
+Hs = [0.3, 0.5, 0.7]
 realizations = 1000
 Tf = 10.
 h = 0.01
@@ -49,7 +49,7 @@ for alpha_index, alpha in enumerate(alphas):
         fig4, ax4 = plt.subplots()
         plotting.plot_pdf(ax4, env, time = int(Tf/(4*h)))
         plotting.plot_pdf(ax4, env, time = int(Tf/(2*h)))
-        plotting.plot_pdf(ax4, env, time = int((Tf/h)-1))
+        #plotting.plot_pdf(ax4, env, time = int((Tf/h)-1))
         fig4.tight_layout()
         fig4.savefig(f"plots/pdf/phipdf_r_{env.realizations}_Tf_{Tf}_h_{h}_alpha_{env.alpha}_H_{env.H}.png", dpi=100)
 

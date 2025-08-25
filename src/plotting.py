@@ -47,6 +47,11 @@ def phi_fBm_propagator_ansatz(phi, time, H, phi0=0):
     
     return factor*np.exp(argument)
 
+def phi_fBm_propagator_calvo(phi, time, H, phi0=0):
+    
+    
+    return (np.sqrt(H/np.pi)) * (gamma(H+1/2)/(time**H)) * np.exp(-H*((gamma(H+1/2)*(phi-phi0)/(time**(H)))**2))
+
 def phi_msd(time, alpha):
     # msd_anl = ((gamma(2*H)**2)/(H*(gamma(H+1/2)**2)))*time**(alpha)
     return (2/gamma(alpha+1))*time**(alpha)
@@ -168,7 +173,8 @@ def plot_pdf(ax, env, time):
     # Ansatz
     phi_range = np.arange(np.min(trajectories_points), np.max(trajectories_points), 1e-3)
     # propagator = phi_propagator_ansatz(phi_range, time*env.h, env.alpha)
-    propagator = phi_fBm_propagator_ansatz(phi_range, time*env.h, env.H)
+    # propagator = phi_fBm_propagator_ansatz(phi_range, time*env.h, env.H)
+    propagator = phi_fBm_propagator_calvo(phi_range, time*env.h, env.H)
     label = None
     if time == int(env.Tf/(4*env.h)):
         label = 'ansatz'

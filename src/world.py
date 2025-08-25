@@ -37,7 +37,7 @@ class angular_fbm():
         # Noise amplitude
         if self.alpha == 1:
             self.A_H = 1#/np.sqrt(2)
-            self.A_H = 1/np.sqrt(H*(2*H-1)*gamma(2*H-1))
+            self.A_H = 1/(np.sqrt(2*H)*gamma(H+1/2))
 
         else:
             self.A_H = 1/np.sqrt(H*(2*H-1)*gamma(2*H-1))
