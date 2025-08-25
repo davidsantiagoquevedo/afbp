@@ -5,45 +5,44 @@ import time
 import parallelization
 import argparse
 
-start_time = time.time()
-
 parser = argparse.ArgumentParser()
-parser.add_argument("--alpha", nargs='+', type=float, default=0.5, help="Alpha value")
-parser.add_argument("--H", nargs='+', type=float, default=0.5, help="H value")
+parser.add_argument("--alpha", nargs='+', type=float, default=[0.5], help="Alpha value(s)")
+parser.add_argument("--H", nargs='+', type=float, default=None, help="H value(s). Required if alpha=1.")
 parser.add_argument("--realizations", type=int, default=1200, help="Number of realizations")
 parser.add_argument("--sets", type=int, default=1, help="Number of sets")
-parser.add_argument("--Tf", type=float, default=10, help="Tf value")
-parser.add_argument("--h", type=float, default=0.05, help="h value")
+parser.add_argument("--Tf", type=float, default=10, help="Final time Tf")
+parser.add_argument("--h", type=float, default=0.05, help="Step size h")
 args = parser.parse_args()
 
 start_time = time.time()
 
 alphas = args.alpha
 Hs = args.H
-realizations = args.realizations
-sets = args.sets
-Tf = args.Tf
-h = args.h
+realizations, sets, Tf, h = args.realizations, args.sets, args.Tf, args.h
 
-envs=[]
-for alpha in alphas:    
-    for H in Hs:
-        
-        print("----Running for alpha", alpha, "H", H)
+envs = []
+for alpha in alphas:
+    # Case 1: alpha == 1 : use provided H values
+    if alpha == 1:
+        if Hs is None:
+            raise ValueError("You must provide --H when alpha=1")
+        H_values = Hs
+    # Case 2: alpha != 1 : compute H automatically
+    else:
+        H_values = [(2 - alpha) / 2]
 
-        # H = (2-alpha)/2
-        for set_index in range(sets):
+    for H in H_values:
+        print(f"---- Running for alpha={alpha}, H={H}")
+        for set_index in range(1, sets+1):
+            print(f"-- Running set {set_index}")
+            set_label = str(set_index).zfill(3)
 
-            print("--Running for set", set_index)
-            set_label = str(set_index+1).zfill(3)
-            set_index += 1
-            env = angular_fbm(realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h)
-            
+            env = angular_fbm(realizations=realizations, set_index=set_label,
+                              alpha=alpha, H=H, Tf=Tf, h=h)
+
             env.phi_matrix = parallelization.run_trajectories_parallel(env, batch_size=10)
             env.run_solution()
-            
             env.save(folder="data")
 
-end_time = time.time()
-elapsed_time = end_time - start_time
-print(f"Elapsed time: {elapsed_time:.6f} seconds")
+elapsed_time = time.time() - start_time
+print(f"Elapsed time: {elapsed_time:.2f} seconds")
