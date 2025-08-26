@@ -60,5 +60,8 @@ def run_trajectories_parallel(env, batch_size = 12):
         # wait for all processes to complete
         for process in processes:
             process.join()
+
+        env.trajectories = stored_matrix
+        env.make_B_H()
     
-    return stored_matrix
+    return 

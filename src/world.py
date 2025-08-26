@@ -40,6 +40,7 @@ class FBMBase:
         if self.alpha == 1:
             self.A_H = 1#/np.sqrt(2)
             # self.A_H = 1/(np.sqrt(2*H)*gamma(H+1/2))
+
         else:
             self.A_H = 1/np.sqrt(H*(2*H-1)*gamma(2*H-1))
 
@@ -85,7 +86,6 @@ class FBMBase:
             self.trajectory_sol.append(traj)
         self.trajectory_sol = np.array(self.trajectory_sol)
            
-
     # --------- Stats --------- #
     def compute_msd(self):
         self.msd = np.mean((self.trajectories - self.trajectories[:, [0]])**2, axis=0)
@@ -165,26 +165,43 @@ class xFBM(FBMBase):
     ----------
 
     """
+    def __init__(self, phi_trajectories, **kwargs):
+        super().__init__(**kwargs) #since init defined, it doesn't inherit init from parent
+        self.phi_trajectories = phi_trajectories
+        
 
     # def msd_theory(self):
     #     return ???
 
-    def run_one(self):
-        # Loop over timesteps
+    def run_one(self, realization_index):
+        """
+        Compute one trajectory of x for a single realization.
+        """
         traj = np.zeros(self.n)
-        for time in range(1, self.n):
-            
-            # Sum term
-            sum_term = 0
-            for i in range(1, time):
-                
-                sum_term += self.cnj(time-i) * (traj[i]-traj[i-1])
-            
-            # Update rule
-            coeff_noise = ((self.h)**(self.alpha)) * (gamma(2-self.alpha))
-            traj[time] = traj[time-1] + coeff_noise*self.dB[time] - sum_term
         
+        for time in range(1, self.n):
+
+            sum_noise = 0
+            for i in range(1, time):
+                sum_noise += self.cnj(time - i) * (traj[i] - traj[i-1])
+            
+            sum_phi = 0
+            for i in range(1, time+1):
+                sum_phi += self.cnj(time - i) * np.cos(self.phi_trajectories[realization_index, i]) * self.h
+            
+            coeff_noise = (self.h**self.alpha) * gamma(2 - self.alpha)
+            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_noise + sum_phi
+
         return traj
+
+    def run(self):
+        """Run all realizations - OVERWRITITNG!"""
+        self.trajectories = []
+        for r in tqdm(range(self.realizations)):
+            self.make_B_H()
+            traj = self.run_one(r)
+            self.trajectories.append(traj)
+        self.trajectories = np.array(self.trajectories)
 
     def run_one_solution(self):
         return convolution_weights(self.dB, self.t, self.alpha)
