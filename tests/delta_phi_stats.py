@@ -29,3 +29,12 @@ fig, ax = plt.subplots()
 ax.plot(time, var_ref, label = 'sim')
 ax.plot(time, analytics, label='analy')
 fig.savefig(f"plots/tests/delta_phi_var.png", dpi=100)
+
+
+mean_cos_deltaphi =  np.mean(np.cos(matrix_ref), axis=0)
+analytics = np.exp(-var_ref/2)
+
+fig, ax = plt.subplots()
+ax.plot(time, mean_cos_deltaphi, label = 'sim')
+ax.plot(time, analytics, label='analy')
+fig.savefig(f"plots/tests/delta_cos_phi_var.png", dpi=100)
