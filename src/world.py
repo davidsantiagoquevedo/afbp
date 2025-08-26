@@ -156,5 +156,40 @@ class AngularFBM(FBMBase):
     def run_one_solution(self):
         return convolution_weights(self.dB, self.t, self.alpha)
 
+class xFBM(FBMBase):
+        
+    """
+    This class extends the general `FBMBase` class to solve x equation·
+
+    Parameters
+    ----------
+
+    """
+
+    # def msd_theory(self):
+    #     return ???
+
+    def run_one(self):
+        # Loop over timesteps
+        traj = np.zeros(self.n)
+        for time in range(1, self.n):
+            
+            # Sum term
+            sum_term = 0
+            for i in range(1, time):
+                
+                sum_term += self.cnj(time-i) * (traj[i]-traj[i-1])
+            
+            # Update rule
+            coeff_noise = ((self.h)**(self.alpha)) * (gamma(2-self.alpha))
+            traj[time] = traj[time-1] + coeff_noise*self.dB[time] - sum_term
+        
+        return traj
+
+    def run_one_solution(self):
+        return convolution_weights(self.dB, self.t, self.alpha)
+
+
+
 
 
