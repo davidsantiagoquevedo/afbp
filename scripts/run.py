@@ -6,6 +6,8 @@ import parallelization
 import argparse
 
 parser = argparse.ArgumentParser()
+parser.add_argument("--modes", nargs='+', default=["phi"], choices=["phi", "x", "y", "r"], help="Which motion to simulate: phi, x, y, r"
+)
 parser.add_argument("--alpha", nargs='+', type=float, default=[0.5], help="Alpha value(s)")
 parser.add_argument("--H", nargs='+', type=float, default=None, help="H value(s). Required if alpha=1.")
 parser.add_argument("--realizations", type=int, default=1200, help="Number of realizations")
@@ -37,12 +39,15 @@ for alpha in alphas:
             print(f"-- Running set {set_index}")
             set_label = str(set_index).zfill(3)
 
-            env = angular_fbm(realizations=realizations, set_index=set_label,
-                              alpha=alpha, H=H, Tf=Tf, h=h)
+            # env = FBMBase(realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h)
 
-            env.phi_matrix = parallelization.run_trajectories_parallel(env, batch_size=10)
-            env.run_solution()
-            env.save(folder="data")
+            if "phi" in args.modes:
+                phi = AngularFBM(realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h)
+                # phi.run()
+                phi.trajectories = parallelization.run_trajectories_parallel(phi, batch_size=10)
+                # phi.run_solution()
+                phi.save(folder="data")
+
 
 elapsed_time = time.time() - start_time
 print(f"Elapsed time: {elapsed_time:.2f} seconds")

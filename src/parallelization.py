@@ -8,10 +8,10 @@ def single_trajectory_helper(env, p, stored_matrix, lock):
 
     """
     env.make_B_H()
-    r_trajectory = env.trajectory()
+    traj = env.run_one()
 
     with lock:
-        stored_matrix[p, :] = r_trajectory
+        stored_matrix[p, :] = traj
 
 def to_shared_array(array):
     shared_array = mp.Array('d', array.size, lock=False)

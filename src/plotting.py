@@ -52,19 +52,16 @@ def phi_fBm_propagator_calvo(phi, time, H, phi0=0):
     
     return (np.sqrt(H/np.pi)) * (gamma(H+1/2)/(time**H)) * np.exp(-H*((gamma(H+1/2)*(phi-phi0)/(time**(H)))**2))
 
-def phi_msd(time, alpha):
-    # msd_anl = ((gamma(2*H)**2)/(H*(gamma(H+1/2)**2)))*time**(alpha)
-    return (2/gamma(alpha+1))*time**(alpha)
 
 def phi_fBm_msd(time, H):
     # return (1/(2*H*(gamma(H+1/2)**2)))*(time**(2*H))
     return (time**(2*H))
 
-def phi_mean(time):
-    return np.zeros(len(time))
+# def phi_mean(time):
+#     return np.zeros(len(time))
 
-def phi_var(time, alpha):
-    return (2*(time**alpha))/gamma(alpha+1)
+# def phi_var(time, alpha):
+#     return (2*(time**alpha))/gamma(alpha+1)
 
 # def phi_var(time):
 
@@ -78,18 +75,18 @@ def plot_msd(ax, env, variable, label_an = True):
     else:
         style['label'] = rf"{style['label']} $\alpha=${env.alpha} $H=${env.H}"
 
-    if variable == 'phi':
-        msd = env.phi_corr
-        time = np.arange(0,len(msd))*env.h
-    elif variable == 'phi_sol':
-        msd = env.phi_corr_sol
-        time = np.arange(0,len(msd))*env.h
+    if variable == 'sim':
+        msd = env.msd
+        time = env.t
+    elif variable == 'sol':
+        msd = env.msd_sol
+        time = env.t
     elif variable == 'an' and env.alpha == 1:
-        time = np.arange(0, env.n)*env.h
+        time = env.t
         msd = phi_fBm_msd(time, env.H)
     else:
-        time = np.arange(0, env.n)*env.h
-        msd = phi_msd(time, env.alpha)
+        msd = env.msd_an
+        time = env.t
     
     ax.plot(time, msd, **style)
 

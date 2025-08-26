@@ -7,187 +7,154 @@ import pickle
 from tqdm import tqdm
 from integration import *
 
-class angular_fbm():
+import numpy as np
+from scipy.special import gamma
+from fbm import FBM
+import os
+import pickle
+from tqdm import tqdm
 
-    def __init__(self, 
-                 realizations,
-                 set_index,
-                 alpha,
-                 H,
-                 Tf = 1, 
-                 h = 1e-3,
-                 T0 = 0, 
-                 phi0=0, 
-                 thetaR=1):
-        
-        # Parameters in
+# ---------- Base Class ---------- #
+class FBMBase:
+
+    def __init__(self, realizations, set_index, alpha, H, Tf=10, h=1e-3, phi0=0, x0=0, y0=0):
+        # Common parameters
         self.realizations = realizations
         self.set_index = set_index
         self.alpha = alpha
         self.H = H
         self.Tf = Tf
         self.h = h
-        self.T0 = T0
+        self.n = int(Tf / h)
+
+        # Initial conditions
         self.phi0 = phi0
-        self.thetaR = thetaR
-        
-        # Number of time steps
-        self.n = int(self.Tf/self.h)
-        
-        # Noise amplitude
+        self.x0 = x0
+        self.y0 = y0
+
+        # Preallocate storage (to be specialized in subclasses)
+        self.trajectories = []
+        self.trajectory_sol = []
+
+        # Noise Amplitude
         if self.alpha == 1:
             self.A_H = 1#/np.sqrt(2)
-            self.A_H = 1/(np.sqrt(2*H)*gamma(H+1/2))
-
+            # self.A_H = 1/(np.sqrt(2*H)*gamma(H+1/2))
         else:
             self.A_H = 1/np.sqrt(H*(2*H-1)*gamma(2*H-1))
-        
-        # Initialize matrices
-        self.phi_matrix = np.full(self.n, self.phi0)
-        self.phi_matrix_solution = np.full(self.n, self.phi0)
-        self.phi_corr = None
-        self.phi_corr_sol = None
-        self.mean = None
-        self.mean_sol = None
-        self.var = None
-        self.var_sol = None
 
-    def make_B_H(self, method = 'daviesharte'):
+    # --------- Noise Generator --------- #
+    def make_B_H(self, method='daviesharte'):
         np.random.seed()
-          
-        f = FBM(n = self.n, hurst = self.H, length = self.Tf, method = method)
+        f = FBM(n=self.n, hurst=self.H, length=self.Tf, method=method)
 
         self.B_H = f.fbm()
-        self.dB_H = self.n/self.Tf*np.diff(self.B_H)
-        self.d2B_H = self.n/self.Tf*np.diff(self.dB_H)
-
-        self.t_BH = f.times()
-        self.t = self.t_BH[:self.n]
-        self.t_d2BH = self.t_BH[:(self.n-1)]
+        self.dB_H = np.diff(self.B_H) * (self.n / self.Tf)
 
         self.B = self.A_H*self.B_H
         self.dB = self.A_H*self.dB_H
-        self.d2B = self.A_H*self.d2B_H
-        
+
+        self.t_BH = f.times()
+        self.t = self.t_BH[:self.n]
+
+        return 
+
+    # --------- Utilities --------- #
     def cnj(self, k):
         return (k+1)**(1-self.alpha) - k**(1-self.alpha)
-        
-    def trajectory(self):       
-        # Loop over timesteps
-        r_trajectory = np.zeros(self.n)
-        for time in range(1, self.n):
-            
-            # Sum term
-            sum_term = 0
-            for i in range(1, time-1):
-                
-                sum_term += self.cnj(time-i) * (r_trajectory[i]-r_trajectory[i-1])
-            
-            # Update rule
-            coeff_noise = ((self.h)**(self.alpha)) * (gamma(2-self.alpha))
-            r_trajectory[time] = r_trajectory[time-1] + coeff_noise*self.dB[time] - sum_term
-            
-        return r_trajectory
+
+    # --------- Abstract Run --------- #
+    def run_one(self, dB):
+        """One trajectory (to be implemented in subclass)"""
+        raise NotImplementedError
 
     def run(self):
-            for r in tqdm(range(self.realizations)):
-                np.random.seed()
-                self.make_B_H()
-                r_trajectory = self.trajectory()
+        """Run all realizations"""
+        self.trajectories = []
+        for _ in tqdm(range(self.realizations)):
+            self.make_B_H()
+            traj = self.run_one()
+            self.trajectories.append(traj)
+        self.trajectories = np.array(self.trajectories)
 
-                self.phi_matrix = np.vstack((self.phi_matrix, r_trajectory))
-                
-    def relaxation(self, t):
-        coeff = 1/gamma(self.alpha)
-        result = coeff * (t**(self.alpha-1))
-        return result #np.where(np.isinf(result), 0, result)
-
-    def relaxation_primitive(self, t):
-        coeff = 1/(self.alpha*gamma(self.alpha))
-        result = coeff * (t**(self.alpha))
-        return result 
-
-    def trajectory_solution(self):
-        # self.make_B_H()
-        # print(self.B_H)
-        # return convolution(self.relaxation, self.dB, self.t)
-        # return convolution_by_parts(self.relaxation_primitive, self.d2B, self.dB, self.t_d2BH)
-        return convolution_weights(self.dB, self.t, self.alpha)
-                
     def run_solution(self):
         
         for _ in tqdm(range(self.realizations)):
             self.make_B_H()
-            r_trajectory = self.trajectory_solution()
-
-            self.phi_matrix_solution = np.vstack((self.phi_matrix_solution, r_trajectory))
+            traj = self.run_one_solution()
+            self.trajectory_sol.append(traj)
+        self.trajectory_sol = np.array(self.trajectory_sol)
            
+
+    # --------- Stats --------- #
+    def compute_msd(self):
+        self.msd = np.mean((self.trajectories - self.trajectories[:, [0]])**2, axis=0)
+
+    def compute_msd_sol(self):
+        self.msd_sol = np.mean((self.trajectory_sol - self.trajectory_sol[:, [0]])**2, axis=0)
+
+    def msd_theory(self):
+        """Theoretical msd (to be defines in subclass)"""
+        raise NotImplementedError
+    
+    def compute_msd_an(self):
+        self.msd_an = self.msd_theory()
+
     def compute_mean(self):
-        
-        self.mean = np.mean(self.phi_matrix, axis=0)
-        self.mean_sol = np.mean(self.phi_matrix_solution, axis=0)
-     
-    def compute_variance(self):
-        
-        self.var = np.var(self.phi_matrix, axis=0)
-        self.var_sol = np.var(self.phi_matrix_solution, axis=0)
-            
-    def compute_phi_correlation(self):
-        
-        """
-        Computes < [phi(t) - phi0]^2 > averaged over all agents.
-        
-        Parameters:
-        
-        ...
-        
-        Returns:
-            self.phi_corr: array of shape (n)
-        """
-        
-        # if self.phi_matrix is None:
-        #     print(self.phi_matrix)
-        #     self.run()
-            
-        self.phi_corr = np.mean((self.phi_matrix - self.phi0)**2, axis=0)
-        self.phi_corr_sol = np.mean((self.phi_matrix_solution - self.phi0)**2, axis=0)
+        self.mean = np.mean(self.trajectories, axis=0)
 
-    def compute_pdf(self, time, bins=150):
+    def compute_var(self):
+        self.var = np.var(self.trajectories, axis=0)
 
-        if self.phi_matrix is None:
-            raise ValueError("Run the simulation first to generate phi_matrix.")
-
-        phi_time = self.phi_matrix[:, time]
-        hist, bin_edges = np.histogram(phi_time, bins=bins, density=True)
-        return hist, bin_edges
-
-    def save(self, folder="data"):
-        """
-        Save the entire Env object to a .pkl file in the specified folder.
-        The filename includes key parameters.
-        """
+    # --------- Save/Load --------- #
+    def save(self, folder="data", mode="phi"):
         os.makedirs(folder, exist_ok=True)
-        
-        filename = (
-            f"r_{self.realizations}_"
-            f"alpha_{self.alpha}_"
-            f"H_{self.H}_"
-            f"Tf_{self.Tf}_"
-            f"h_{self.h}_"
-            f"set_{self.set_index}.pkl"
-        )
-        
+        filename = (f"{mode}_r{self.realizations}_"
+                    f"alpha{self.alpha}_H{self.H}_"
+                    f"Tf{self.Tf}_h{self.h}_set{self.set_index}.pkl")
         filepath = os.path.join(folder, filename)
-        
         with open(filepath, "wb") as f:
             pickle.dump(self, f)
-    
+
     @classmethod
     def load(cls, filepath):
-        """
-        Load an Env object from a .pkl file.
-        """
         with open(filepath, "rb") as f:
             env = pickle.load(f)
-            
         return env
+
+# ---------- Angular (phi) ---------- #
+class AngularFBM(FBMBase):
+        
+    """
+    This class extends the general `FBMBase` class to solve angular euation·
+
+    Parameters
+    ----------
+
+    """
+
+    def msd_theory(self):
+        return (2/gamma(self.alpha+1))*self.t**(self.alpha)
+
+    def run_one(self):
+        # Loop over timesteps
+        traj = np.zeros(self.n)
+        for time in range(1, self.n):
+            
+            # Sum term
+            sum_term = 0
+            for i in range(1, time):
+                
+                sum_term += self.cnj(time-i) * (traj[i]-traj[i-1])
+            
+            # Update rule
+            coeff_noise = ((self.h)**(self.alpha)) * (gamma(2-self.alpha))
+            traj[time] = traj[time-1] + coeff_noise*self.dB[time] - sum_term
+        
+        return traj
+
+    def run_one_solution(self):
+        return convolution_weights(self.dB, self.t, self.alpha)
+
+
+

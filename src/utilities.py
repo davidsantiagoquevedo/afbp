@@ -1,32 +1,29 @@
-from world import angular_fbm
+from world import FBMBase
 import numpy as np
 
-def read_envs(alpha, H, sets, Tf, h, realizations):
+def read_env(mode, alpha, H, sets, Tf, h, realizations):
 
     for set_index in range(sets):
         set_label = str(set_index+1).zfill(3)
         set_index += 1
         
-        env = angular_fbm(realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h)
+        env = FBMBase(realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h)
         
         filepath = (
-            f"data/r_{env.realizations}_"
-            f"alpha_{env.alpha}_"
-            f"H_{env.H}_"
-            f"Tf_{env.Tf}_"
-            f"h_{env.h}_"
-            f"set_{set_label}.pkl"
+            f"data/{mode}_r{env.realizations}_"
+            f"alpha{env.alpha}_"
+            f"H{env.H}_"
+            f"Tf{env.Tf}_"
+            f"h{env.h}_"
+            f"set{set_label}.pkl"
         )
-        env = angular_fbm.load(filepath)
+
+        env = FBMBase.load(filepath)
         
         if set_index==1:
             env_multiset = env
         else:
             env_multiset.realizations += realizations
-            env_multiset.phi_matrix = np.vstack((env_multiset.phi_matrix, env.phi_matrix))
-        
-    env_multiset.compute_phi_correlation()
-    env_multiset.compute_mean()
-    env_multiset.compute_variance()
+            env_multiset.trajectories = np.vstack((env_multiset.trajectories, env.trajectories))
 
     return env_multiset
