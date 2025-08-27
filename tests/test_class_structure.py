@@ -11,12 +11,12 @@ H = (2 - alpha) / 2
 Tf = 10
 h = 0.1
 
-phi = AngularFBM(realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h)
+phi = Angular(realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h)
 phi.run()
 # parallelization.run_trajectories_parallel(phi, batch_size=10)
 phi_trajectories = phi.trajectories
 
-env = xFBM(phi_trajectories = phi_trajectories, realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h)
+env = xDirection(phi_trajectories = phi_trajectories, realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h)
 # parallelization.run_trajectories_parallel(env, batch_size=10)
 env.run()
 # env.run_solution()

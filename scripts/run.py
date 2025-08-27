@@ -24,12 +24,12 @@ realizations, sets, Tf, h = args.realizations, args.sets, args.Tf, args.h
 
 envs = []
 for alpha in alphas:
-    # Case 1: alpha == 1 : use provided H values
+    # alpha == 1 : use provided H values
     if alpha == 1:
         if Hs is None:
             raise ValueError("You must provide --H when alpha=1")
         H_values = Hs
-    # Case 2: alpha != 1 : compute H automatically
+    # alpha != 1 : compute H automatically
     else:
         H_values = [(2 - alpha) / 2]
 
@@ -39,10 +39,10 @@ for alpha in alphas:
             print(f"-- Running set {set_index}")
             set_label = str(set_index).zfill(3)
 
-            # env = FBMBase(realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h)
+            # env = Base(realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h)
 
             if "phi" in args.modes:
-                phi = AngularFBM(realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h)
+                phi = Angular(realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h)
                 # phi.run()
                 phi.trajectories = parallelization.run_trajectories_parallel(phi, batch_size=10)
                 # phi.run_solution()

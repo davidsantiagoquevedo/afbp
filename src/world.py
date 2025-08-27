@@ -7,15 +7,8 @@ import pickle
 from tqdm import tqdm
 from integration import *
 
-import numpy as np
-from scipy.special import gamma
-from fbm import FBM
-import os
-import pickle
-from tqdm import tqdm
-
 # ---------- Base Class ---------- #
-class FBMBase:
+class Base:
 
     def __init__(self, realizations, set_index, alpha, H, Tf=10, h=1e-3, phi0=0, x0=0, y0=0):
         # Common parameters
@@ -123,10 +116,10 @@ class FBMBase:
         return env
 
 # ---------- Angular (phi) ---------- #
-class AngularFBM(FBMBase):
+class Angular(Base):
         
     """
-    This class extends the general `FBMBase` class to solve angular euation·
+    This class extends the general `Base` class to solve angular euation·
 
     Parameters
     ----------
@@ -156,10 +149,10 @@ class AngularFBM(FBMBase):
     def run_one_solution(self):
         return convolution_weights(self.dB, self.t, self.alpha)
 
-class xFBM(FBMBase):
+class xDirection(Base):
         
     """
-    This class extends the general `FBMBase` class to solve x equation·
+    This class extends the general `Base` class to solve x equation·
 
     Parameters
     ----------

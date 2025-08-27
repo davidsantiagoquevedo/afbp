@@ -1,4 +1,4 @@
-from world import FBMBase
+from world import Base
 import numpy as np
 
 def read_env(mode, alpha, H, sets, Tf, h, realizations):
@@ -7,7 +7,7 @@ def read_env(mode, alpha, H, sets, Tf, h, realizations):
         set_label = str(set_index+1).zfill(3)
         set_index += 1
         
-        env = FBMBase(realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h)
+        env = Base(realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h)
         
         filepath = (
             f"data/{mode}_r{env.realizations}_"
@@ -18,7 +18,7 @@ def read_env(mode, alpha, H, sets, Tf, h, realizations):
             f"set{set_label}.pkl"
         )
 
-        env = FBMBase.load(filepath)
+        env = Base.load(filepath)
         
         if set_index==1:
             env_multiset = env
