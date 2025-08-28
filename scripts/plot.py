@@ -37,10 +37,13 @@ for alpha in alphas:
         plotting.plot_msd(ax1, env, 'an', label_an=(env.alpha == 0.3))
 
         # Plot moments
-        env.compute_mean()
         env.compute_var()
-        plotting.plot_moment(ax2, env, 'sim', 'var')
+        plotting.plot_moment(ax2, env, variable='sim', mom_type='var')
+        plotting.plot_moment(ax2, env, variable='fit', mom_type='var')
+
+        env.compute_mean()
         plotting.plot_moment(ax3, env, 'sim', 'mean')
+        plotting.plot_moment(ax3, env, 'fit', 'mean')
 
         # Plot PDF
         fig_pdf, ax_pdf = plt.subplots()
@@ -51,6 +54,6 @@ for alpha in alphas:
 fig1.tight_layout()
 fig1.savefig(f"plots/msd/{mode}msd_alpha{alphas}_H{Hs}_r{realizations*sets}_Tf{Tf}_h{h}.png", dpi=100)
 fig2.tight_layout()
-fig2.savefig(f"plots/msd/{mode}var_alpha{alphas}_H{Hs}_r{realizations*sets}_Tf{Tf}_h{h}.png", dpi=100)
+fig2.savefig(f"plots/var/{mode}var_alpha{alphas}_H{Hs}_r{realizations*sets}_Tf{Tf}_h{h}.png", dpi=100)
 fig3.tight_layout()
 fig3.savefig(f"plots/mean/{mode}mean_alpha{alphas}_H{Hs}_r{realizations*sets}_Tf{Tf}_h{h}.png", dpi=100)

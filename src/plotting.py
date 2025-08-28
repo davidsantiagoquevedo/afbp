@@ -75,7 +75,6 @@ def plot_msd(ax, env, variable, label_an = True):
     else:
         style['label'] = rf"{style['label']} $\alpha=${env.alpha} $H=${env.H}"
 
-
     if variable == 'sim':
         msd = env.msd
         time = env.t
@@ -97,7 +96,7 @@ def plot_msd(ax, env, variable, label_an = True):
     ax.grid(':')
     ax.legend(fontsize = legend_size, bbox_to_anchor=(1, 1))
 
-def plot_moment(ax, env, variable, mom_type):
+def plot_moment(ax, env, variable, mom_type, label_an = True):
 
     """
     Plots a moment vector (mean or variance).
@@ -109,50 +108,48 @@ def plot_moment(ax, env, variable, mom_type):
     env: class
 
     variable : str
-        Can be 'phi' or 'phi_sol'. The moment was computed using L1 discretization of eom or of the convolution with the memory kernel, respectively
+        Can be 'sim' or 'sol': The moment was computed using L1 discretization of eom or of the convolution with the memory kernel, respectively
 
     moment_type : str
         Can be 'mean' or 'var' defining the type of moment, it will change y label.
 
-    ...
-    
-    Returns:
-
     """
 
     style = msd_style[variable].copy()
-    style['label'] = rf"{style['label']} $\alpha={env.alpha}$"
 
-    if variable in ['phi', 'phi_sol']:
-        attr = f"{mom_type}" if variable == 'phi' else f"{mom_type}_sol"
-        y = getattr(env, attr)
-        time = np.arange(0, len(y)) * env.h
+    if variable == 'an':
+        style['label'] = style['label'] if label_an else None
+    else:
+        style['label'] = rf"{style['label']} $\alpha=${env.alpha} $H=${env.H}"
+
+    if variable == 'sim':
+        moment = env.mean if mom_type=='mean' else env.var
+        time = env.t
 
     elif variable == 'an':
-        time = np.arange(0, env.n) * env.h
-        y = phi_var(time, env.alpha) if mom_type == 'var' else phi_mean(time)
-
+        moment = env.mean_an if mom_type=='mean' else env.var_an
+        time = env.t
+    
     elif variable == 'fit':
-        fit_indices = np.arange(1, env.n,50) 
+        fit_indices = np.arange(1, (env.n), 5) 
+        print(fit_indices)
         time = np.array(fit_indices) * env.h
 
         mean_fit = []
         var_fit = []
 
         for i in fit_indices:
-            samples = env.phi_matrix[:, i]
+            samples = env.trajectories[:, i]
             coeff, _ = data_analysis.gauss_fit(samples, bins=40)
             A, mu, sigma = coeff
 
             mean_fit.append(mu)
             var_fit.append(sigma**2)
 
-        y = var_fit if mom_type == 'var' else mean_fit
+        moment = var_fit if mom_type == 'var' else mean_fit
 
-    else:
-        raise ValueError(f"Unknown variable: {variable}")
 
-    ax.plot(time, y, **style)
+    ax.plot(time, moment, **style)
 
     ylabel_map = {
         'var': r'$\sigma^2(t)$',
@@ -163,6 +160,7 @@ def plot_moment(ax, env, variable, mom_type):
     ax.tick_params(axis='both', labelsize=size_ticks)
     ax.grid(':')
     ax.legend(fontsize=legend_size)
+
 
 def plot_pdf(ax, env, time):
     
