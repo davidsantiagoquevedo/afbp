@@ -5,13 +5,13 @@ import matplotlib.pyplot as plt
 import plotting
 import utilities
 
-mode = 'x'
+mode = 'phi'
 alphas = [1.]   # include both cases
-Hs = [0.5]            # only used if alpha==1
+Hs = [0.7, 0.5, 0.3]            # only used if alpha==1
 realizations = 1000
 Tf = 10
 h = 0.05
-sets = 1
+sets = 5
 
 # Plotting
 fig1, ax1 = plt.subplots(figsize=(12, 9))
@@ -19,12 +19,7 @@ fig2, ax2 = plt.subplots()
 fig3, ax3 = plt.subplots()
 
 for alpha in alphas:
-    if alpha == 1:
-        H_values = Hs
-    else:
-        H_values = [(2 - alpha) / 2]
-
-    for H in H_values:
+    for H in Hs:
 
         env = utilities.read_env(mode, alpha, H, realizations, Tf, h, sets)
 
@@ -39,6 +34,8 @@ for alpha in alphas:
         # Plot moments
         env.compute_var()
         plotting.plot_moment(ax2, env, variable='sim', mom_type='var')
+        env.compute_var_an()
+        plotting.plot_moment(ax2, env, variable='an', mom_type='var')
         plotting.plot_moment(ax2, env, variable='fit', mom_type='var')
 
         env.compute_mean()
@@ -46,9 +43,10 @@ for alpha in alphas:
         plotting.plot_moment(ax3, env, 'fit', 'mean')
 
         # Plot PDF
-        fig_pdf, ax_pdf = plt.subplots()
+        fig_pdf, ax_pdf = plt.subplots(figsize=(8, 7))
         for t in [int(Tf/(4*h)), int(Tf/(2*h)), int((Tf/h)-1)]:
-            plotting.plot_pdf(ax_pdf, env, time=t)
+            plotting.plot_pdf(ax_pdf, env, mode, time=t)
+        fig_pdf.tight_layout()
         fig_pdf.savefig(f"plots/pdf/{mode}pdf_alpha{alpha}_H{H}_r{realizations*sets}_Tf{Tf}_h{h}.png", dpi=100)
 
 fig1.tight_layout()

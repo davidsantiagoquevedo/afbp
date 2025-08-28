@@ -57,13 +57,7 @@ def phi_fBm_msd(time, H):
     # return (1/(2*H*(gamma(H+1/2)**2)))*(time**(2*H))
     return (time**(2*H))
 
-# def phi_mean(time):
-#     return np.zeros(len(time))
 
-# def phi_var(time, alpha):
-#     return (2*(time**alpha))/gamma(alpha+1)
-
-# def phi_var(time):
 
 # Plotting
 def plot_msd(ax, env, variable, label_an = True):
@@ -161,24 +155,21 @@ def plot_moment(ax, env, variable, mom_type, label_an = True):
     ax.legend(fontsize=legend_size)
 
 
-def plot_pdf(ax, env, time):
+def plot_pdf(ax, env, mode, time):
     
     trajectories_points = env.trajectories[:, time]
 
-    # Ansatz
-    phi_range = np.arange(np.min(trajectories_points), np.max(trajectories_points), 1e-3)
-    # propagator = phi_propagator_ansatz(phi_range, time*env.h, env.alpha)
-    propagator = phi_fBm_propagator_ansatz(phi_range, time*env.h, env.H)
-    propagator_C = phi_fBm_propagator_calvo(phi_range, time*env.h, env.H)
-    label1 = None
-    label2 = None
-    if time == int(env.Tf/(4*env.h)):
-        # label = r'$\frac{1}{sqrt{2*\pi*t^{2*H}}}$'
-        label1 = r'N($\mu=0,\sigma=t^{2H}$)'
-        label2 = r'Calvo'
-    ax.plot(phi_range, propagator, lw=2, ls=":", color = 'black', zorder=2, label = label1)
-    ax.plot(phi_range, propagator_C, lw=2, ls=":", color = 'red', zorder=2, label = label2)
+    # Analytitcal
+
+    label = None
+    variable = '\phi' if mode=='phi' else mode
     
+    if time == int(env.Tf/(4*env.h)):
+        label = r'$\frac{1}{\sqrt{{2\pi(\sigma)^2}}}$'+rf'$e^{{-\frac{{({variable}-\langle {variable} \rangle)^2}}{{2\sigma^2}}}}$'
+
+    x, P = env.propagator(time)
+    ax.plot(x, P, lw=2, ls=":", color = 'black', zorder=2, label = label)
+
     # Histogram and Fit
     num_bins=40
     hist, bin_edges = np.histogram(trajectories_points, density=True, bins=num_bins)
@@ -192,6 +183,9 @@ def plot_pdf(ax, env, time):
     ax.bar(bin_centres, hist, width=bin_edges[1] - bin_edges[0], alpha=0.5, zorder=0)
     ax.plot(bin_centres, hist_fit, lw=2, label=f'{(round(time*env.h, 2))}', zorder=1)
     
-    ax.set_title(rf'$\alpha=${env.alpha}, $H=${env.H}, $A_H$={round(env.A_H,2)}')
+    ax.set_title(rf'$\boldsymbol{{{variable}}}: \alpha = {env.alpha},\; H = {env.H},\; A_H = {round(env.A_H, 2)}$', fontsize=axis_fontsize)
+    ax.set_xlabel(rf'${variable}$', fontsize=axis_fontsize)
+    ax.set_ylabel(rf'$P({variable},t)$', fontsize=axis_fontsize)
+    ax.tick_params(axis='both', labelsize=size_ticks)
     ax.legend(fontsize = legend_size)
 

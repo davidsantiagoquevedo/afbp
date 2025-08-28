@@ -88,13 +88,6 @@ class Base:
         print(len(self.trajectory_sol))
         self.msd_sol = np.mean((self.trajectory_sol - self.trajectory_sol[:, [0]])**2, axis=0)
 
-    def msd_theory(self):
-        """Theoretical msd (to be defines in subclass)"""
-        raise NotImplementedError
-    
-    def compute_msd_an(self):
-        self.msd_an = self.msd_theory()
-
     def compute_mean(self):
         self.mean = np.mean(self.trajectories, axis=0)
 
@@ -132,9 +125,44 @@ class Angular(Base):
 
     """
 
-    def msd_theory(self):
-        return (2/gamma(self.alpha+1))*self.t**(self.alpha)
+    def compute_var_an(self, time = 0):
+        H = self.H
+        alpha = self.alpha
+        nominator = H*gamma(2*H)
+        denominator = (alpha+H-1)*gamma(alpha)*gamma(alpha+2*H-1)
+        self.var_an = (nominator/denominator)*(self.t**(2*alpha+2*H-2))
+        return (nominator/denominator)*((time*self.h)**(2*alpha+2*H-2))
 
+    def propagator(self, time_index):
+        """
+
+        Given a time, it returns the analytical probability function over the interval spanned by the trajectory.
+
+        Returns:
+
+        x : np.array 
+        Intreval of evaluation of probability function [min(trajectory), max(trajectory)]
+        
+        P(x,t) : np.array
+        Analytical probability function
+
+        """
+
+        H = self.H
+        alpha = self.alpha
+        time = time_index*self.h
+
+        trajectory = self.trajectories[:, time_index]
+        x = np.arange(np.min(trajectory), np.max(trajectory), 1e-3)
+
+        variance = self.compute_var_an(time_index)
+        factor = np.sqrt( 1 / (2*np.pi*variance) )
+        argument = (-(x)**2) / (2*variance)
+
+        P = factor*np.exp(argument)
+
+        return x, P
+    
     def run_one(self):
         # Loop over timesteps
         traj = np.zeros(self.n)
