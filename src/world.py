@@ -81,9 +81,11 @@ class Base:
            
     # --------- Stats --------- #
     def compute_msd(self):
+        # print(self.trajectories[0])
         self.msd = np.mean((self.trajectories - self.trajectories[:, [0]])**2, axis=0)
 
     def compute_msd_sol(self):
+        print(len(self.trajectory_sol))
         self.msd_sol = np.mean((self.trajectory_sol - self.trajectory_sol[:, [0]])**2, axis=0)
 
     def msd_theory(self):
@@ -102,9 +104,13 @@ class Base:
     # --------- Save/Load --------- #
     def save(self, folder="data", mode="phi"):
         os.makedirs(folder, exist_ok=True)
-        filename = (f"{mode}_r{self.realizations}_"
-                    f"alpha{self.alpha}_H{self.H}_"
-                    f"Tf{self.Tf}_h{self.h}_set{self.set_index}.pkl")
+        filename = (f"{mode}_"
+                    f"alpha{self.alpha}_"
+                    f"H{self.H}_"
+                    f"r{self.realizations}_"
+                    f"Tf{self.Tf}_"
+                    f"h{self.h}_" 
+                    f"set{self.set_index}.pkl")
         filepath = os.path.join(folder, filename)
         with open(filepath, "wb") as f:
             pickle.dump(self, f)

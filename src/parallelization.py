@@ -62,6 +62,6 @@ def run_trajectories_parallel(env, batch_size = 12):
             process.join()
 
         env.trajectories = stored_matrix
-        env.make_B_H()
+        # env.make_B_H()
     
-    return 
+    return env

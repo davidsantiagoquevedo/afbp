@@ -10,7 +10,7 @@ parser.add_argument("--modes", nargs='+', default=["phi"], choices=["phi", "x", 
 )
 parser.add_argument("--alpha", nargs='+', type=float, default=[0.5], help="Alpha value(s)")
 parser.add_argument("--H", nargs='+', type=float, default=None, help="H value(s). Required if alpha=1.")
-parser.add_argument("--realizations", type=int, default=1200, help="Number of realizations")
+parser.add_argument("--realizations", type=int, default=1000, help="Number of realizations")
 parser.add_argument("--sets", type=int, default=1, help="Number of sets")
 parser.add_argument("--Tf", type=float, default=10, help="Final time Tf")
 parser.add_argument("--h", type=float, default=0.05, help="Step size h")
@@ -44,8 +44,9 @@ for alpha in alphas:
             if "phi" in args.modes:
                 phi = Angular(realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h)
                 # phi.run()
-                phi.trajectories = parallelization.run_trajectories_parallel(phi, batch_size=10)
-                # phi.run_solution()
+                phi = parallelization.run_trajectories_parallel(phi, batch_size=10)
+                phi.run_solution()
+                # print(len(phi.trajectory_sol))
                 phi.save(folder="data")
 
 

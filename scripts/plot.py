@@ -6,9 +6,9 @@ import plotting
 import utilities
 
 mode = 'phi'
-alphas = [0.5]   # include both cases
-Hs = None#[0.5]            # only used if alpha==1
-realizations = 1200
+alphas = [1.]   # include both cases
+Hs = [0.5]            # only used if alpha==1
+realizations = 1000
 Tf = 10
 h = 0.05
 sets = 1
@@ -26,7 +26,7 @@ for alpha in alphas:
 
     for H in H_values:
 
-        env = utilities.read_env(mode, alpha, H, sets, Tf, h, realizations)
+        env = utilities.read_env(mode, alpha, H, realizations, Tf, h, sets)
 
         # Plot MSD
         env.compute_msd()
@@ -37,20 +37,20 @@ for alpha in alphas:
         plotting.plot_msd(ax1, env, 'an', label_an=(env.alpha == 0.3))
 
         # Plot moments
-        # env_multiset.compute_mean()
-        # env_multiset.compute_variance()
-        # plotting.plot_moment(ax2, env, 'phi', 'var')
-        # plotting.plot_moment(ax3, env, 'phi', 'mean')
+        env.compute_mean()
+        env.compute_var()
+        plotting.plot_moment(ax2, env, 'sim', 'var')
+        plotting.plot_moment(ax3, env, 'sim', 'mean')
 
         # Plot PDF
-        # fig_pdf, ax_pdf = plt.subplots()
-        # for t in [int(Tf/(4*h)), int(Tf/(2*h)), int((Tf/h)-1)]:
-        #     plotting.plot_pdf(ax_pdf, env, time=t)
-        # fig_pdf.savefig(f"plots/pdf/pdf_alpha{alpha}_H{H}.png", dpi=100)
+        fig_pdf, ax_pdf = plt.subplots()
+        for t in [int(Tf/(4*h)), int(Tf/(2*h)), int((Tf/h)-1)]:
+            plotting.plot_pdf(ax_pdf, env, time=t)
+        fig_pdf.savefig(f"plots/pdf/{mode}pdf_alpha{alpha}_H{H}_r{realizations*sets}_Tf{Tf}_h{h}.png", dpi=100)
 
 fig1.tight_layout()
-fig1.savefig(f"plots/msd/{mode}corr_r{realizations}_Tf{Tf}_h{h}.png", dpi=100)
+fig1.savefig(f"plots/msd/{mode}msd_alpha{alphas}_H{Hs}_r{realizations*sets}_Tf{Tf}_h{h}.png", dpi=100)
 fig2.tight_layout()
-fig2.savefig(f"plots/var/phivar_r{realizations}_Tf{Tf}_h{h}.png", dpi=100)
+fig2.savefig(f"plots/msd/{mode}var_alpha{alphas}_H{Hs}_r{realizations*sets}_Tf{Tf}_h{h}.png", dpi=100)
 fig3.tight_layout()
-fig3.savefig(f"plots/mean/phimean_r{realizations}_Tf{Tf}_h{h}.png", dpi=100)
+fig3.savefig(f"plots/mean/{mode}mean_alpha{alphas}_H{Hs}_r{realizations*sets}_Tf{Tf}_h{h}.png", dpi=100)

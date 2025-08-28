@@ -6,8 +6,8 @@ size_ticks = 20
 marker_size = 10
 
 msd_style = {
-    'phi': dict(lw=2, label = 'sim'),  
-    'phi_sol': dict(lw=2, label = 'sol'),  
+    'sim': dict(lw=2, label = 'sim'),  
+    'sol': dict(lw=2, label = 'sol'),  
     'an': dict(lw=3, label = 'analytic', color = 'black', ls=':'),  
     'fit': dict(lw=2, marker = 'o', label = 'fit')  
 }
@@ -74,6 +74,7 @@ def plot_msd(ax, env, variable, label_an = True):
         style['label'] = style['label'] if label_an else None
     else:
         style['label'] = rf"{style['label']} $\alpha=${env.alpha} $H=${env.H}"
+
 
     if variable == 'sim':
         msd = env.msd
@@ -165,17 +166,21 @@ def plot_moment(ax, env, variable, mom_type):
 
 def plot_pdf(ax, env, time):
     
-    trajectories_points = env.phi_matrix[:, time]
+    trajectories_points = env.trajectories[:, time]
 
     # Ansatz
     phi_range = np.arange(np.min(trajectories_points), np.max(trajectories_points), 1e-3)
     # propagator = phi_propagator_ansatz(phi_range, time*env.h, env.alpha)
-    # propagator = phi_fBm_propagator_ansatz(phi_range, time*env.h, env.H)
-    propagator = phi_fBm_propagator_calvo(phi_range, time*env.h, env.H)
-    label = None
+    propagator = phi_fBm_propagator_ansatz(phi_range, time*env.h, env.H)
+    propagator_C = phi_fBm_propagator_calvo(phi_range, time*env.h, env.H)
+    label1 = None
+    label2 = None
     if time == int(env.Tf/(4*env.h)):
-        label = 'ansatz'
-    ax.plot(phi_range, propagator, lw=2, ls=":", color = 'black', zorder=2, label = label)
+        # label = r'$\frac{1}{sqrt{2*\pi*t^{2*H}}}$'
+        label1 = r'N($\mu=0,\sigma=t^{2H}$)'
+        label2 = r'Calvo'
+    ax.plot(phi_range, propagator, lw=2, ls=":", color = 'black', zorder=2, label = label1)
+    ax.plot(phi_range, propagator_C, lw=2, ls=":", color = 'red', zorder=2, label = label2)
     
     # Histogram and Fit
     num_bins=40
@@ -188,8 +193,8 @@ def plot_pdf(ax, env, time):
     hist_fit = data_analysis.gauss(bin_centres, *coeff) 
 
     ax.bar(bin_centres, hist, width=bin_edges[1] - bin_edges[0], alpha=0.5, zorder=0)
-    ax.plot(bin_centres, hist_fit, lw=2, label=f'{time*env.h}', zorder=1)
+    ax.plot(bin_centres, hist_fit, lw=2, label=f'{(round(time*env.h, 2))}', zorder=1)
     
-    ax.set_title(rf'$\alpha=${env.alpha}, $H=${env.H}')
+    ax.set_title(rf'$\alpha=${env.alpha}, $H=${env.H}, $A_H$={round(env.A_H,2)}')
     ax.legend(fontsize = legend_size)
 
