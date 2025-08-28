@@ -41,13 +41,19 @@ for alpha in alphas:
 
             # env = Base(realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h)
 
-            if "phi" in args.modes:
-                phi = Angular(realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h)
-                # phi.run()
-                phi = parallelization.run_trajectories_parallel(phi, batch_size=10)
-                phi.run_solution()
-                # print(len(phi.trajectory_sol))
-                phi.save(folder="data")
+            # if "phi" in args.modes:
+            phi = Angular(realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h)
+            # phi.run()
+            phi = parallelization.run_trajectories_parallel(phi, batch_size=10)
+            # phi.run_solution()
+            # phi.save(folder="data")
+
+            if "x" in args.modes:
+                x = xDirection(phi_trajectories=phi.trajectories, realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h)
+                x.run()
+                # x = parallelization.run_trajectories_parallel(x, batch_size=10)
+                # x.run_solution()
+                x.save(folder="data", mode='x')
 
 
 elapsed_time = time.time() - start_time

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import plotting
 import utilities
 
-mode = 'phi'
+mode = 'x'
 alphas = [1.]   # include both cases
 Hs = [0.5]            # only used if alpha==1
 realizations = 1000
@@ -31,10 +31,10 @@ for alpha in alphas:
         # Plot MSD
         env.compute_msd()
         plotting.plot_msd(ax1, env, 'sim')
-        env.compute_msd_sol()
-        plotting.plot_msd(ax1, env, 'sol')
-        env.compute_msd_an()
-        plotting.plot_msd(ax1, env, 'an', label_an=(env.alpha == 0.3))
+        # env.compute_msd_sol()
+        # plotting.plot_msd(ax1, env, 'sol')
+        # env.compute_msd_an()
+        # plotting.plot_msd(ax1, env, 'an', label_an=(env.alpha == 0.3))
 
         # Plot moments
         env.compute_var()

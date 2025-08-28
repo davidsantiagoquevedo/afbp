@@ -132,7 +132,6 @@ def plot_moment(ax, env, variable, mom_type, label_an = True):
     
     elif variable == 'fit':
         fit_indices = np.arange(1, (env.n), 5) 
-        print(fit_indices)
         time = np.array(fit_indices) * env.h
 
         mean_fit = []
