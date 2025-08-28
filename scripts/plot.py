@@ -6,12 +6,12 @@ import plotting
 import utilities
 
 mode = 'phi'
-alphas = [1.]   # include both cases
-Hs = [0.7, 0.5, 0.3]            # only used if alpha==1
+alphas = [0.5]   # include both cases
+Hs = [0.75]#, 0.5, 0.3]            # only used if alpha==1
 realizations = 1000
 Tf = 10
 h = 0.05
-sets = 5
+sets = 1
 
 # Plotting
 fig1, ax1 = plt.subplots(figsize=(12, 9))

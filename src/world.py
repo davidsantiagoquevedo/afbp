@@ -30,12 +30,14 @@ class Base:
         self.trajectory_sol = []
 
         # Noise Amplitude
-        if self.alpha == 1:
-            self.A_H = 1#/np.sqrt(2)
-            # self.A_H = 1/(np.sqrt(2*H)*gamma(H+1/2))
 
-        else:
+        if self.alpha == (2-2*H):
             self.A_H = 1/np.sqrt(H*(2*H-1)*gamma(2*H-1))
+            # print('scaling')
+        else: 
+            self.A_H = 1#/np.sqrt(2)
+        # else:
+        #     self.A_H = 1/(np.sqrt(2*H)*gamma(H+1/2))
 
     # --------- Noise Generator --------- #
     def make_B_H(self, method='daviesharte'):
@@ -131,7 +133,8 @@ class Angular(Base):
         nominator = H*gamma(2*H)
         denominator = (alpha+H-1)*gamma(alpha)*gamma(alpha+2*H-1)
         self.var_an = (nominator/denominator)*(self.t**(2*alpha+2*H-2))
-        return (nominator/denominator)*((time*self.h)**(2*alpha+2*H-2))
+        return (2/gamma(alpha+1))*((time*self.h)**(alpha))
+        # return (nominator/denominator)*((time*self.h)**(2*alpha+2*H-2))
 
     def propagator(self, time_index):
         """
