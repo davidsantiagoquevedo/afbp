@@ -10,7 +10,7 @@ from integration import *
 # ---------- Base Class ---------- #
 class Base:
 
-    def __init__(self, realizations, set_index, alpha, H, Tf=10, h=1e-3, phi0=0, x0=0, y0=0, v0=0, eta=1):
+    def __init__(self, realizations, set_index, alpha, H, Tf=10, h=1e-3, phi0=0, x0=0, y0=0, v0=1, eta=1):
         # Common parameters
         self.realizations = realizations
         self.set_index = set_index
@@ -45,8 +45,8 @@ class Base:
         #     self.A_H = 1/(np.sqrt(2*H)*gamma(H+1/2))
 
         # Generalized diffusion coefficient (?) 
-        nominator = H*gamma(2*H)
-        denominator = (alpha+H-1)*gamma(alpha)*gamma(alpha+2*H-1)
+        nominator = self.H*gamma(2*self.H)
+        denominator = (self.alpha+self.H-1)*gamma(self.alpha)*gamma(self.alpha+2*self.H-1)
         self.D_H = nominator/denominator
 
     # --------- Noise Generator --------- #
@@ -221,14 +221,14 @@ class xDirection(Base):
     def compute_msd_an(self):
         D_H = self.D_H
         v0 = self.v0
-        eta = self.eta
         t = self.t
+        eta = self.alpha + self.H - 1
 
-        coeff = ( v0**2 / (D_H/2)**(1/eta) )
+        coeff = ( v0**2 / (eta*(D_H/2)**(1/eta)) )
         gamma1 = gammainc(1/(2*eta), D_H*t**(2*eta)/2)
         gamma2 = gammainc(1/  (eta), D_H*t**(2*eta)/2)
     
-        self.msd_an =  coeff*( gamma1*(D_H/2)**(1/eta)*t - gamma2  )
+        self.msd_an =  coeff*( gamma1*((D_H/2)**(1/eta))*t - gamma2  )
 
     def propagator(self, time_index):
         """
@@ -264,7 +264,7 @@ class xDirection(Base):
                 sum_phi += self.cnj(time - i) * np.cos(self.phi_trajectories[realization_index, i]) * self.h
             
             coeff_noise = (self.h**self.alpha) * gamma(2 - self.alpha)
-            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_noise + sum_phi
+            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_noise + self.v0*sum_phi
 
         return traj
 

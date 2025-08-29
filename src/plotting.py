@@ -75,10 +75,7 @@ def plot_msd(ax, env, variable, label_an = True):
     elif variable == 'sol':
         msd = env.msd_sol
         time = env.t
-    elif variable == 'an' and env.alpha == 1:
-        time = env.t
-        msd = phi_fBm_msd(time, env.H)
-    else:
+    elif variable == 'an':
         msd = env.msd_an
         time = env.t
     
