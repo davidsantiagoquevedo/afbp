@@ -14,13 +14,14 @@ parser.add_argument("--realizations", type=int, default=1000, help="Number of re
 parser.add_argument("--sets", type=int, default=1, help="Number of sets")
 parser.add_argument("--Tf", type=float, default=10, help="Final time Tf")
 parser.add_argument("--h", type=float, default=0.05, help="Step size h")
+parser.add_argument("--eta", type=float, default=1, help="Self propulsion velocity")
 args = parser.parse_args()
 
 start_time = time.time()
 
 alphas = args.alpha
 Hs = args.H
-realizations, sets, Tf, h = args.realizations, args.sets, args.Tf, args.h
+realizations, sets, Tf, h, eta = args.realizations, args.sets, args.Tf, args.h, args.eta
 
 envs = []
 for alpha in alphas:
@@ -47,7 +48,7 @@ for alpha in alphas:
             phi.save(folder="data")
 
             if "x" in args.modes:
-                x = xDirection(phi_trajectories=phi.trajectories, realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h)
+                x = xDirection(phi_trajectories=phi.trajectories, realizations=realizations, set_index=set_label, alpha=alpha, H=H, Tf=Tf, h=h, eta=eta)
                 x.run()
                 # x = parallelization.run_trajectories_parallel(x, batch_size=10)
                 # x.run_solution()

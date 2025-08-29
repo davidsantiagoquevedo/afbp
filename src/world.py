@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.special import gamma
+from scipy.special import gamma, gammainc
 import pandas as pd
 from fbm import FBM
 import os
@@ -10,7 +10,7 @@ from integration import *
 # ---------- Base Class ---------- #
 class Base:
 
-    def __init__(self, realizations, set_index, alpha, H, Tf=10, h=1e-3, phi0=0, x0=0, y0=0):
+    def __init__(self, realizations, set_index, alpha, H, Tf=10, h=1e-3, phi0=0, x0=0, y0=0, v0=0, eta=1):
         # Common parameters
         self.realizations = realizations
         self.set_index = set_index
@@ -22,23 +22,32 @@ class Base:
 
         # Initial conditions
         self.phi0 = phi0
+        self.v0 = v0
         self.x0 = x0
         self.y0 = y0
+
+        # self_propulsion modulus
+        self.eta = eta
 
         # Preallocate storage (to be specialized in subclasses)
         self.trajectories = []
         self.trajectory_sol = []
 
         # Noise Amplitude
-
         if self.alpha == (2-2*H):
-            self.A_H = 1/np.sqrt(H*(2*H-1)*gamma(2*H-1))
+            # print('running')
+            self.A_H = 1#/np.sqrt(H*(2*H-1)*gamma(2*H-1))
             # self.A_H = 1#/np.sqrt(H*(2*H-1)*gamma(2*H-1))
             # print('scaling')
         else: 
             self.A_H = 1#/np.sqrt(2)
         # else:
         #     self.A_H = 1/(np.sqrt(2*H)*gamma(H+1/2))
+
+        # Generalized diffusion coefficient (?) 
+        nominator = H*gamma(2*H)
+        denominator = (alpha+H-1)*gamma(alpha)*gamma(alpha+2*H-1)
+        self.D_H = nominator/denominator
 
     # --------- Noise Generator --------- #
     def make_B_H(self, method='daviesharte'):
@@ -96,6 +105,8 @@ class Base:
 
     def compute_var(self):
         self.var = np.var(self.trajectories, axis=0)
+    def compute_var_sol(self):
+        self.var_sol = np.var(self.trajectory_sol, axis=0)
 
     # --------- Save/Load --------- #
     def save(self, folder="data", mode="phi"):
@@ -131,13 +142,15 @@ class Angular(Base):
     def compute_var_an(self, time = 0):
         H = self.H
         alpha = self.alpha
-        nominator = H*gamma(2*H)
-        denominator = (alpha+H-1)*gamma(alpha)*gamma(alpha+2*H-1)
-        self.var_an = (nominator/denominator)*(self.t**(2*alpha+2*H-2))
-        # self.var_an = (2/gamma(alpha+1))*self.t**(alpha)
-        return (nominator/denominator)*(time**(2*alpha+2*H-2))
+        self.var_an = self.D_H*(self.t**(2*alpha+2*H-2))
+        return self.D_H*(time**(2*alpha+2*H-2))
     
         # return (nominator/denominator)*((time*self.h)**(2*alpha+2*H-2))
+
+    def compute_msd_an(self):
+        if not hasattr(self, "var_an"): #compute variance if not already done
+            self.compute_var_an()
+        self.msd_an = self.var_an + (self.phi0**2)
 
     def propagator(self, time_index):
         """
@@ -202,9 +215,37 @@ class xDirection(Base):
         super().__init__(**kwargs) #since init defined, it doesn't inherit init from parent
         self.phi_trajectories = phi_trajectories
         
+    def compute_var_an(self, time = 0): # ????
+        return None
 
-    # def msd_theory(self):
-    #     return ???
+    def compute_msd_an(self):
+        D_H = self.D_H
+        v0 = self.v0
+        eta = self.eta
+        t = self.t
+
+        coeff = ( v0**2 / (D_H/2)**(1/eta) )
+        gamma1 = gammainc(1/(2*eta), D_H*t**(2*eta)/2)
+        gamma2 = gammainc(1/  (eta), D_H*t**(2*eta)/2)
+    
+        self.msd_an =  coeff*( gamma1*(D_H/2)**(1/eta)*t - gamma2  )
+
+    def propagator(self, time_index):
+        """
+
+        Given a time, it returns the analytical probability function over the interval spanned by the trajectory.
+
+        Returns:
+
+        x : np.array 
+        Intreval of evaluation of probability function [min(trajectory), max(trajectory)]
+        
+        P(x,t) : np.array
+        Analytical probability function
+
+        """
+
+        return 0,0
 
     def run_one(self, realization_index):
         """

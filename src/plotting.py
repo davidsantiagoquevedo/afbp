@@ -67,7 +67,7 @@ def plot_msd(ax, env, variable, label_an = True):
     if variable == 'an':
         style['label'] = style['label'] if label_an else None
     else:
-        style['label'] = rf"{style['label']} $\alpha=${env.alpha} $H=${env.H}"
+        style['label'] = rf"{style['label']} $\alpha=${env.alpha} $H=${env.H} $A_H$={round(env.A_H,2)}"
 
     if variable == 'sim':
         msd = env.msd
@@ -114,10 +114,14 @@ def plot_moment(ax, env, variable, mom_type, label_an = True):
     if variable == 'an':
         style['label'] = style['label'] if label_an else None
     else:
-        style['label'] = rf"{style['label']} $\alpha=${env.alpha} $H=${env.H}"
+        style['label'] = rf"{style['label']} $\alpha=${env.alpha} $H=${env.H} $A_H$={round(env.A_H,2)}"
 
     if variable == 'sim':
         moment = env.mean if mom_type=='mean' else env.var
+        time = env.t
+
+    elif variable == 'sol':
+        moment = env.mean_sol if mom_type=='mean' else env.var_sol
         time = env.t
 
     elif variable == 'an':
