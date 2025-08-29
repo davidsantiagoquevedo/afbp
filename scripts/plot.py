@@ -7,21 +7,21 @@ import utilities
 
 mode = 'phi'
 alphas = [0.5]   # include both cases
-Hs = [0.75]#, 0.5, 0.3]            # only used if alpha==1
+Hs = [0.9, 0.8, 0.6]            # only used if alpha==1
 realizations = 1000
 Tf = 10
 h = 0.05
 sets = 1
-
 # Plotting
 fig1, ax1 = plt.subplots(figsize=(12, 9))
-fig2, ax2 = plt.subplots()
+fig2, ax2 = plt.subplots(figsize=(12, 9))
 fig3, ax3 = plt.subplots()
 
 for alpha in alphas:
     for H in Hs:
 
         env = utilities.read_env(mode, alpha, H, realizations, Tf, h, sets)
+        A_H = env.A_H
 
         # Plot MSD
         env.compute_msd()
@@ -50,8 +50,8 @@ for alpha in alphas:
         fig_pdf.savefig(f"plots/pdf/{mode}pdf_alpha{alpha}_H{H}_r{realizations*sets}_Tf{Tf}_h{h}.png", dpi=100)
 
 fig1.tight_layout()
-fig1.savefig(f"plots/msd/{mode}msd_alpha{alphas}_H{Hs}_r{realizations*sets}_Tf{Tf}_h{h}.png", dpi=100)
+fig1.savefig(f"plots/msd/{mode}msd_alpha{alphas}_H{Hs}_r{realizations*sets}_Tf{Tf}_h{h}_AH{A_H}.png", dpi=100)
 fig2.tight_layout()
-fig2.savefig(f"plots/var/{mode}var_alpha{alphas}_H{Hs}_r{realizations*sets}_Tf{Tf}_h{h}.png", dpi=100)
+fig2.savefig(f"plots/var/{mode}var_alpha{alphas}_H{Hs}_r{realizations*sets}_Tf{Tf}_h{h}_AH{A_H}.png", dpi=100)
 fig3.tight_layout()
-fig3.savefig(f"plots/mean/{mode}mean_alpha{alphas}_H{Hs}_r{realizations*sets}_Tf{Tf}_h{h}.png", dpi=100)
+fig3.savefig(f"plots/mean/{mode}mean_alpha{alphas}_H{Hs}_r{realizations*sets}_Tf{Tf}_h{h}_AH{A_H}.png", dpi=100)

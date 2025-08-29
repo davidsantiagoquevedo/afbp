@@ -152,7 +152,8 @@ def plot_moment(ax, env, variable, mom_type, label_an = True):
     ax.set_ylabel(ylabel_map[mom_type], fontsize=axis_fontsize)
     ax.tick_params(axis='both', labelsize=size_ticks)
     ax.grid(':')
-    ax.legend(fontsize=legend_size)
+    ax.legend(fontsize = legend_size, bbox_to_anchor=(1, 1))
+
 
 
 def plot_pdf(ax, env, mode, time):
