@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 import plotting
 import utilities
 
-mode = 'x'
-alphas = [1.]   # include both cases
+mode = 'phi'
+alphas = [1.]  
 Hs = [0.8, 0.5, 0.3]            # only used if alpha==1
 realizations = 1000
 Tf = 10
@@ -26,18 +26,18 @@ for alpha in alphas:
         # Plot MSD
         env.compute_msd()
         plotting.plot_msd(ax1, env, 'sim')
-        # env.compute_msd_sol()
-        # plotting.plot_msd(ax1, env, 'sol')
+        env.compute_msd_sol()
+        plotting.plot_msd(ax1, env, 'sol')
         env.compute_msd_an()
         plotting.plot_msd(ax1, env, 'an', label_an=(env.alpha == 0.3))
 
         # Plot moments
         env.compute_var()
         plotting.plot_moment(ax2, env, variable='sim', mom_type='var')
-        # env.compute_var_sol()
-        # plotting.plot_moment(ax2, env, variable='sol', mom_type='var')
-        # env.compute_var_an()
-        # plotting.plot_moment(ax2, env, variable='an', mom_type='var')
+        env.compute_var_sol()
+        plotting.plot_moment(ax2, env, variable='sol', mom_type='var')
+        env.compute_var_an()
+        plotting.plot_moment(ax2, env, variable='an', mom_type='var')
         plotting.plot_moment(ax2, env, variable='fit', mom_type='var')
 
         env.compute_mean()
