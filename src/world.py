@@ -10,7 +10,7 @@ from integration import *
 # ---------- Base Class ---------- #
 class Base:
 
-    def __init__(self, realizations, set_index, alpha, H, Tf=10, h=1e-3, phi0=0, x0=0, y0=0, v0=1, eta=1):
+    def __init__(self, realizations, set_index, alpha, H, Tf=10, h=1e-3, phi0=0, x0=0, y0=0, nu=1):
         # Common parameters
         self.realizations = realizations
         self.set_index = set_index
@@ -22,12 +22,11 @@ class Base:
 
         # Initial conditions
         self.phi0 = phi0
-        self.v0 = v0
         self.x0 = x0
         self.y0 = y0
 
         # self_propulsion modulus
-        self.eta = eta
+        self.nu = nu
 
         # Preallocate storage (to be specialized in subclasses)
         self.trajectories = []
@@ -221,16 +220,16 @@ class xDirection(Base):
         
         for time in range(1, self.n):
 
-            sum_noise = 0
-            for i in range(1, time):
-                sum_noise += self.cnj(time - i) * (traj[i] - traj[i-1])
+            sum_x = 0
+            for i in range(1, time): 
+                sum_x += self.cnj(time - i) * (traj[i] - traj[i-1])
             
             sum_phi = 0
             for i in range(1, time+1):
                 sum_phi += self.cnj(time - i) * np.cos(self.phi_trajectories[realization_index, i]) * self.h
             
             coeff_noise = (self.h**self.alpha) * gamma(2 - self.alpha)
-            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_noise + self.v0*sum_phi
+            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_x + self.nu*sum_phi
 
         return traj
 
