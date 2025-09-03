@@ -156,7 +156,6 @@ def plot_moment(ax, env, variable, mom_type, label_an = True):
     ax.legend(fontsize = legend_size, bbox_to_anchor=(1, 1))
 
 
-
 def plot_pdf(ax, env, mode, time):
     
     trajectories_points = env.trajectories[:, time]

@@ -36,7 +36,7 @@ class Base:
         # Noise Amplitude
         if self.alpha == (2-2*H):
             # print('running')
-            self.A_H = 1#/np.sqrt(H*(2*H-1)*gamma(2*H-1))
+            self.A_H = 1#/np.sqrt(H*gamma(2*H))
             # self.A_H = 1#/np.sqrt(H*(2*H-1)*gamma(2*H-1))
             # print('scaling')
         else: 
@@ -44,10 +44,10 @@ class Base:
         # else:
         #     self.A_H = 1/(np.sqrt(2*H)*gamma(H+1/2))
 
-        # Generalized diffusion coefficient (?) 
+        # Generalized diffusion coefficient 
         nominator = self.H*gamma(2*self.H)
         denominator = (self.alpha+self.H-1)*gamma(self.alpha)*gamma(self.alpha+2*self.H-1)
-        self.D_H = nominator/denominator
+        self.D_H = (self.A_H**2)*nominator/denominator
 
     # --------- Noise Generator --------- #
     def make_B_H(self, method='daviesharte'):
@@ -228,7 +228,7 @@ class xDirection(Base):
         gamma1 = gammainc(1/(2*eta), D_H*t**(2*eta)/2)
         gamma2 = gammainc(1/  (eta), D_H*t**(2*eta)/2)
     
-        self.msd_an =  coeff*( gamma1*((D_H/2)**(1/eta))*t - gamma2  )
+        self.msd_an =  coeff*( gamma1*((D_H/2)**(1/eta))*t - gamma2  ) + t**self.alpha
 
     def propagator(self, time_index):
         """

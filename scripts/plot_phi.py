@@ -6,8 +6,8 @@ import plotting
 import utilities
 
 mode = 'phi'
-alphas = [1.]  
-Hs = [0.8, 0.5, 0.3]            # only used if alpha==1
+alphas = [0.5]  
+Hs = [0.9, 0.8, 0.6]            # only used if alpha==1
 realizations = 1000
 Tf = 10
 h = 0.05
@@ -22,6 +22,7 @@ for alpha in alphas:
 
         env = utilities.read_env(mode, alpha, H, realizations, Tf, h, sets)
         A_H.append(round(env.A_H, 2))
+        # env.D_H = env.D_H*(env.A_H**2)
 
         # Plot MSD
         env.compute_msd()
