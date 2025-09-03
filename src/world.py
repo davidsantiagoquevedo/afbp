@@ -167,14 +167,12 @@ class Angular(Base):
 
         """
 
-        H = self.H
-        alpha = self.alpha
-        time = time_index*self.h
+        screenshot = self.trajectories[:, time_index]   # time screenshot of many realizations at time_index
+        limit = np.min(np.abs(np.array(np.min(screenshot), np.max(screenshot))))
+        limit += limit*0.3 
+        x = np.arange(-limit, limit, 1e-3)
 
-        trajectory = self.trajectories[:, time_index]
-        x = np.arange(np.min(trajectory), np.max(trajectory), 1e-3)
-
-        variance = self.compute_var_an(time_index)
+        variance = self.compute_var_an(time_index*self.h)
         factor = np.sqrt( 1 / (2*np.pi*variance) )
         argument = (-(x)**2) / (2*variance)
 
@@ -214,38 +212,6 @@ class xDirection(Base):
     def __init__(self, phi_trajectories, **kwargs):
         super().__init__(**kwargs) #since init defined, it doesn't inherit init from parent
         self.phi_trajectories = phi_trajectories
-        
-    def compute_var_an(self, time = 0): # ????
-        return None
-
-    def compute_msd_an(self):
-        D_H = self.D_H
-        v0 = self.v0
-        t = self.t
-        eta = self.alpha + self.H - 1
-
-        coeff = ( v0**2 / (eta*(D_H/2)**(1/eta)) )
-        gamma1 = gammainc(1/(2*eta), D_H*t**(2*eta)/2)
-        gamma2 = gammainc(1/  (eta), D_H*t**(2*eta)/2)
-    
-        self.msd_an =  coeff*( gamma1*((D_H/2)**(1/eta))*t - gamma2  ) + t**self.alpha
-
-    def propagator(self, time_index):
-        """
-
-        Given a time, it returns the analytical probability function over the interval spanned by the trajectory.
-
-        Returns:
-
-        x : np.array 
-        Intreval of evaluation of probability function [min(trajectory), max(trajectory)]
-        
-        P(x,t) : np.array
-        Analytical probability function
-
-        """
-
-        return 0,0
 
     def run_one(self, realization_index):
         """
@@ -277,8 +243,6 @@ class xDirection(Base):
             self.trajectories.append(traj)
         self.trajectories = np.array(self.trajectories)
 
-    def run_one_solution(self):
-        return convolution_weights(self.dB, self.t, self.alpha)
 
 
 
