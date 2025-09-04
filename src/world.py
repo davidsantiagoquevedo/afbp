@@ -10,38 +10,21 @@ from integration import *
 # ---------- Base Class ---------- #
 class Base:
 
-    def __init__(self, realizations, set_index, alpha, H, Tf=10, h=1e-3, phi0=0, x0=0, y0=0, nu=1):
+    def __init__(self, realizations, alpha, H, Tf=10, h=1e-3):
         # Common parameters
         self.realizations = realizations
-        self.set_index = set_index
         self.alpha = alpha
         self.H = H
         self.Tf = Tf
         self.h = h
         self.n = int(Tf / h)
 
-        # Initial conditions
-        self.phi0 = phi0
-        self.x0 = x0
-        self.y0 = y0
-
-        # self_propulsion modulus
-        self.nu = nu
-
         # Preallocate storage (to be specialized in subclasses)
         self.trajectories = []
         self.trajectory_sol = []
 
         # Noise Amplitude
-        if self.alpha == (2-2*H):
-            # print('running')
-            self.A_H = 1#/np.sqrt(H*gamma(2*H))
-            # self.A_H = 1#/np.sqrt(H*(2*H-1)*gamma(2*H-1))
-            # print('scaling')
-        else: 
-            self.A_H = 1#/np.sqrt(2)
-        # else:
-        #     self.A_H = 1/(np.sqrt(2*H)*gamma(H+1/2))
+        self.A_H = 1
 
         # Generalized diffusion coefficient 
         nominator = self.H*gamma(2*self.H)
@@ -68,17 +51,15 @@ class Base:
     def cnj(self, k):
         return (k+1)**(1-self.alpha) - k**(1-self.alpha)
 
-    # --------- Abstract Run --------- #
-    def run_one(self, dB):
-        """One trajectory (to be implemented in subclass)"""
-        raise NotImplementedError
-
     def run(self):
         """Run all realizations"""
         self.trajectories = []
-        for _ in tqdm(range(self.realizations)):
+        for r in tqdm(range(self.realizations)):
             self.make_B_H()
-            traj = self.run_one()
+            if isinstance(self, Angular):
+                traj = self.run_one()
+            else:
+                traj = self.run_one(r)
             self.trajectories.append(traj)
         self.trajectories = np.array(self.trajectories)
 
@@ -92,11 +73,9 @@ class Base:
            
     # --------- Stats --------- #
     def compute_msd(self):
-        # print(self.trajectories[0])
         self.msd = np.mean((self.trajectories - self.trajectories[:, [0]])**2, axis=0)
 
     def compute_msd_sol(self):
-        print(len(self.trajectory_sol))
         self.msd_sol = np.mean((self.trajectory_sol - self.trajectory_sol[:, [0]])**2, axis=0)
 
     def compute_mean(self):
@@ -104,19 +83,31 @@ class Base:
 
     def compute_var(self):
         self.var = np.var(self.trajectories, axis=0)
+        
     def compute_var_sol(self):
         self.var_sol = np.var(self.trajectory_sol, axis=0)
 
     # --------- Save/Load --------- #
-    def save(self, folder="data", mode="phi"):
+    def save(self, set_label, folder="data", mode="phi"):
+        
+        if isinstance(self, Angular):
+            alphaH = f"alphaR{self.alpha}_HR{self.H}"
+        elif isinstance(self, xDirection) or isinstance(self, yDirection):
+            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}"
+            delattr(self, "phi_trajectories") #removed to avoid duplicating information
+        else:
+            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}"
+            delattr(self, "x_trajectories") #removed to avoid duplicating information
+            delattr(self, "y_trajectories") #removed to avoid duplicating information
+            
+        
         os.makedirs(folder, exist_ok=True)
         filename = (f"{mode}_"
-                    f"alpha{self.alpha}_"
-                    f"H{self.H}_"
+                    f"{alphaH}_"
                     f"r{self.realizations}_"
                     f"Tf{self.Tf}_"
                     f"h{self.h}_" 
-                    f"set{self.set_index}.pkl")
+                    f"set{set_label}.pkl")
         filepath = os.path.join(folder, filename)
         with open(filepath, "wb") as f:
             pickle.dump(self, f)
@@ -137,6 +128,12 @@ class Angular(Base):
     ----------
 
     """
+    
+    def __init__(self, phi0 = 0, **kwargs):
+        
+        super().__init__(**kwargs)
+        self.phi0 = phi0
+    
 
     def compute_var_an(self, time = 0):
         H = self.H
@@ -208,10 +205,23 @@ class xDirection(Base):
     ----------
 
     """
-    def __init__(self, phi_trajectories, **kwargs):
+    def __init__(self, phi = None, x0=0, nu=1, **kwargs):
+        
         super().__init__(**kwargs) #since init defined, it doesn't inherit init from parent
-        self.phi_trajectories = phi_trajectories
-
+        
+        # initial condition
+        self.x0 = x0
+        # self_propulsion modulus
+        self.nu = nu
+        
+        if phi is not None:
+            # We must overwrite some features
+            self.phi_trajectories = phi.trajectories
+            self.alphaR = phi.alpha
+            self.HR = phi.H
+            if self.realizations != phi.realizations:
+                self.realizations = phi.realizations
+            
     def run_one(self, realization_index):
         """
         Compute one trajectory of x for a single realization.
@@ -233,17 +243,107 @@ class xDirection(Base):
 
         return traj
 
-    def run(self):
-        """Run all realizations - OVERWRITITNG!"""
-        self.trajectories = []
-        for r in tqdm(range(self.realizations)):
-            self.make_B_H()
-            traj = self.run_one(r)
-            self.trajectories.append(traj)
-        self.trajectories = np.array(self.trajectories)
+    # def run(self):
+    #     """Run all realizations - OVERWRITITNG!"""
+    #     self.trajectories = []
+    #     for r in tqdm(range(self.realizations)):
+    #         self.make_B_H()
+    #         traj = self.run_one(r)
+    #         self.trajectories.append(traj)
+    #     self.trajectories = np.array(self.trajectories)
 
+class yDirection(Base):
+        
+    """
+    This class extends the general `Base` class to solve y equation·
 
+    Parameters
+    ----------
 
+    """
+    def __init__(self, phi=None, y0=0, nu=1, **kwargs):
+        
+        super().__init__(**kwargs) #since init defined, it doesn't inherit init from parent
 
+        # initial condition
+        self.y0 = y0
+        # self_propulsion modulus
+        self.nu = nu
 
+        if phi is not None:
+            # We must overwrite some features
+            self.phi_trajectories = phi.trajectories
+            self.alphaR = phi.alpha
+            self.HR = phi.H
+            if self.realizations != phi.realizations:
+                self.realizations = phi.realizations
 
+    def run_one(self, realization_index):
+        """
+        Compute one trajectory of y for a single realization.
+        """
+        traj = np.zeros(self.n)
+        
+        for time in range(1, self.n):
+
+            sum_y = 0
+            for i in range(1, time): 
+                sum_y += self.cnj(time - i) * (traj[i] - traj[i-1])
+            
+            sum_phi = 0
+            for i in range(1, time+1):
+                sum_phi += self.cnj(time - i) * np.sin(self.phi_trajectories[realization_index, i]) * self.h
+            
+            coeff_noise = (self.h**self.alpha) * gamma(2 - self.alpha)
+            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_y + self.nu*sum_phi
+
+        return traj
+
+    # def run(self):
+    #     """Run all realizations - OVERWRITITNG!"""
+    #     self.trajectories = []
+    #     for r in tqdm(range(self.realizations)):
+    #         self.make_B_H()
+    #         traj = self.run_one(r)
+    #         self.trajectories.append(traj)
+    #     self.trajectories = np.array(self.trajectories)
+
+class rModulus(Base):
+        
+    """
+    This class extends the general `Base` class to solve r equation·
+
+    Parameters
+    ----------
+
+    """
+    def __init__(self, x, y, **kwargs):
+        super().__init__(**kwargs) #since init defined, it doesn't inherit init from parent
+        self.x_trajectories = x.trajectories
+        self.y_trajectories = y.trajectories
+        
+        self.alphaR = x.alphaR
+        self.HR = x.HR
+
+        self.r_trajectories = np.zeros(len(self.x_trajectories))
+    
+    def compute_r_modulus(self):
+        
+        self.r_trajectories = np.sqrt(self.x_trajectories**2+self.y_trajectories**2)
+        
+    def compute_msd_an(self):
+        D_H = self.D_H
+        nu = self.nu
+        t = self.t
+        alphaT = self.alpha
+        HT = self.H # to add in complete expression without fluc-diss
+        alphaR = self.alphaR
+        HR = self.HR
+        
+        aux_var = alphaR + HR - 1
+
+        coeff = ( nu**2 / (aux_var*(D_H/2)**(1/aux_var)) )
+        gamma1 = gammainc(1/(2*aux_var), D_H*t**(2*aux_var)/2)
+        gamma2 = gammainc(1/  (aux_var), D_H*t**(2*aux_var)/2)
+    
+        self.msd_an =  coeff*( gamma1*((D_H/2)**(1/aux_var))*t - gamma2  ) + t**alphaT
