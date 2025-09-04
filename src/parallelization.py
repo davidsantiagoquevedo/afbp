@@ -1,14 +1,18 @@
 import numpy as np
 import multiprocessing as mp
 from tqdm import tqdm
+from world import Angular, xDirection, yDirection
 
-def single_trajectory_helper(env, p, stored_matrix, lock):
+def single_trajectory_helper(env, p, r, stored_matrix, lock):
     """
     Function that runs a single trajectory
 
     """
     env.make_B_H()
-    traj = env.run_one()
+    if isinstance(env, Angular):
+        traj = env.run_one()
+    else:
+        traj = env.run_one(r)
 
     with lock:
         stored_matrix[p, :] = traj
@@ -52,7 +56,7 @@ def run_trajectories_parallel(env, batch_size = 12):
     for r in tqdm(range(0, env.realizations, batch_size)):
         # execute all tasks in a batch
         processes = [mp.Process(target = single_trajectory_helper, 
-                                args=(env, p, stored_matrix, lock)) for p in range(r, r + batch_size)]
+                                args=(env, p, r, stored_matrix, lock)) for p in range(r, r + batch_size)]
 
         # start all processes
         for process in processes:
