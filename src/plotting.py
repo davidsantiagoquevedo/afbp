@@ -8,7 +8,7 @@ marker_size = 10
 msd_style = {
     'sim': dict(lw=2, label = 'sim'),  
     'sol': dict(lw=2, label = 'sol'),  
-    'an': dict(lw=3, label = 'analytic', color = 'black', ls=':'),  
+    'an': dict(lw=3, label = 'analytic', ls=':'),  
     'fit': dict(lw=2, marker = 'o', label = 'fit')  
 }
 
@@ -63,6 +63,7 @@ def phi_fBm_msd(time, H):
 def plot_msd(ax, env, variable, label_an = True):
 
     style = msd_style[variable].copy()
+    env.make_B_H()
 
     if variable == 'an':
         style['label'] = style['label'] if label_an else None
@@ -107,6 +108,7 @@ def plot_moment(ax, env, variable, mom_type, label_an = True):
     """
 
     style = msd_style[variable].copy()
+    env.make_B_H()
 
     if variable == 'an':
         style['label'] = style['label'] if label_an else None
@@ -114,7 +116,7 @@ def plot_moment(ax, env, variable, mom_type, label_an = True):
         style['label'] = rf"{style['label']} $\alpha=${env.alpha} $H=${env.H} $A_H$={round(env.A_H,2)}"
 
     if variable == 'sim':
-        moment = env.mean if mom_type=='mean' else env.var
+        moment = env.mean if mom_type=='mean' else env.var#/env.var.max()
         time = env.t
 
     elif variable == 'sol':
@@ -122,7 +124,7 @@ def plot_moment(ax, env, variable, mom_type, label_an = True):
         time = env.t
 
     elif variable == 'an':
-        moment = env.mean_an if mom_type=='mean' else env.var_an
+        moment = env.mean_an if mom_type=='mean' else env.var_an#/env.var_an.max()
         time = env.t
     
     elif variable == 'fit':
@@ -184,7 +186,7 @@ def plot_pdf(ax, env, mode, time):
     ax.bar(bin_centres, hist, width=bin_edges[1] - bin_edges[0], alpha=0.5, zorder=0)
     ax.plot(bin_centres, hist_fit, lw=2, label=f'{(round(time*env.h, 2))}', zorder=1)
     
-    ax.set_title(rf'$\boldsymbol{{{variable}}}: \alpha = {env.alpha},\; H = {env.H},\; A_H = {round(env.A_H, 2)}$', fontsize=axis_fontsize)
+    ax.set_title(rf'$variable: \alpha = {env.alpha}, H = {env.H}, A_H = {round(env.A_H, 2)}$', fontsize=axis_fontsize)
     ax.set_xlabel(rf'${variable}$', fontsize=axis_fontsize)
     ax.set_ylabel(rf'$P({variable},t)$', fontsize=axis_fontsize)
     ax.tick_params(axis='both', labelsize=size_ticks)
