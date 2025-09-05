@@ -38,14 +38,6 @@ start_set = args.start_set
 HT = (2 - alphaT) / 2
 
 for alphaR in alphaRs:
-    # alpha == 1 : use provided H values
-    # if alpha == 1:
-    #     if Hs is None:
-    #         raise ValueError("You must provide --H when alpha=1")
-    #     H_values = Hs
-    # # alpha != 1 : compute H automatically
-    # else:
-    #     H_values = [(2 - alpha) / 2]
 
     for HR in HRs:
         print(f"---- Running for alphaT={alphaT}, alphaR={alphaR}, HR={HR}")
@@ -81,7 +73,7 @@ for alphaR in alphaRs:
             if "r" in args.modes:
                 print(f"-- Running r")
                 
-                r = rModulus(x=x, y=y, realizations=realizations, alpha=alphaT, H=HT)
+                r = rModulus(x=x, y=y, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h)
                 r.compute_r_modulus()
                 r.save(set_label= set_label, folder="data", mode='r')
 
