@@ -55,20 +55,28 @@ for alphaR in alphaRs:
                 phi.save(set_label= set_label, folder="data")
 
             if "x" in args.modes:
-                print(f"-- Running x")
-                
-                x = xDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, nu=nu)
-                # x.run()
-                x = parallelization.run_trajectories_parallel(x, batch_size)
-                x.save(set_label= set_label, folder="data", mode='x')
+
+                try:
+                    x = utilities.read_env('x', alphaT, HT, realizations, Tf, h, start_set=set_index, sets=1, alphaR=alphaR, HR=HR)
+                    print(f"-- Loaded x")
+                except:
+                    print(f"-- Running x")
+                    x = xDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, nu=nu)
+                    # x.run()
+                    x = parallelization.run_trajectories_parallel(x, batch_size)
+                    x.save(set_label= set_label, folder="data", mode='x')
                 
             if "y" in args.modes:
-                print(f"-- Running y")
-                
-                y = yDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, nu=nu)
-                # y.run()
-                y = parallelization.run_trajectories_parallel(y, batch_size)
-                y.save(set_label= set_label, folder="data", mode='y')
+
+                try:
+                    y = utilities.read_env('y', alphaT, HT, realizations, Tf, h, start_set=set_index, sets=1, alphaR=alphaR, HR=HR)
+                    print(f"-- Loaded y")
+                except:
+                    print(f"-- Running y")
+                    y = yDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, nu=nu)
+                    # y.run()
+                    y = parallelization.run_trajectories_parallel(y, batch_size)
+                    y.save(set_label= set_label, folder="data", mode='y')
                 
             if "r" in args.modes:
                 print(f"-- Running r")
