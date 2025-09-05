@@ -12,6 +12,7 @@ HRs = [0.75]
 realizations = 1000
 Tf = 10
 h = 0.5
+start_set = 1
 sets = 9
 
 HT = (2 - alphaT) / 2
@@ -30,6 +31,7 @@ for alphaR in alphaRs:
                                  realizations=realizations,
                                  Tf=Tf,
                                  h=h,
+                                 start_set=start_set,
                                  sets=sets)
         A_H.append(round(env.A_H, 2))
         nu = env.nu
