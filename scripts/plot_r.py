@@ -16,15 +16,6 @@ sets = 9
 
 HT = (2 - alphaT) / 2
 
-env = utilities.read_env(mode=mode, 
-                                 alpha=alphaT, H=HT,
-                                 alphaR=alphaRs[0], HR=HRs[0],
-                                 realizations=realizations,
-                                 Tf=Tf,
-                                 h=h,
-                                 sets=sets)
-env.trajectories
-
 # Plotting
 fig1, ax1 = plt.subplots(figsize=(12, 9))
 fig2, ax2 = plt.subplots(figsize=(12, 9))
