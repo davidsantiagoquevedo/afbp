@@ -7,11 +7,12 @@ import utilities
 
 mode = 'phi'
 alphaRs = [0.3]  
-HRs = [0.9]#, 0.85, 0.8]            # only used if alpha==1
-realizations = 1000
+HRs = [0.8]#, 0.85, 0.8]            # only used if alpha==1
+realizations = 160
 Tf = 10
-h = 0.5
-sets = 1
+h = 0.0005
+start_set = 1
+sets = 10
 # Plotting
 fig1, ax1 = plt.subplots(figsize=(12, 9))
 fig2, ax2 = plt.subplots(figsize=(12, 9))
@@ -20,7 +21,7 @@ A_H = []
 for alphaR in alphaRs:
     for HR in HRs:
 
-        env = utilities.read_env(mode, alphaR, HR, realizations, Tf, h, sets)
+        env = utilities.read_env(mode, alphaR, HR, realizations, Tf, h, start_set= start_set, sets=sets)
         A_H.append(round(env.A_H, 2))
         # env.D_H = env.D_H*(env.A_H**2)
 
