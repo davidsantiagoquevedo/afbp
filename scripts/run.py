@@ -45,7 +45,7 @@ for alphaR in alphaRs:
             print(f"-- Running set {set_index}")
             set_label = str(set_index).zfill(3)
             try:
-                phi = utilities.read_env('phi', alphaR, HR, realizations, Tf, h, sets)
+                phi = utilities.read_env('phi', alphaR, HR, realizations, Tf, h, start_set=set_index, sets=1)
                 print(f"-- Loaded phi")
             except:
                 print(f"-- Running phi")
