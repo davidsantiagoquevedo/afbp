@@ -10,7 +10,7 @@ from integration import *
 # ---------- Base Class ---------- #
 class Base:
 
-    def __init__(self, realizations, alpha, H, Tf=10, h=1e-3):
+    def __init__(self, realizations, alpha, H, Tf, h):
         # Common parameters
         self.realizations = realizations
         self.alpha = alpha
@@ -324,12 +324,13 @@ class rModulus(Base):
         
         self.alphaR = x.alphaR
         self.HR = x.HR
+        self.nu = x.nu
 
         self.r_trajectories = np.zeros(len(self.x_trajectories))
     
     def compute_r_modulus(self):
         
-        self.r_trajectories = np.sqrt(self.x_trajectories**2+self.y_trajectories**2)
+        self.trajectories = np.sqrt(self.x_trajectories**2+self.y_trajectories**2)
         
     def compute_msd_an(self):
         D_H = self.D_H
