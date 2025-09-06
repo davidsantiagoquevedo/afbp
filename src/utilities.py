@@ -11,8 +11,6 @@ def read_env(mode, alpha, H, realizations, Tf, h, start_set, sets, alphaR=None, 
     for set_index in range(start_set, start_set+sets):
         set_label = str(set_index).zfill(3)
         
-        print('loading set', set_label)
-        
         env = Base(realizations=realizations, alpha=alpha, H=H, Tf=Tf, h=h)
         
         filepath = (
