@@ -3,3 +3,6 @@ src/__pycache__/
 nohup*
 .DS_Store
 slurm_jobs/
+.out
+.err
+.slurm
