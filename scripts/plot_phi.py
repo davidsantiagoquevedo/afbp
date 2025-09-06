@@ -6,13 +6,13 @@ import plotting
 import utilities
 
 mode = 'phi'
-alphaRs = [0.3]  
-HRs = [0.8]#, 0.85, 0.8]            # only used if alpha==1
+alphaRs = [0.7]  
+HRs = [0.7, 0.65, 0.6]            # only used if alpha==1
 realizations = 160
 Tf = 10
-h = 0.0005
+h = 0.005
 start_set = 1
-sets = 10
+sets = 4
 # Plotting
 fig1, ax1 = plt.subplots(figsize=(12, 9))
 fig2, ax2 = plt.subplots(figsize=(12, 9))
@@ -25,14 +25,6 @@ for alphaR in alphaRs:
         A_H.append(round(env.A_H, 2))
         # env.D_H = env.D_H*(env.A_H**2)
 
-        # Plot MSD
-        env.compute_msd()
-        plotting.plot_msd(ax1, env, 'sim')
-        # env.compute_msd_sol()
-        # plotting.plot_msd(ax1, env, 'sol')
-        env.compute_msd_an()
-        plotting.plot_msd(ax1, env, 'an', label_an=(env.alpha == 0.3))
-
         # Plot moments
         env.compute_var()
         plotting.plot_moment(ax2, env, variable='sim', mom_type='var')
@@ -41,10 +33,6 @@ for alphaR in alphaRs:
         env.compute_var_an()
         plotting.plot_moment(ax2, env, variable='an', mom_type='var')
         #plotting.plot_moment(ax2, env, variable='fit', mom_type='var')
-
-        env.compute_mean()
-        plotting.plot_moment(ax3, env, 'sim', 'mean')
-        #plotting.plot_moment(ax3, env, 'fit', 'mean')
 
         # Plot PDF
         fig_pdf, ax_pdf = plt.subplots(figsize=(8, 7))
