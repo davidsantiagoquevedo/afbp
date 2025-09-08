@@ -1,12 +1,12 @@
 from world import Base
 import numpy as np
 
-def read_env(mode, alpha, H, realizations, Tf, h, start_set, sets, alphaR=None, HR=None, nu=None):
+def read_env(mode, alpha, H, realizations, Tf, h, start_set, sets, alphaR=None, HR=None, nu=None, AHT=None):
     
     if mode == 'phi':
         alphaH = f"alphaR{alpha}_HR{H}"
     else:
-        alphaH = f"alphaT{alpha}_HT{H}_alphaR{alphaR}_HR{HR}_nu{nu}"
+        alphaH = f"alphaT{alpha}_HT{H}_alphaR{alphaR}_HR{HR}_nu{nu}_AHT{AHT}"
 
     for set_index in range(start_set, start_set+sets):
         set_label = str(set_index).zfill(3)

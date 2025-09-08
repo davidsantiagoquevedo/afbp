@@ -8,13 +8,14 @@ import utilities
 mode = 'r'
 alphaT = 1
 alphaRs = [1.0]  
-HRs = [0.7, 0.5, 0.3] 
+HRs = [0.5] 
 nu=1           
-realizations = 160
+AHT=1
+realizations = 1000
 Tf = 10
-h = 0.005
+h = 0.05
 start_set = 1
-sets = 8
+sets = 1
 
 HT = (2 - alphaT) / 2
 
@@ -22,7 +23,6 @@ HT = (2 - alphaT) / 2
 fig1, ax1 = plt.subplots(figsize=(12, 9))
 fig2, ax2 = plt.subplots(figsize=(12, 9))
 fig3, ax3 = plt.subplots()
-A_H = []
 for alphaR in alphaRs:
     for HR in HRs:
 
@@ -30,12 +30,12 @@ for alphaR in alphaRs:
                                  alpha=alphaT, H=HT,
                                  alphaR=alphaR, HR=HR,
                                  nu=nu,
+                                 AHT=AHT,
                                  realizations=realizations,
                                  Tf=Tf,
                                  h=h,
                                  start_set=start_set,
                                  sets=sets)
-        A_H.append(round(env.A_H, 2))
 
         # Plot MSD
         env.compute_msd()
@@ -58,8 +58,8 @@ for alphaR in alphaRs:
         # fig_pdf.savefig(f"plots/pdf/{mode}pdf_alphaT{alphaT}_HT{HT}_alphaR{alphaR}_HR{HR}_r{realizations*sets}_Tf{Tf}_h{h}.png", dpi=100)
 
 fig1.tight_layout()
-fig1.savefig(f"plots/msd/{mode}msd_alphaT{alphaT}_HT{HT}_alphaR{alphaRs}_HR{HRs}_r{realizations*sets}_Tf{Tf}_h{h}_AH{A_H}_nu{nu}.png", dpi=100)
+fig1.savefig(f"plots/msd/{mode}msd_alphaT{alphaT}_HT{HT}_alphaR{alphaRs}_HR{HRs}_r{realizations*sets}_Tf{Tf}_h{h}_AHT{AHT}_nu{nu}.png", dpi=100)
 fig2.tight_layout()
-fig2.savefig(f"plots/var/{mode}var_alphaT{alphaT}_HT{HT}_alphaR{alphaRs}_HR{HRs}_r{realizations*sets}_Tf{Tf}_h{h}_AH{A_H}_nu{nu}.png", dpi=100)
+fig2.savefig(f"plots/var/{mode}var_alphaT{alphaT}_HT{HT}_alphaR{alphaRs}_HR{HRs}_r{realizations*sets}_Tf{Tf}_h{h}_AHT{AHT}_nu{nu}.png", dpi=100)
 fig3.tight_layout()
-fig3.savefig(f"plots/mean/{mode}mean_alphaT{alphaT}_HT{HT}_alphaR{alphaRs}_HR{HRs}_r{realizations*sets}_Tf{Tf}_h{h}_AH{A_H}_nu{nu}.png", dpi=100)
+fig3.savefig(f"plots/mean/{mode}mean_alphaT{alphaT}_HT{HT}_alphaR{alphaRs}_HR{HRs}_r{realizations*sets}_Tf{Tf}_h{h}_AHT{AHT}_nu{nu}.png", dpi=100)

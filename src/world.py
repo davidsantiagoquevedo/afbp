@@ -93,10 +93,10 @@ class Base:
         if isinstance(self, Angular):
             alphaH = f"alphaR{self.alpha}_HR{self.H}"
         elif isinstance(self, xDirection) or isinstance(self, yDirection):
-            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_nu{self.nu}"
+            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_nu{self.nu}_AHT{self.A_H}"
             delattr(self, "phi_trajectories") #removed to avoid duplicating information
         else:
-            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_nu{self.nu}"
+            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_nu{self.nu}_AHT{self.A_H}"
             delattr(self, "x_trajectories") #removed to avoid duplicating information
             delattr(self, "y_trajectories") #removed to avoid duplicating information
             
@@ -205,7 +205,7 @@ class xDirection(Base):
     ----------
 
     """
-    def __init__(self, phi = None, x0=0, nu=1, **kwargs):
+    def __init__(self, phi = None, x0=0, nu=1, AHT=1, **kwargs):
         
         super().__init__(**kwargs) #since init defined, it doesn't inherit init from parent
         
@@ -213,6 +213,7 @@ class xDirection(Base):
         self.x0 = x0
         # self_propulsion modulus
         self.nu = nu
+        self.A_H = AHT
         
         if phi is not None:
             # We must overwrite some features
@@ -253,7 +254,7 @@ class yDirection(Base):
     ----------
 
     """
-    def __init__(self, phi=None, y0=0, nu=1, **kwargs):
+    def __init__(self, phi=None, y0=0, nu=1, AHT=1, **kwargs):
         
         super().__init__(**kwargs) #since init defined, it doesn't inherit init from parent
 
@@ -261,6 +262,8 @@ class yDirection(Base):
         self.y0 = y0
         # self_propulsion modulus
         self.nu = nu
+        self.A_H = AHT
+
 
         if phi is not None:
             # We must overwrite some features
@@ -318,7 +321,7 @@ class rModulus(Base):
     def compute_msd_an(self):
         D_H = self.D_H
         nu = self.nu
-        t = self.t
+        t = self.t 
         alphaT = self.alpha
         HT = self.H # to add in complete expression without fluc-diss
         alphaR = self.alphaR
