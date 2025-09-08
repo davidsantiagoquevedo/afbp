@@ -26,7 +26,8 @@ class Base:
         # Noise Amplitude
         self.A_H = 1
 
-        # Generalized diffusion coefficient 
+    # Generalized diffusion coefficient 
+    def calc_general_diff_coeff(self):
         nominator = self.H*gamma(2*self.H)
         denominator = (self.alpha+self.H-1)*gamma(self.alpha)*gamma(self.alpha+2*self.H-1)
         self.D_H = (self.A_H**2)*nominator/denominator
@@ -133,6 +134,7 @@ class Angular(Base):
         
         super().__init__(**kwargs)
         self.phi0 = phi0
+        self.calc_general_diff_coeff()
     
 
     def compute_var_an(self, time = 0):
@@ -214,12 +216,15 @@ class xDirection(Base):
         # self_propulsion modulus
         self.nu = nu
         self.A_H = AHT
+        self.calc_general_diff_coeff()  #calculating D_H translational
+
         
         if phi is not None:
             # We must overwrite some features
             self.phi_trajectories = phi.trajectories
             self.alphaR = phi.alpha
             self.HR = phi.H
+            self.DHR = phi.D_H
             if self.realizations != phi.realizations:
                 self.realizations = phi.realizations
             
@@ -263,13 +268,15 @@ class yDirection(Base):
         # self_propulsion modulus
         self.nu = nu
         self.A_H = AHT
+        self.calc_general_diff_coeff()  #calculating D_H translational
 
-
+        
         if phi is not None:
             # We must overwrite some features
             self.phi_trajectories = phi.trajectories
             self.alphaR = phi.alpha
             self.HR = phi.H
+            self.DHR = phi.D_H
             if self.realizations != phi.realizations:
                 self.realizations = phi.realizations
 
@@ -308,9 +315,14 @@ class rModulus(Base):
         self.x_trajectories = x.trajectories
         self.y_trajectories = y.trajectories
         
+        # translational properties
+        self.nu = x.nu
+        self.DHT = x.D_H
+
+        # rotational properties
         self.alphaR = x.alphaR
         self.HR = x.HR
-        self.nu = x.nu
+        self.DHR = x.D_H
 
         self.r_trajectories = np.zeros(len(self.x_trajectories))
     
@@ -319,7 +331,8 @@ class rModulus(Base):
         self.trajectories = np.sqrt(self.x_trajectories**2+self.y_trajectories**2)
         
     def compute_msd_an(self):
-        D_H = self.D_H
+        DHT = self.DHT
+        DHR = self.DHR
         nu = self.nu
         t = self.t 
         alphaT = self.alpha
@@ -329,9 +342,9 @@ class rModulus(Base):
         
         aux_var = alphaR + HR - 1
 
-        coeff = ( nu**2 / (aux_var*((D_H/2)**(1/aux_var))) )
-        gamma1 = gammainc(1/(2*aux_var), (D_H*t**(2*aux_var))/2)
-        gamma2 = gammainc(1/  (aux_var), (D_H*t**(2*aux_var))/2)
+        coeff = ( nu**2 / (aux_var*((DHR/2)**(1/aux_var))) )
+        gamma1 = gammainc(1/(2*aux_var), (DHR*t**(2*aux_var))/2)
+        gamma2 = gammainc(1/  (aux_var), (DHR*t**(2*aux_var))/2)
     
-        # self.msd_an =  coeff*( gamma1*((D_H/2)**(1/(2*aux_var)))*t - gamma2  ) + t**alphaT
-        self.msd_an =  t**alphaT
+        # self.msd_an =  coeff*( gamma1*((DHR/2)**(1/(2*aux_var)))*t - gamma2  ) + 2*DHT*t**alphaT
+        self.msd_an = 2*DHT*t**alphaT
