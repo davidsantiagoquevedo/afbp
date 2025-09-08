@@ -7,13 +7,14 @@ import utilities
 
 mode = 'r'
 alphaT = 1
-alphaRs = [0.5]  
-HRs = [0.75]            
-realizations = 1000
+alphaRs = [1.0]  
+HRs = [0.7, 0.5, 0.3] 
+nu=1           
+realizations = 160
 Tf = 10
-h = 0.5
+h = 0.005
 start_set = 1
-sets = 9
+sets = 8
 
 HT = (2 - alphaT) / 2
 
@@ -28,13 +29,13 @@ for alphaR in alphaRs:
         env = utilities.read_env(mode=mode, 
                                  alpha=alphaT, H=HT,
                                  alphaR=alphaR, HR=HR,
+                                 nu=nu,
                                  realizations=realizations,
                                  Tf=Tf,
                                  h=h,
                                  start_set=start_set,
                                  sets=sets)
         A_H.append(round(env.A_H, 2))
-        nu = env.nu
 
         # Plot MSD
         env.compute_msd()
