@@ -19,6 +19,7 @@ from scipy.special import gamma
 import scipy.stats as stats
 import pandas as pd
 import data_analysis
+from world import Angular, rModulus
 # plt.style.use("plotting_style.mplstyle")
 
 # Analytic functions for fitting
@@ -63,6 +64,11 @@ def phi_fBm_msd(time, H):
 def plot_msd(ax, env, variable, label_an = True):
 
     style = msd_style[variable].copy()
+    if isinstance(env, Angular):
+        ylabel = r'MSD$\langle (\phi(t)-\phi_0)^2 \rangle$'
+    if isinstance(env, rModulus):
+        ylabel = r'MSD$\langle (\boldsymbol{r}(t)-\boldsymbol{r}_0)^2 \rangle$'
+
     env.make_B_H()
 
     if variable == 'an':
@@ -84,7 +90,7 @@ def plot_msd(ax, env, variable, label_an = True):
 
     ax.set_xlabel('t', fontsize = axis_fontsize)
     ax.tick_params(axis='both', labelsize=size_ticks)
-    ax.set_ylabel(r'MSD$\langle (\phi(t)-\phi_0)^2 \rangle$', fontsize = axis_fontsize)
+    ax.set_ylabel(f'{ylabel}', fontsize = axis_fontsize)
     ax.grid(':')
     ax.legend(fontsize = legend_size, bbox_to_anchor=(1, 1))
 
