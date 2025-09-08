@@ -100,8 +100,6 @@ class Base:
             alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_nu{self.nu}_AHT{self.A_H}"
             delattr(self, "x_trajectories") #removed to avoid duplicating information
             delattr(self, "y_trajectories") #removed to avoid duplicating information
-            
-        
         os.makedirs(folder, exist_ok=True)
         filename = (f"{mode}_"
                     f"{alphaH}_"
@@ -188,7 +186,7 @@ class Angular(Base):
             for i in range(1, time):
                 
                 sum_term += self.cnj(time-i) * (traj[i]-traj[i-1])
-            
+
             # Update rule
             coeff_noise = ((self.h)**(self.alpha)) * (gamma(2-self.alpha))
             traj[time] = traj[time-1] + coeff_noise*self.dB[time] - sum_term
@@ -241,11 +239,12 @@ class xDirection(Base):
                 sum_x += self.cnj(time - i) * (traj[i] - traj[i-1])
             
             sum_phi = 0
-            for i in range(1, time+1):
+            for i in range(1, time):
                 sum_phi += self.cnj(time - i) * np.cos(self.phi_trajectories[realization_index, i]) * self.h
             
             coeff_noise = (self.h**self.alpha) * gamma(2 - self.alpha)
-            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_x + self.nu*sum_phi
+            # traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_x + self.nu*sum_phi
+            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_x + self.nu*sum_phi + (np.cos(self.phi_trajectories[realization_index, time]))*self.h
 
         return traj
 
@@ -262,7 +261,7 @@ class yDirection(Base):
     def __init__(self, phi=None, y0=0, nu=1, AHT=1, **kwargs):
         
         super().__init__(**kwargs) #since init defined, it doesn't inherit init from parent
-
+           
         # initial condition
         self.y0 = y0
         # self_propulsion modulus
@@ -283,7 +282,7 @@ class yDirection(Base):
     def run_one(self, realization_index):
         """
         Compute one trajectory of y for a single realization.
-        """
+        """                                                              
         traj = np.zeros(self.n)
         
         for time in range(1, self.n):
@@ -293,11 +292,13 @@ class yDirection(Base):
                 sum_y += self.cnj(time - i) * (traj[i] - traj[i-1])
             
             sum_phi = 0
-            for i in range(1, time+1):
+            for i in range(1, time):
                 sum_phi += self.cnj(time - i) * np.sin(self.phi_trajectories[realization_index, i]) * self.h
             
             coeff_noise = (self.h**self.alpha) * gamma(2 - self.alpha)
-            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_y + self.nu*sum_phi
+            # traj[time] = traj[time-1] + coeff_noise * self.dB[time]  - sum_y + self.nu*sum_phi 
+            traj[time] = traj[time-1] + coeff_noise * self.dB[time]  - sum_y + self.nu*sum_phi + (np.sin(self.phi_trajectories[realization_index, time]))*self.h
+            # traj[time] = traj[time-1] + coeff_noise * self.dB[time] + np.sin(self.phi_trajectories[realization_index, time]) - sum_y + self.nu*sum_phi
 
         return traj
 
@@ -325,7 +326,7 @@ class rModulus(Base):
         self.HR = x.HR
         self.DHR = x.DHR
 
-        self.r_trajectories = np.zeros(len(self.x_trajectories))
+        # self.r_trajectories = np.zeros(len(self.x_trajectories))
     
     def compute_r_modulus(self):
         
@@ -347,5 +348,6 @@ class rModulus(Base):
         gamma1 = gammainc(1/(2*aux_var), (DHR*t**(2*aux_var))/2)
         gamma2 = gammainc(1/  (aux_var), (DHR*t**(2*aux_var))/2)
     
-        self.msd_an =  coeff*( gamma1*((DHR/2)**(1/(2*aux_var)))*t - gamma2  ) + 2*DHT*t**alphaT
+        # self.msd_an =  coeff*( gamma1*((DHR/2)**(1/(2*aux_var)))*t - gamma2  ) + 2*DHT*t**alphaT
+        self.msd_an =  coeff*( gamma1*((DHR/2)**(1/(2*aux_var)))*t - gamma2  ) 
         # self.msd_an = 2*DHT*t**alphaT
