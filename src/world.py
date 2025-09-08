@@ -243,14 +243,6 @@ class xDirection(Base):
 
         return traj
 
-    # def run(self):
-    #     """Run all realizations - OVERWRITITNG!"""
-    #     self.trajectories = []
-    #     for r in tqdm(range(self.realizations)):
-    #         self.make_B_H()
-    #         traj = self.run_one(r)
-    #         self.trajectories.append(traj)
-    #     self.trajectories = np.array(self.trajectories)
 
 class yDirection(Base):
         
@@ -298,15 +290,6 @@ class yDirection(Base):
             traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_y + self.nu*sum_phi
 
         return traj
-
-    # def run(self):
-    #     """Run all realizations - OVERWRITITNG!"""
-    #     self.trajectories = []
-    #     for r in tqdm(range(self.realizations)):
-    #         self.make_B_H()
-    #         traj = self.run_one(r)
-    #         self.trajectories.append(traj)
-    #     self.trajectories = np.array(self.trajectories)
 
 class rModulus(Base):
         
