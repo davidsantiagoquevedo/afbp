@@ -8,7 +8,7 @@ marker_size = 10
 msd_style = {
     'sim': dict(lw=2, label = 'sim'),  
     'sol': dict(lw=2, label = 'sol'),  
-    'an': dict(lw=3, label = 'analytic', ls=':'),  
+    'an': dict(lw=5, label = 'analytic', ls=':'),  
     'fit': dict(lw=2, marker = 'o', label = 'fit')  
 }
 
@@ -87,6 +87,8 @@ def plot_msd(ax, env, variable, label_an = True):
         time = env.t
     
     ax.plot(time, msd, **style)
+    if isinstance(env, rModulus) and variable=='an':
+        ax.plot(time, (2*env.nu/((env.DHR/2)**2)) * ((env.DHR*time/2) + np.exp(-env.DHR*time/2) - 1), c='magenta', ls='--', label='Gonzalez', lw=1.5)
 
     ax.set_xlabel('t', fontsize = axis_fontsize)
     ax.tick_params(axis='both', labelsize=size_ticks)
