@@ -14,7 +14,7 @@ parser.add_argument("--modes", nargs='+', default=["phi"], choices=["phi", "x", 
 parser.add_argument("--alphaR", nargs='+', type=float, default=[0.5], help="Rotational alpha value(s)")
 parser.add_argument("--alphaT", type=float, default=1, help="Translational alpha value")
 parser.add_argument("--HR", nargs='+', type=float, default=[0.5], help="H value(s). Required if alpha=1.")
-
+# parser.add_argument("--AHT", type=float, default=1, help="Translational noise coefficient")
 parser.add_argument("--realizations", type=int, default=1000, help="Number of realizations")
 parser.add_argument("--sets", type=int, default=1, help="Number of sets")
 parser.add_argument("--Tf", type=float, default=10, help="Final time Tf")
@@ -31,6 +31,8 @@ alphaRs = args.alphaR
 HRs = args.HR
 
 alphaT = args.alphaT
+nu = args.nu
+print(nu)
 
 realizations, sets, Tf, h, nu, batch_size = args.realizations, args.sets, args.Tf, args.h, args.nu, args.batch_size
 start_set = args.start_set
@@ -57,7 +59,7 @@ for alphaR in alphaRs:
             if "x" in args.modes:
 
                 try:
-                    x = utilities.read_env('x', alphaT, HT, realizations, Tf, h, start_set=set_index, sets=1, alphaR=alphaR, HR=HR)
+                    x = utilities.read_env('x', alphaT, HT, realizations, Tf, h, start_set=set_index, sets=1, alphaR=alphaR, HR=HR, nu=nu)
                     print(f"-- Loaded x")
                 except:
                     print(f"-- Running x")
@@ -69,7 +71,7 @@ for alphaR in alphaRs:
             if "y" in args.modes:
 
                 try:
-                    y = utilities.read_env('y', alphaT, HT, realizations, Tf, h, start_set=set_index, sets=1, alphaR=alphaR, HR=HR)
+                    y = utilities.read_env('y', alphaT, HT, realizations, Tf, h, start_set=set_index, sets=1, alphaR=alphaR, HR=HR, nu=nu)
                     print(f"-- Loaded y")
                 except:
                     print(f"-- Running y")

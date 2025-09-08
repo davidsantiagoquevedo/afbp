@@ -93,7 +93,7 @@ class Base:
         if isinstance(self, Angular):
             alphaH = f"alphaR{self.alpha}_HR{self.H}"
         elif isinstance(self, xDirection) or isinstance(self, yDirection):
-            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}"
+            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_nu{self.nu}"
             delattr(self, "phi_trajectories") #removed to avoid duplicating information
         else:
             alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_nu{self.nu}"
