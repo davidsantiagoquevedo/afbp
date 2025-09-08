@@ -74,7 +74,10 @@ def plot_msd(ax, env, variable, label_an = True):
     if variable == 'an':
         style['label'] = style['label'] if label_an else None
     else:
-        style['label'] = rf"{style['label']} $\alpha=${env.alpha} $H=${env.H} $A_H$={round(env.A_H,2)}"
+        if isinstance(env, Angular):
+            style['label'] = rf"{style['label']} $\alpha_R=${env.alpha} $H_R=${env.H}"
+        else:
+            style['label'] = rf"{style['label']} $\alpha_T=${env.alpha} $H_T=${env.H}"+ "\n" + rf"$\alpha_R=${env.alphaR} $H_R=${env.HR}"
 
     if variable == 'sim':
         msd = env.msd
@@ -87,7 +90,7 @@ def plot_msd(ax, env, variable, label_an = True):
         time = env.t
     
     ax.plot(time, msd, **style)
-    if isinstance(env, rModulus) and variable=='an':
+    if isinstance(env, rModulus) and variable=='an' and env.HR==0.5:
         ax.plot(time, (2*env.nu/((env.DHR/2)**2)) * ((env.DHR*time/2) + np.exp(-env.DHR*time/2) - 1), c='magenta', ls='--', label='Gonzalez', lw=1.5)
 
     ax.set_xlabel('t', fontsize = axis_fontsize)
