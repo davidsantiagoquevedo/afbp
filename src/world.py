@@ -96,7 +96,7 @@ class Base:
             alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}"
             delattr(self, "phi_trajectories") #removed to avoid duplicating information
         else:
-            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}"
+            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_nu{self.nu}"
             delattr(self, "x_trajectories") #removed to avoid duplicating information
             delattr(self, "y_trajectories") #removed to avoid duplicating information
             
@@ -343,8 +343,9 @@ class rModulus(Base):
         
         aux_var = alphaR + HR - 1
 
-        coeff = ( nu**2 / (aux_var*(D_H/2)**(1/aux_var)) )
-        gamma1 = gammainc(1/(2*aux_var), D_H*t**(2*aux_var)/2)
-        gamma2 = gammainc(1/  (aux_var), D_H*t**(2*aux_var)/2)
+        coeff = ( nu**2 / (aux_var*((D_H/2)**(1/aux_var))) )
+        gamma1 = gammainc(1/(2*aux_var), (D_H*t**(2*aux_var))/2)
+        gamma2 = gammainc(1/  (aux_var), (D_H*t**(2*aux_var))/2)
     
-        self.msd_an =  coeff*( gamma1*((D_H/2)**(1/aux_var))*t - gamma2  ) + t**alphaT
+        # self.msd_an =  coeff*( gamma1*((D_H/2)**(1/(2*aux_var)))*t - gamma2  ) + t**alphaT
+        self.msd_an =  t**alphaT
