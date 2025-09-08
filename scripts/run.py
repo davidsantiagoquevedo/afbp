@@ -46,39 +46,39 @@ for alphaR in alphaRs:
         for set_index in range(start_set, start_set+sets):
             print(f"-- Running set {set_index}")
             set_label = str(set_index).zfill(3)
-            try:
-                phi = utilities.read_env('phi', alphaR, HR, realizations, Tf, h, start_set=set_index, sets=1)
-                print(f"-- Loaded phi")
-            except:
-                print(f"-- Running phi")
-                phi = Angular(realizations=realizations, alpha=alphaR, H=HR, Tf=Tf, h=h)
-                # phi.run()
-                phi = parallelization.run_trajectories_parallel(phi, batch_size=batch_size)
-                phi.save(set_label= set_label, folder="data")
+            # try:
+            #     phi = utilities.read_env('phi', alphaR, HR, realizations, Tf, h, start_set=set_index, sets=1)
+            #     print(f"-- Loaded phi")
+            # except:
+            print(f"-- Running phi")
+            phi = Angular(realizations=realizations, alpha=alphaR, H=HR, Tf=Tf, h=h)
+            phi.run()
+            # phi = parallelization.run_trajectories_parallel(phi, batch_size=batch_size)
+            phi.save(set_label= set_label, folder="data")
 
             if "x" in args.modes:
 
-                try:
-                    x = utilities.read_env('x', alphaT, HT, realizations, Tf, h, start_set=set_index, sets=1, alphaR=alphaR, HR=HR, nu=nu, AHT=AHT)
-                    print(f"-- Loaded x")
-                except:
-                    print(f"-- Running x")
-                    x = xDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, nu=nu, AHT=AHT)
-                    # x.run()
-                    x = parallelization.run_trajectories_parallel(x, batch_size)
-                    x.save(set_label= set_label, folder="data", mode='x')
+                # try:
+                #     x = utilities.read_env('x', alphaT, HT, realizations, Tf, h, start_set=set_index, sets=1, alphaR=alphaR, HR=HR, nu=nu, AHT=AHT)
+                #     print(f"-- Loaded x")
+                # except:
+                # print(f"-- Running x")
+                x = xDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, nu=nu, AHT=AHT)
+                # x.run()
+                x = parallelization.run_trajectories_parallel(x, batch_size)
+                x.save(set_label= set_label, folder="data", mode='x')
                 
             if "y" in args.modes:
 
-                try:
-                    y = utilities.read_env('y', alphaT, HT, realizations, Tf, h, start_set=set_index, sets=1, alphaR=alphaR, HR=HR, nu=nu, AHT=AHT)
-                    print(f"-- Loaded y")
-                except:
-                    print(f"-- Running y")
-                    y = yDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, nu=nu, AHT=AHT)
-                    # y.run()
-                    y = parallelization.run_trajectories_parallel(y, batch_size)
-                    y.save(set_label= set_label, folder="data", mode='y')
+                # try:
+                #     y = utilities.read_env('y', alphaT, HT, realizations, Tf, h, start_set=set_index, sets=1, alphaR=alphaR, HR=HR, nu=nu, AHT=AHT)
+                #     print(f"-- Loaded y")
+                # except:
+                print(f"-- Running y")
+                y = yDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, nu=nu, AHT=AHT)
+                # y.run()
+                y = parallelization.run_trajectories_parallel(y, batch_size)
+                y.save(set_label= set_label, folder="data", mode='y')
                 
             if "r" in args.modes:
                 print(f"-- Running r")
