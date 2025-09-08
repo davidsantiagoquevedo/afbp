@@ -317,12 +317,13 @@ class rModulus(Base):
         
         # translational properties
         self.nu = x.nu
-        self.DHT = x.D_H
+        self.A_H = x.A_H
+        self.D_H = x.D_H
 
         # rotational properties
         self.alphaR = x.alphaR
         self.HR = x.HR
-        self.DHR = x.D_H
+        self.DHR = x.DHR
 
         self.r_trajectories = np.zeros(len(self.x_trajectories))
     
@@ -331,7 +332,7 @@ class rModulus(Base):
         self.trajectories = np.sqrt(self.x_trajectories**2+self.y_trajectories**2)
         
     def compute_msd_an(self):
-        DHT = self.DHT
+        DHT = self.D_H
         DHR = self.DHR
         nu = self.nu
         t = self.t 
@@ -346,5 +347,5 @@ class rModulus(Base):
         gamma1 = gammainc(1/(2*aux_var), (DHR*t**(2*aux_var))/2)
         gamma2 = gammainc(1/  (aux_var), (DHR*t**(2*aux_var))/2)
     
-        # self.msd_an =  coeff*( gamma1*((DHR/2)**(1/(2*aux_var)))*t - gamma2  ) + 2*DHT*t**alphaT
-        self.msd_an = 2*DHT*t**alphaT
+        self.msd_an =  coeff*( gamma1*((DHR/2)**(1/(2*aux_var)))*t - gamma2  ) + 2*DHT*t**alphaT
+        # self.msd_an = 2*DHT*t**alphaT
