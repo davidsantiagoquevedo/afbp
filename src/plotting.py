@@ -1,23 +1,8 @@
-# -- PARAMETERS --
-
-legend_size = 15
-axis_fontsize = 19
-size_ticks = 20
-marker_size = 10
-
-msd_style = {
-    'sim': dict(lw=2, label = 'sim'),  
-    'sol': dict(lw=2, label = 'sol'),  
-    'an': dict(lw=5, label = 'analytic', ls=':'),  
-    'fit': dict(lw=2, marker = 'o', label = 'fit')  
-}
-
 # -- FUNCTIONS --
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.special import gamma
-import scipy.stats as stats
-import pandas as pd
+import plotting_param as par
 import data_analysis
 from world import Angular, rModulus
 # plt.style.use("plotting_style.mplstyle")
@@ -53,7 +38,6 @@ def phi_fBm_propagator_calvo(phi, time, H, phi0=0):
     
     return (np.sqrt(H/np.pi)) * (gamma(H+1/2)/(time**H)) * np.exp(-H*((gamma(H+1/2)*(phi-phi0)/(time**(H)))**2))
 
-
 def phi_fBm_msd(time, H):
     # return (1/(2*H*(gamma(H+1/2)**2)))*(time**(2*H))
     return (time**(2*H))
@@ -63,7 +47,7 @@ def phi_fBm_msd(time, H):
 # Plotting
 def plot_msd(ax, env, variable, label_an = True):
 
-    style = msd_style[variable].copy()
+    style = par.msd_style[variable].copy()
     if isinstance(env, Angular):
         ylabel = r'MSD$\langle (\phi(t)-\phi_0)^2 \rangle$'
     if isinstance(env, rModulus):
@@ -82,24 +66,24 @@ def plot_msd(ax, env, variable, label_an = True):
     if variable == 'sim':
         msd = env.msd
         time = env.t
+        style['marker']='o'
+
     elif variable == 'sol':
         msd = env.msd_sol
         time = env.t
     elif variable == 'an':
         msd = env.msd_an
         time = env.t
-    
+
     ax.plot(time, msd, **style)
-    if isinstance(env, rModulus) and variable=='an' and env.HR==0.5:
-        ax.plot(time, (2*env.nu/((env.DHR/2)**2)) * ((env.DHR*time/2) + np.exp(-env.DHR*time/2) - 1), c='magenta', ls='--', label='Gonzalez', lw=1.5)
 
-    ax.set_xlabel('t', fontsize = axis_fontsize)
-    ax.tick_params(axis='both', labelsize=size_ticks)
-    ax.set_ylabel(f'{ylabel}', fontsize = axis_fontsize)
+    ax.set_xlabel('t', fontsize = par.axis_fontsize)
+    ax.tick_params(axis='both', labelsize=par.size_ticks)
+    ax.set_ylabel(f'{ylabel}', fontsize = par.axis_fontsize)
     ax.grid(':')
-    ax.legend(fontsize = legend_size, bbox_to_anchor=(1, 1))
+    ax.legend(fontsize = par.legend_size, bbox_to_anchor=(1, 1))
 
-def plot_moment(ax, env, variable, mom_type, label_an = True):
+def plot_moment(ax, env, variable, mom_type, label_an = True, pic_in_grid = False):
 
     """
     Plots a moment vector (mean or variance).
@@ -118,13 +102,16 @@ def plot_moment(ax, env, variable, mom_type, label_an = True):
 
     """
 
-    style = msd_style[variable].copy()
+    style = par.msd_style[variable].copy()
     env.make_B_H()
 
     if variable == 'an':
         style['label'] = style['label'] if label_an else None
     else:
-        style['label'] = rf"{style['label']} $\alpha=${env.alpha} $H=${env.H} $A_H$={round(env.A_H,2)}"
+        if pic_in_grid:
+            style['label'] = rf"$H=${env.H}"
+        else:
+            style['label'] = rf"{style['label']} $\alpha=${env.alpha} $H=${env.H} $A_H$={round(env.A_H,2)}"
 
     if variable == 'sim':
         moment = env.mean if mom_type=='mean' else env.var#/env.var.max()
@@ -162,11 +149,15 @@ def plot_moment(ax, env, variable, mom_type, label_an = True):
         'var': r'$\sigma^2(t)$',
         'mean': r'$\langle \phi(t) \rangle$'
     }
-    ax.set_xlabel('t', fontsize=axis_fontsize)
-    ax.set_ylabel(ylabel_map[mom_type], fontsize=axis_fontsize)
-    ax.tick_params(axis='both', labelsize=size_ticks)
-    ax.grid(':')
-    ax.legend(fontsize = legend_size, bbox_to_anchor=(1, 1))
+
+    ax.tick_params(axis='both', labelsize=par.size_ticks)
+    if pic_in_grid:
+        ax.legend(fontsize = par.legend_size)
+    else:
+        ax.grid(':')    
+        ax.set_xlabel('t', fontsize = par.axis_fontsize)
+        ax.set_ylabel(ylabel_map[mom_type], fontsize = par.axis_fontsize)
+        ax.legend(fontsize = par.legend_size,bbox_to_anchor=(1, 1))
 
 
 def plot_pdf(ax, env, mode, time):
@@ -197,9 +188,9 @@ def plot_pdf(ax, env, mode, time):
     ax.bar(bin_centres, hist, width=bin_edges[1] - bin_edges[0], alpha=0.5, zorder=0)
     ax.plot(bin_centres, hist_fit, lw=2, label=f'{(round(time*env.h, 2))}', zorder=1)
     
-    ax.set_title(rf'$variable: \alpha = {env.alpha}, H = {env.H}, A_H = {round(env.A_H, 2)}$', fontsize=axis_fontsize)
-    ax.set_xlabel(rf'${variable}$', fontsize=axis_fontsize)
-    ax.set_ylabel(rf'$P({variable},t)$', fontsize=axis_fontsize)
-    ax.tick_params(axis='both', labelsize=size_ticks)
-    ax.legend(fontsize = legend_size)
+    ax.set_title(rf'$variable: \alpha = {env.alpha}, H = {env.H}, A_H = {round(env.A_H, 2)}$', fontsize=par.axis_fontsize)
+    ax.set_xlabel(rf'${variable}$', fontsize=par.axis_fontsize)
+    ax.set_ylabel(rf'$P({variable},t)$', fontsize=par.axis_fontsize)
+    ax.tick_params(axis='both', labelsize=par.size_ticks)
+    ax.legend(fontsize = par.legend_size)
 
