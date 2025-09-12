@@ -25,11 +25,12 @@ class Base:
 
         # Noise Amplitude
         self.A_H = 1
+        # self.A_H = 1/(np.sqrt(2*H)*gamma(H+1/2))
 
     # Generalized diffusion coefficient 
     def calc_general_diff_coeff(self):
         nominator = self.H*gamma(2*self.H)
-        denominator = (self.alpha+self.H-1)*gamma(self.alpha)*gamma(self.alpha+2*self.H-1)
+        denominator = gamma(self.alpha)*gamma(self.alpha+2*self.H-1)
         self.D_H = (self.A_H**2)*nominator/denominator
 
     # --------- Noise Generator --------- #
@@ -138,8 +139,18 @@ class Angular(Base):
     def compute_var_an(self, time = 0):
         H = self.H
         alpha = self.alpha
+        nu = alpha + H - 1
+        self.calc_general_diff_coeff()
+        # if nu>0.1:
+        self.D_H = self.D_H/(alpha+H-1)
         self.var_an = self.D_H*(self.t**(2*alpha+2*H-2))
         return self.D_H*(time**(2*alpha+2*H-2))
+        # else:
+        #     # time_filtered = np.array([x for x in self.t if x > 1])
+        #     time_filtered = self.t
+        #     self.var_an = 2*self.D_H*(np.log(time_filtered/self.h))
+        #     return self.D_H*(np.log(time_filtered))
+            
     
         # return (nominator/denominator)*((time*self.h)**(2*alpha+2*H-2))
 
@@ -205,7 +216,7 @@ class xDirection(Base):
     ----------
 
     """
-    def __init__(self, phi = None, x0=0, nu=1, AHT=1, **kwargs):
+    def __init__(self, phi, x0=0, nu=1, AHT=1, **kwargs):
         
         super().__init__(**kwargs) #since init defined, it doesn't inherit init from parent
         
@@ -215,16 +226,13 @@ class xDirection(Base):
         self.nu = nu
         self.A_H = AHT
         self.calc_general_diff_coeff()  #calculating D_H translational
-
         
-        if phi is not None:
-            # We must overwrite some features
-            self.phi_trajectories = phi.trajectories
-            self.alphaR = phi.alpha
-            self.HR = phi.H
-            self.DHR = phi.D_H
-            if self.realizations != phi.realizations:
-                self.realizations = phi.realizations
+        self.phi_trajectories = phi.trajectories
+        self.alphaR = phi.alpha
+        self.HR = phi.H
+        self.DHR = phi.D_H
+        if self.realizations != phi.realizations:
+            self.realizations = phi.realizations
             
     def run_one(self, realization_index):
         """
@@ -240,11 +248,10 @@ class xDirection(Base):
             
             sum_phi = 0
             for i in range(1, time):
-                sum_phi += self.cnj(time - i) * np.cos(self.phi_trajectories[realization_index, i]) * self.h
+                sum_phi += self.cnj(time - i) * (np.cos(self.phi_trajectories[realization_index, i-1])) * self.h
             
             coeff_noise = (self.h**self.alpha) * gamma(2 - self.alpha)
-            # traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_x + self.nu*sum_phi
-            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_x + self.nu*sum_phi + (np.cos(self.phi_trajectories[realization_index, time]))*self.h
+            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_x + self.nu*sum_phi + (np.cos(self.phi_trajectories[realization_index, time-1]))*self.h
 
         return traj
 
@@ -293,12 +300,10 @@ class yDirection(Base):
             
             sum_phi = 0
             for i in range(1, time):
-                sum_phi += self.cnj(time - i) * np.sin(self.phi_trajectories[realization_index, i]) * self.h
+              sum_phi += self.cnj(time - i) * (np.sin(self.phi_trajectories[realization_index, i-1])) * self.h
             
             coeff_noise = (self.h**self.alpha) * gamma(2 - self.alpha)
-            # traj[time] = traj[time-1] + coeff_noise * self.dB[time]  - sum_y + self.nu*sum_phi 
-            traj[time] = traj[time-1] + coeff_noise * self.dB[time]  - sum_y + self.nu*sum_phi + (np.sin(self.phi_trajectories[realization_index, time]))*self.h
-            # traj[time] = traj[time-1] + coeff_noise * self.dB[time] + np.sin(self.phi_trajectories[realization_index, time]) - sum_y + self.nu*sum_phi
+            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_y + self.nu*sum_phi + (np.sin(self.phi_trajectories[realization_index, time-1]))*self.h
 
         return traj
 
@@ -345,8 +350,8 @@ class rModulus(Base):
         aux_var = alphaR + HR - 1
 
         coeff = ( nu**2 / (aux_var*((DHR/2)**(1/aux_var))) )
-        gamma1 = gammainc(1/(2*aux_var), (DHR*t**(2*aux_var))/2)
-        gamma2 = gammainc(1/  (aux_var), (DHR*t**(2*aux_var))/2)
+        gamma1 = gamma(1/(2*aux_var))*gammainc(1/(2*aux_var), (DHR*t**(2*aux_var))/2)
+        gamma2 = gamma(1/(aux_var))*gammainc(1/  (aux_var), (DHR*t**(2*aux_var))/2)
     
         # self.msd_an =  coeff*( gamma1*((DHR/2)**(1/(2*aux_var)))*t - gamma2  ) + 2*DHT*t**alphaT
         self.msd_an =  coeff*( gamma1*((DHR/2)**(1/(2*aux_var)))*t - gamma2  ) 
