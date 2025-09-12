@@ -124,40 +124,17 @@ def plot_moment(ax, env, variable, mom_type, label_an = True, pic_in_grid = Fals
     elif variable == 'an':
         moment = env.mean_an if mom_type=='mean' else env.var_an#/env.var_an.max()
         time = env.t
-    
-    elif variable == 'fit':
-        fit_indices = np.arange(1, (env.n), 5) 
-        time = np.array(fit_indices) * env.h
-
-        mean_fit = []
-        var_fit = []
-
-        for i in fit_indices:
-            samples = env.trajectories[:, i]
-            coeff, _ = data_analysis.gauss_fit(samples, bins=40)
-            A, mu, sigma = coeff
-
-            mean_fit.append(mu)
-            var_fit.append(sigma**2)
-
-        moment = var_fit if mom_type == 'var' else mean_fit
-
 
     ax.plot(time, moment, **style)
-
-    ylabel_map = {
-        'var': r'$\sigma^2(t)$',
-        'mean': r'$\langle \phi(t) \rangle$'
-    }
 
     ax.tick_params(axis='both', labelsize=par.size_ticks)
     if pic_in_grid:
         ax.legend(fontsize = par.legend_size)
     else:
         ax.grid(':')    
-        ax.set_xlabel('t', fontsize = par.axis_fontsize)
-        ax.set_ylabel(ylabel_map[mom_type], fontsize = par.axis_fontsize)
         ax.legend(fontsize = par.legend_size,bbox_to_anchor=(1, 1))
+        ax.set_ylabel(par.ylabel_map[mom_type], fontsize = par.axis_fontsize)
+    ax.set_xlabel('t', fontsize = par.axis_fontsize)
 
 
 def plot_pdf(ax, env, mode, time):

@@ -16,6 +16,7 @@ fig, ax = plt.subplots(1, 4, figsize = (20, 5.5))
 # alpha 1 --> Hfluc-diss = 0.5
 alphaR = 1.
 ax[0].set_title(fr'$\alpha$=1', fontsize = par.title_fontsize)
+ax[0].set_ylabel(par.ylabel_map['var'], fontsize = par.axis_fontsize)
 sets = 5
 h = 0.05
 
@@ -72,9 +73,6 @@ env.compute_var()
 plotting.plot_moment(ax[1], env, variable='sim', mom_type='var', pic_in_grid=True)
 env.compute_var_an()
 plotting.plot_moment(ax[1], env, variable='an', mom_type='var', pic_in_grid=True, label_an=False)
-
-fig.text(0.5, 0.04, 't', ha='center', fontsize=par.title_fontsize)    
-fig.text(0.04, 0.5, r'$\sigma^2_{\phi}$', va='center', rotation='vertical', fontsize=par.title_fontsize)  
 
 # alpha 0.5 --> Hfluc-diss = 0.75
 alphaR = 0.5
@@ -135,9 +133,6 @@ env.compute_var()
 plotting.plot_moment(ax[3], env, variable='sim', mom_type='var', pic_in_grid=True)
 env.compute_var_an()
 plotting.plot_moment(ax[3], env, variable='an', mom_type='var', pic_in_grid=True, label_an=False)
-
-fig.text(0.5, -1, 't', ha='center', fontsize=par.title_fontsize)    
-fig.text(0.04, 0.5, r'$\sigma^2_{\phi}$', va='center', rotation='vertical', fontsize=par.title_fontsize)  
 
 fig.tight_layout()
 fig.savefig(f"plots/paper/phi_var_grid.png", dpi=100)

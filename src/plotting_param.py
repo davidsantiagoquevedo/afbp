@@ -10,3 +10,8 @@ msd_style = {
     'an': dict(lw=5, label = 'analytic', ls='--'),  
     'fit': dict(lw=2, marker = 'o', label = 'fit')  
 }
+
+ylabel_map = {
+    'var': r'$\sigma^2(t)$',
+    'mean': r'$\langle \phi(t) \rangle$'
+}
