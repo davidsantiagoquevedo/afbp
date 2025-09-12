@@ -1,5 +1,6 @@
 # -- FUNCTIONS --
 import matplotlib.pyplot as plt
+from matplotlib.offsetbox import AnchoredText
 import numpy as np
 from scipy.special import gamma
 import plotting_param as par
@@ -72,8 +73,11 @@ def plot_msd(ax, env, variable, label_an = True):
         msd = env.msd_sol
         time = env.t
     elif variable == 'an':
-        msd = env.msd_an
+        # if env.alpha + env.H + 1 < 0.1:
+        #     time = [x for x in env.t if x > 1]
+        # else:
         time = env.t
+        msd = env.msd_an
 
     ax.plot(time, msd, **style)
 
@@ -83,7 +87,7 @@ def plot_msd(ax, env, variable, label_an = True):
     ax.grid(':')
     ax.legend(fontsize = par.legend_size, bbox_to_anchor=(1, 1))
 
-def plot_moment(ax, env, variable, mom_type, label_an = True, pic_in_grid = False):
+def plot_moment(ax, env, variable, mom_type, label_an = True, pic_in_grid = False, color=None, label=''):
 
     """
     Plots a moment vector (mean or variance).
@@ -107,6 +111,8 @@ def plot_moment(ax, env, variable, mom_type, label_an = True, pic_in_grid = Fals
 
     if variable == 'an':
         style['label'] = style['label'] if label_an else None
+        if color is not None:
+            style['c'] = color
     else:
         if pic_in_grid:
             style['label'] = rf"$H=${env.H}"
@@ -117,6 +123,7 @@ def plot_moment(ax, env, variable, mom_type, label_an = True, pic_in_grid = Fals
         moment = env.mean if mom_type=='mean' else env.var#/env.var.max()
         time = env.t
 
+
     elif variable == 'sol':
         moment = env.mean_sol if mom_type=='mean' else env.var_sol
         time = env.t
@@ -125,8 +132,13 @@ def plot_moment(ax, env, variable, mom_type, label_an = True, pic_in_grid = Fals
         moment = env.mean_an if mom_type=='mean' else env.var_an#/env.var_an.max()
         time = env.t
 
-    ax.plot(time, moment, **style)
+    line, = ax.plot(time, moment, **style)
 
+    color = line.get_color()
+
+    at = AnchoredText(label, prop=dict(size=par.size_labels_figures), frameon=False, loc='upper left')
+    ax.add_artist(at)
+    
     ax.tick_params(axis='both', labelsize=par.size_ticks)
     if pic_in_grid:
         ax.legend(fontsize = par.legend_size)
@@ -136,6 +148,7 @@ def plot_moment(ax, env, variable, mom_type, label_an = True, pic_in_grid = Fals
         ax.set_ylabel(par.ylabel_map[mom_type], fontsize = par.axis_fontsize)
     ax.set_xlabel('t', fontsize = par.axis_fontsize)
 
+    return color
 
 def plot_pdf(ax, env, mode, time):
     
