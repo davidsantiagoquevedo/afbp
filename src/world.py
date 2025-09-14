@@ -135,24 +135,17 @@ class Angular(Base):
         self.phi0 = phi0
         self.calc_general_diff_coeff()
     
-
-    def compute_var_an(self, time = 0):
+    def compute_var_an(self, log=False, time = 0):
         H = self.H
         alpha = self.alpha
-        nu = alpha + H - 1
         self.calc_general_diff_coeff()
-        # if nu>0.1:
-        self.D_H = self.D_H/(alpha+H-1)
-        self.var_an = self.D_H*(self.t**(2*alpha+2*H-2))
-        return self.D_H*(time**(2*alpha+2*H-2))
-        # else:
-        #     # time_filtered = np.array([x for x in self.t if x > 1])
-        #     time_filtered = self.t
-        #     self.var_an = 2*self.D_H*(np.log(time_filtered/self.h))
-        #     return self.D_H*(np.log(time_filtered))
-            
-    
-        # return (nominator/denominator)*((time*self.h)**(2*alpha+2*H-2))
+        if log:
+            self.var_an = 2*self.D_H*(np.log(self.t/self.h))
+            return self.D_H*(np.log(time))
+        else:
+            self.D_H = self.D_H/(alpha+H-1)
+            self.var_an = self.D_H*(self.t**(2*alpha+2*H-2))
+            return self.D_H*(time**(2*alpha+2*H-2))
 
     def compute_msd_an(self):
         if not hasattr(self, "var_an"): #compute variance if not already done
@@ -203,6 +196,74 @@ class Angular(Base):
             traj[time] = traj[time-1] + coeff_noise*self.dB[time] - sum_term
         
         return traj
+    
+    def a(self, l):
+        assert l >= 0
+        alpha=self.alpha
+        return (l+1)**(1-alpha) - (l)**(1-alpha)
+    
+    def b(self, l):
+        assert l >= 0
+        alpha=self.alpha
+        return (1/(2-alpha)) * ((l+1)**(2-alpha) - (l)**(2-alpha)) - 0.5 * ((l+1)**(1-alpha) - (l)**(1-alpha))
+    
+    def c(self, j, s):
+        a = self.a
+        b = self.b
+        
+        k = j - s
+        
+        if j <= 1:
+            assert k < 2
+            if k==0:
+                c = a(0) + b(0) + b(1)
+            elif k==1:
+                c = a(1) - b(1) - b(0)
+                
+        if j == 2:
+            assert k < 3
+            if k==0:
+                c = a(0) + b(0)
+            elif k==1:
+                c = a(1) + b(1) + b(2) - b(0)
+            elif k==2:
+                c = a(2) - b(2) - b(1)
+                
+        if j >= 3:
+            assert k < (j+1)
+            if k==0:
+                c = a(0) + b(0)
+            elif k>=1 and k<=(j-2):
+                c = a(k) + b(k) - b(k-1)
+            elif k==(j-1):
+                c = a(j-1) + b(j-1) + b(j) - b(j-2)
+            elif k==j:
+                c = a(j) - b(j) - b(j-1)
+                
+        return c
+        
+    # def run_one(self):
+    #     c = self.c
+    #     # Loop over timesteps
+    #     traj = np.zeros(self.n)
+        
+    #     for j in range(0, self.n-1):
+    #         c_0 = c(j,j)    
+    #         if j == 0:
+    #             sum_term = 0                
+    #         else:
+    #             # Sum term
+    #             sum_term = 0
+    #             for s in range(0, j-1):
+                    
+    #                 sum_term += c(j,s) * (traj[s+1]-traj[s])
+
+    #         # Update rule
+    #         coeff_noise = ((self.h)**(self.alpha)) * (gamma(2-self.alpha))/c_0
+            
+    #         traj[j+1] = traj[j] + coeff_noise*self.dB[j+1] - sum_term/c_0
+        
+    #     return traj
 
     def run_one_solution(self):
         return convolution_weights(self.dB, self.t, self.alpha)
@@ -254,7 +315,6 @@ class xDirection(Base):
             traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_x + self.nu*sum_phi + (np.cos(self.phi_trajectories[realization_index, time-1]))*self.h
 
         return traj
-
 
 class yDirection(Base):
         
