@@ -154,15 +154,5 @@ plotting.plot_moment(ax[3], env, variable='an', mom_type='var', pic_in_grid=True
 
 ax[3].legend(fontsize = par.legend_size, loc = 'upper center')
 
-# --- H 
-# HR = 0.7
-# env = utilities.read_env(mode, alphaR, HR, realizations, Tf, h, start_set= start_set, sets=sets)
-# env.compute_var()
-# color = plotting.plot_moment(ax[3], env, variable='sim', mom_type='var', pic_in_grid=True)
-# color = par.lighten_color(color, 0.5)
-# env.compute_var_an()
-# plotting.plot_moment(ax[3], env, variable='an', mom_type='var', pic_in_grid=True, label_an=True, color = color)
-
-
 fig.tight_layout()
-fig.savefig(f"plots/paper/phi_var_grid.png", dpi=1000)
+fig.savefig(f"plots/paper/phi_var_grid.png", dpi=100)

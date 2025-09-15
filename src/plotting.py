@@ -87,7 +87,7 @@ def plot_msd(ax, env, variable, label_an = True):
     ax.grid(':')
     ax.legend(fontsize = par.legend_size, bbox_to_anchor=(1, 1))
 
-def plot_moment(ax, env, variable, mom_type, label_an = True, pic_in_grid = False, color=None, label=''):
+def plot_moment(ax, env, variable, mom_type, log = False, label_an = True, pic_in_grid = False, color=None, label=''):
 
     """
     Plots a moment vector (mean or variance).
@@ -110,9 +110,12 @@ def plot_moment(ax, env, variable, mom_type, label_an = True, pic_in_grid = Fals
     env.make_B_H()
 
     if variable == 'an':
-        style['label'] = style['label'] if label_an else None
+        if log:
+            style['label'] = 'analytic log' if label_an else None
+        else:
+            style['label'] = style['label'] if label_an else None
         if color is not None:
-            style['c'] = color
+            style['c'] = par.lighten_color(color, 0.3) if log else par.lighten_color(color, 0.7)
     else:
         if pic_in_grid:
             style['label'] = rf"$H=${env.H}"
@@ -129,8 +132,8 @@ def plot_moment(ax, env, variable, mom_type, label_an = True, pic_in_grid = Fals
         time = env.t
 
     elif variable == 'an':
-        moment = env.mean_an if mom_type=='mean' else env.var_an#/env.var_an.max()
-        time = env.t
+        moment = env.mean_an if mom_type=='mean' else env.var_an
+        time = env.t[1:] if log else env.t
 
     line, = ax.plot(time, moment, **style)
 

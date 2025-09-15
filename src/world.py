@@ -140,7 +140,7 @@ class Angular(Base):
         alpha = self.alpha
         self.calc_general_diff_coeff()
         if log:
-            self.var_an = 2*self.D_H*(np.log(self.t/self.h))
+            self.var_an = 2*self.D_H*(np.log(self.t[1:]/self.h))
             return self.D_H*(np.log(time))
         else:
             self.D_H = self.D_H/(alpha+H-1)
@@ -172,7 +172,7 @@ class Angular(Base):
         limit += limit*0.3 
         x = np.arange(-limit, limit, 1e-3)
 
-        variance = self.compute_var_an(time_index*self.h)
+        variance = self.compute_var_an(time = time_index*self.h)
         factor = np.sqrt( 1 / (2*np.pi*variance) )
         argument = (-(x)**2) / (2*variance)
 
