@@ -6,12 +6,12 @@ import plotting
 import utilities
 
 mode = 'r'
-L_type = 'L2'
-alphaTs = [1., 0.7, 0.5, 0.3]
+L_type = 'L1'
+alphaTs = [1.]
 # alphaRs = [1]  
 # HRs = [0.5] 
 nu=1           
-AHT=1.
+AHT=1
 realizations = 1000
 Tf = 100
 h = 0.01

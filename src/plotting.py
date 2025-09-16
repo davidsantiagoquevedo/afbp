@@ -44,7 +44,7 @@ def phi_fBm_msd(time, H):
     return (time**(2*H))
 
 
-def plot_moment(ax, env, mom_type, variable, log = False, label_an = True, pic_in_grid = False, color=None, label=''):
+def plot_moment(ax, env, mom_type, variable, log = False, legend_label = True, pic_in_grid = False, color=None, label=''):
 
     """
     Plots a moment vector (msd or variance).
@@ -66,18 +66,18 @@ def plot_moment(ax, env, mom_type, variable, log = False, label_an = True, pic_i
     style = par.msd_style[variable].copy()
     env.make_B_H()
 
-    if variable == 'an':
+    #color an curve from sim 
+    if color is not None:
+        style['c'] = par.lighten_color(color, 0.3) if log else par.lighten_color(color, 0.7)
+
+    # legend label
+    if legend_label:
         if log:
-            style['label'] = 'analytic log' if label_an else None
-        else:
-            style['label'] = style['label'] if label_an else None
-        if color is not None:
-            style['c'] = par.lighten_color(color, 0.3) if log else par.lighten_color(color, 0.7)
-    else:
+            style['label'] = 'analytic log' 
         if pic_in_grid:
             style['label'] = rf"$H=${env.H}"
         else:
-            style['label'] = rf"{style['label']} $\alpha=${env.alpha} $H=${env.H} $A_H$={round(env.A_H,2)}"
+            style['label'] = rf"{style['label']} $\alpha=${env.alpha} $H=${env.H}"
 
     if variable == 'sim':
         moment = env.msd if mom_type=='msd' else env.var#/env.var.max()

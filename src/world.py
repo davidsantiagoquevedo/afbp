@@ -10,7 +10,7 @@ from integration import *
 # ---------- Base Class ---------- #
 class Base:
 
-    def __init__(self, realizations, alpha, H, Tf, h, L_type):
+    def __init__(self, alpha, H, Tf, h, realizations=1000, L_type='L1'):
         # Common parameters
         self.realizations = realizations
         self.alpha = alpha
@@ -29,10 +29,10 @@ class Base:
         # self.A_H = 1/(np.sqrt(2*H)*gamma(H+1/2))
 
     # Generalized diffusion coefficient 
-    def calc_general_diff_coeff(self):
-        nominator = self.H*gamma(2*self.H)
-        denominator = gamma(self.alpha)*gamma(self.alpha+2*self.H-1)
-        self.D_H = (self.A_H**2)*nominator/denominator
+    def calc_general_diff_coeff(self, alpha, H):
+        nominator = H*gamma(2*H)
+        denominator = gamma(alpha)*gamma(alpha+2*H-1)
+        return nominator/denominator
 
     # --------- Noise Generator --------- #
     def make_B_H(self, method='daviesharte'):
@@ -140,20 +140,19 @@ class Angular(Base):
         
         super().__init__(**kwargs)
         self.phi0 = phi0
-        self.calc_general_diff_coeff()
 
-    
     def compute_var_an(self, log=False, time = 0):
         H = self.H
         alpha = self.alpha
-        self.calc_general_diff_coeff()
+        D_H = self.calc_general_diff_coeff(alpha, H)
+        self.make_B_H() #generate time
         if log:
-            self.var_an = 2*self.D_H*(np.log(self.t[1:]/self.h))
-            return self.D_H*(np.log(time))
+            self.var_an = 2*D_H*(np.log(self.t[1:]/self.h))
+            return D_H*(np.log(time))
         else:
-            self.D_H = self.D_H/(alpha+H-1)
-            self.var_an = self.D_H*(self.t**(2*alpha+2*H-2))
-            return self.D_H*(time**(2*alpha+2*H-2))
+            D_H = D_H/(alpha+H-1)
+            self.var_an = D_H*(self.t**(2*alpha+2*H-2))
+            return D_H*(time**(2*alpha+2*H-2))
 
     def compute_msd_an(self):
         if not hasattr(self, "var_an"): #compute variance if not already done
@@ -297,8 +296,6 @@ class xDirection(Base):
         self.x0 = x0
         # self_propulsion modulus
         self.nu = nu
-        self.A_H = AHT
-        self.calc_general_diff_coeff()  #calculating D_H translational
         
         self.phi_trajectories = phi.trajectories
         self.alphaR = phi.alpha
@@ -346,8 +343,6 @@ class yDirection(Base):
         # self_propulsion modulus
         self.nu = nu
         self.A_H = AHT
-        self.calc_general_diff_coeff()  #calculating D_H translational
-
         
         if phi is not None:
             # We must overwrite some features
@@ -388,36 +383,44 @@ class rModulus(Base):
     ----------
 
     """
-    def __init__(self, x, y, **kwargs):
+    def __init__(self, x=None, y=None, nu=None, alphaR=None, HR=None, **kwargs):
         super().__init__(**kwargs) #since init defined, it doesn't inherit init from parent
-        self.x_trajectories = x.trajectories
-        self.y_trajectories = y.trajectories
         
-        # translational properties
-        self.nu = x.nu
-        self.A_H = x.A_H
-        self.D_H = x.D_H
+        # inherit from x and y classes if passed
+        if x is not None:
+            self.x_trajectories = x.trajectories
+            self.y_trajectories = y.trajectories
+            # translational properties
+            self.nu = x.nu
+            self.alphaT = x.alpha
+            self.HT = x.H
+            # rotational properties
+            self.alphaR = x.alphaR
+            self.HR = x.HR
+        # read as input if only interested in an expression
+        else:
+            # translational properties
+            self.nu = nu
+            self.alphaT = self.alpha
+            self.HT = self.H
+            # rotational properties
+            self.alphaR =alphaR
+            self.HR = HR
 
-        # rotational properties
-        self.alphaR = x.alphaR
-        self.HR = x.HR
-        self.DHR = x.DHR
-
-        # self.r_trajectories = np.zeros(len(self.x_trajectories))
-    
     def compute_r_modulus(self):
         
         self.trajectories = np.sqrt(self.x_trajectories**2+self.y_trajectories**2)
         
-    def compute_msd_an(self):
-        DHT = self.D_H
-        DHR = self.DHR
-        nu = self.nu
-        t = self.t 
-        alphaT = self.alpha
-        HT = self.H # to add in complete expression without fluc-diss
+    def compute_msd_an(self, total = True):
+        alphaT = self.alphaT
+        HT = self.HT
         alphaR = self.alphaR
         HR = self.HR
+        DHT = self.calc_general_diff_coeff(alphaT, HT)
+        DHR = self.calc_general_diff_coeff(alphaR, HR)
+        nu = self.nu
+        self.make_B_H()
+        t = self.t 
         
         aux_var = alphaR + HR - 1
 
@@ -428,6 +431,8 @@ class rModulus(Base):
         gamma1 = gamma(1/(2*aux_var))*gammainc(1/(2*aux_var), (DHR*t**(2*aux_var))/2)
         gamma2 = gamma(1/(aux_var))*gammainc(1/  (aux_var), (DHR*t**(2*aux_var))/2)
     
-        self.msd_an =  coeff*( gamma1*((DHR/2)**(1/(2*aux_var)))*t - gamma2  ) + 2*DHT*t**alphaT
-        # self.msd_an =  coeff*( gamma1*((DHR/2)**(1/(2*aux_var)))*t - gamma2  ) 
-        # self.msd_an = 2*DHT*t**alphaT
+        if total:
+            self.msd_an =  coeff*( gamma1*((DHR/2)**(1/(2*aux_var)))*t - gamma2  ) + 2*DHT*t**alphaT
+        else:
+            # print(DHT)
+            self.msd_an =  coeff*( gamma1*((DHR/2)**(1/(2*aux_var)))*t - gamma2  )
