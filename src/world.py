@@ -10,7 +10,7 @@ from integration import *
 # ---------- Base Class ---------- #
 class Base:
 
-    def __init__(self, realizations, alpha, H, Tf, h):
+    def __init__(self, realizations, alpha, H, Tf, h, L_type):
         # Common parameters
         self.realizations = realizations
         self.alpha = alpha
@@ -18,6 +18,7 @@ class Base:
         self.Tf = Tf
         self.h = h
         self.n = int(Tf / h)
+        self.L_type = L_type
 
         # Preallocate storage (to be specialized in subclasses)
         self.trajectories = []
@@ -59,7 +60,11 @@ class Base:
         for r in tqdm(range(self.realizations)):
             self.make_B_H()
             if isinstance(self, Angular):
-                traj = self.run_one()
+                # Two discretization types implemented for angular equations
+                if self.L_type == 'L1':         
+                    traj = self.run_one_L1()
+                elif self.L_type == 'L2':
+                    traj = self.run_one_L2()
             else:
                 traj = self.run_one(r)
             self.trajectories.append(traj)
@@ -102,13 +107,15 @@ class Base:
             delattr(self, "x_trajectories") #removed to avoid duplicating information
             delattr(self, "y_trajectories") #removed to avoid duplicating information
         os.makedirs(folder, exist_ok=True)
-        filename = (f"{mode}_"
+        filename = (f"{self.L_type}_"
+                    f"{mode}_"
                     f"{alphaH}_"
                     f"r{self.realizations}_"
                     f"Tf{self.Tf}_"
                     f"h{self.h}_" 
                     f"set{set_label}.pkl")
         filepath = os.path.join(folder, filename)
+        print(filepath)
         with open(filepath, "wb") as f:
             pickle.dump(self, f)
 
@@ -129,11 +136,12 @@ class Angular(Base):
 
     """
     
-    def __init__(self, phi0 = 0, **kwargs):
+    def __init__(self,phi0 = 0, **kwargs):
         
         super().__init__(**kwargs)
         self.phi0 = phi0
         self.calc_general_diff_coeff()
+
     
     def compute_var_an(self, log=False, time = 0):
         H = self.H
@@ -180,7 +188,7 @@ class Angular(Base):
 
         return x, P
     
-    def run_one(self):
+    def run_one_L1(self):
         # Loop over timesteps
         traj = np.zeros(self.n)
         for time in range(1, self.n):
@@ -205,7 +213,7 @@ class Angular(Base):
     def b(self, l):
         assert l >= 0
         alpha=self.alpha
-        return (1/(2-alpha)) * ((l+1)**(2-alpha) - (l)**(2-alpha)) - 0.5 * ((l+1)**(1-alpha) - (l)**(1-alpha))
+        return (1/(2-alpha)) * ((l+1)**(2-alpha) - (l)**(2-alpha)) - 0.5 * ((l+1)**(1-alpha) + (l)**(1-alpha))
     
     def c(self, j, s):
         a = self.a
@@ -242,28 +250,32 @@ class Angular(Base):
                 
         return c
         
-    # def run_one(self):
-    #     c = self.c
-    #     # Loop over timesteps
-    #     traj = np.zeros(self.n)
+    def run_one_L2(self):
+        c = self.c
+        # Loop over timesteps
+        traj = np.zeros(self.n)
         
-    #     for j in range(0, self.n-1):
-    #         c_0 = c(j,j)    
-    #         if j == 0:
-    #             sum_term = 0                
-    #         else:
-    #             # Sum term
-    #             sum_term = 0
-    #             for s in range(0, j-1):
+        for j in range(0, self.n-1):
+            c_0 = c(j,j)    
+            if j == 0:
+                sum_term = 0                
+            else:
+                # Sum term
+                sum_term = 0
+                for s in range(0, j):
                     
-    #                 sum_term += c(j,s) * (traj[s+1]-traj[s])
+                    sum_term += c(j,s) * (traj[s+1]-traj[s])
+                    # print(j, s, c(j, s), (traj[s+1]-traj[s]))
 
-    #         # Update rule
-    #         coeff_noise = ((self.h)**(self.alpha)) * (gamma(2-self.alpha))/c_0
+            # Update rule
+            coeff_noise = ((self.h)**(self.alpha)) * (gamma(2-self.alpha))/c_0
+
+            # print(j, sum_term, c_0)
             
-    #         traj[j+1] = traj[j] + coeff_noise*self.dB[j+1] - sum_term/c_0
+            traj[j+1] = traj[j] + coeff_noise*self.dB[j] - sum_term/c_0
+            # print(traj[j+1])
         
-    #     return traj
+        return traj
 
     def run_one_solution(self):
         return convolution_weights(self.dB, self.t, self.alpha)
@@ -309,10 +321,10 @@ class xDirection(Base):
             
             sum_phi = 0
             for i in range(1, time):
-                sum_phi += self.cnj(time - i) * (np.cos(self.phi_trajectories[realization_index, i-1])) * self.h
+                sum_phi += self.cnj(time - i) * (np.cos(self.phi_trajectories[realization_index, i])+np.cos(self.phi_trajectories[realization_index, i-1])) * self.h/2
             
             coeff_noise = (self.h**self.alpha) * gamma(2 - self.alpha)
-            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_x + self.nu*sum_phi + (np.cos(self.phi_trajectories[realization_index, time-1]))*self.h
+            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_x + self.nu*sum_phi + (np.cos(self.phi_trajectories[realization_index, time]))*self.h
 
         return traj
 
@@ -360,10 +372,10 @@ class yDirection(Base):
             
             sum_phi = 0
             for i in range(1, time):
-              sum_phi += self.cnj(time - i) * (np.sin(self.phi_trajectories[realization_index, i-1])) * self.h
+              sum_phi += self.cnj(time - i) * (np.sin(self.phi_trajectories[realization_index, i])+np.sin(self.phi_trajectories[realization_index, i-1])) * self.h/2
             
             coeff_noise = (self.h**self.alpha) * gamma(2 - self.alpha)
-            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_y + self.nu*sum_phi + (np.sin(self.phi_trajectories[realization_index, time-1]))*self.h
+            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_y + self.nu*sum_phi + (np.sin(self.phi_trajectories[realization_index, time]))*self.h
 
         return traj
 
@@ -409,10 +421,13 @@ class rModulus(Base):
         
         aux_var = alphaR + HR - 1
 
+        DHR = DHR/(alphaR+HR-1)
+        DHT = DHT/(alphaT+HT-1)
+
         coeff = ( nu**2 / (aux_var*((DHR/2)**(1/aux_var))) )
         gamma1 = gamma(1/(2*aux_var))*gammainc(1/(2*aux_var), (DHR*t**(2*aux_var))/2)
         gamma2 = gamma(1/(aux_var))*gammainc(1/  (aux_var), (DHR*t**(2*aux_var))/2)
     
-        # self.msd_an =  coeff*( gamma1*((DHR/2)**(1/(2*aux_var)))*t - gamma2  ) + 2*DHT*t**alphaT
-        self.msd_an =  coeff*( gamma1*((DHR/2)**(1/(2*aux_var)))*t - gamma2  ) 
+        self.msd_an =  coeff*( gamma1*((DHR/2)**(1/(2*aux_var)))*t - gamma2  ) + 2*DHT*t**alphaT
+        # self.msd_an =  coeff*( gamma1*((DHR/2)**(1/(2*aux_var)))*t - gamma2  ) 
         # self.msd_an = 2*DHT*t**alphaT

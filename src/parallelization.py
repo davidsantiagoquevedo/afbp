@@ -10,7 +10,10 @@ def single_trajectory_helper(env, p, r, stored_matrix, lock):
     """
     env.make_B_H()
     if isinstance(env, Angular):
-        traj = env.run_one()
+        if env.L_type == 'L1':         
+            traj = env.run_one_L1()
+        elif env.L_type == 'L2':
+            traj = env.run_one_L2()
     else:
         traj = env.run_one(r)
 
