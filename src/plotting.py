@@ -44,53 +44,10 @@ def phi_fBm_msd(time, H):
     return (time**(2*H))
 
 
-
-# Plotting
-def plot_msd(ax, env, variable, label_an = True):
-
-    style = par.msd_style[variable].copy()
-    if isinstance(env, Angular):
-        ylabel = r'MSD$\langle (\phi(t)-\phi_0)^2 \rangle$'
-    if isinstance(env, rModulus):
-        ylabel = r'MSD$\langle (\boldsymbol{r}(t)-\boldsymbol{r}_0)^2 \rangle$'
-
-    env.make_B_H()
-
-    if variable == 'an':
-        style['label'] = style['label'] if label_an else None
-    else:
-        if isinstance(env, Angular):
-            style['label'] = rf"{style['label']} $\alpha_R=${env.alpha} $H_R=${env.H}"
-        else:
-            style['label'] = rf"{style['label']} $\alpha_T=${env.alpha} $H_T=${env.H}"+ "\n" + rf"$\alpha_R=${env.alphaR} $H_R=${env.HR}"
-
-    if variable == 'sim':
-        msd = env.msd
-        time = env.t
-        style['marker']='o'
-
-    elif variable == 'sol':
-        msd = env.msd_sol
-        time = env.t
-    elif variable == 'an':
-        # if env.alpha + env.H + 1 < 0.1:
-        #     time = [x for x in env.t if x > 1]
-        # else:
-        time = env.t
-        msd = env.msd_an
-
-    ax.plot(time, msd, **style)
-
-    ax.set_xlabel('t', fontsize = par.axis_fontsize)
-    ax.tick_params(axis='both', labelsize=par.size_ticks)
-    ax.set_ylabel(f'{ylabel}', fontsize = par.axis_fontsize)
-    ax.grid(':')
-    ax.legend(fontsize = par.legend_size, bbox_to_anchor=(1, 1))
-
-def plot_moment(ax, env, variable, mom_type, log = False, label_an = True, pic_in_grid = False, color=None, label=''):
+def plot_moment(ax, env, mom_type, variable, log = False, label_an = True, pic_in_grid = False, color=None, label=''):
 
     """
-    Plots a moment vector (mean or variance).
+    Plots a moment vector (msd or variance).
     
     Parameters:
     ----------
@@ -102,7 +59,7 @@ def plot_moment(ax, env, variable, mom_type, log = False, label_an = True, pic_i
         Can be 'sim' or 'sol': The moment was computed using L1 discretization of eom or of the convolution with the memory kernel, respectively
 
     moment_type : str
-        Can be 'mean' or 'var' defining the type of moment, it will change y label.
+        Can be 'msd' or 'var' defining the type of moment, it will change y label.
 
     """
 
@@ -123,16 +80,15 @@ def plot_moment(ax, env, variable, mom_type, log = False, label_an = True, pic_i
             style['label'] = rf"{style['label']} $\alpha=${env.alpha} $H=${env.H} $A_H$={round(env.A_H,2)}"
 
     if variable == 'sim':
-        moment = env.mean if mom_type=='mean' else env.var#/env.var.max()
+        moment = env.msd if mom_type=='msd' else env.var#/env.var.max()
         time = env.t
 
-
     elif variable == 'sol':
-        moment = env.mean_sol if mom_type=='mean' else env.var_sol
+        moment = env.msd_sol if mom_type=='msd' else env.var_sol
         time = env.t
 
     elif variable == 'an':
-        moment = env.mean_an if mom_type=='mean' else env.var_an
+        moment = env.msd_an if mom_type=='msd' else env.var_an
         time = env.t[1:] if log else env.t
 
     line, = ax.plot(time, moment, **style)
@@ -148,6 +104,8 @@ def plot_moment(ax, env, variable, mom_type, log = False, label_an = True, pic_i
     else:
         ax.grid(':')    
         ax.legend(fontsize = par.legend_size,bbox_to_anchor=(1, 1))
+        if mom_type == 'msd':
+            mom_type = 'msd_phi' if isinstance(env, Angular) else 'msd_r'
         ax.set_ylabel(par.ylabel_map[mom_type], fontsize = par.axis_fontsize)
     ax.set_xlabel('t', fontsize = par.axis_fontsize)
 

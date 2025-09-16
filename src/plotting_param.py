@@ -14,7 +14,9 @@ msd_style = {
 
 ylabel_map = {
     'var': r'$\sigma^2(t)$',
-    'mean': r'$\langle \phi(t) \rangle$'
+    'mean': r'$\langle \phi(t) \rangle$',
+    'msd_r': r'MSD$\langle (\boldsymbol{r}(t)-\boldsymbol{r}_0)^2 \rangle$',
+    'msd_phi': r'MSD$\langle (\phi(t)-\phi_0)^2 \rangle$'
 }
 
 import matplotlib.colors as mcolors
