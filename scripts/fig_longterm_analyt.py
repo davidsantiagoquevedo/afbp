@@ -4,7 +4,6 @@ from world import *
 import matplotlib.pyplot as plt
 import plotting as plot
 
-
 alpha = [1, 0.7, 0.5, 0.3, 0.2]
 H = [(2 - a) / 2 for a in alpha]    #fluc-diss
 

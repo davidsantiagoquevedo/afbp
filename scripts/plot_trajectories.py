@@ -6,6 +6,7 @@ import plotting as plot
 import plotting_param as par
 import utilities
 
+DATA_PATH = 'data_tests'
 mode = 'r'
 Tf = 10
 h=0.01
@@ -30,7 +31,8 @@ x = utilities.read_env(mode='x',
                         Tf=Tf,
                         h=h,
                         start_set=start_set,
-                        sets=sets)
+                        sets=sets,
+                        path=DATA_PATH)
 y = utilities.read_env(mode='y',
                         L_type = L_type, 
                         alpha=alphaT, H=HT,
@@ -41,7 +43,8 @@ y = utilities.read_env(mode='y',
                         Tf=Tf,
                         h=h,
                         start_set=start_set,
-                        sets=sets)
+                        sets=sets,
+                        path=DATA_PATH)
 
 
 fig, ax = plt.subplots()

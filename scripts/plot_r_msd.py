@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import plotting
 import utilities
 
+DATA_PATH = 'data_tests'
 mode = 'r'
 L_type = 'L1'
 nu=1
@@ -46,7 +47,8 @@ for i, alphaR in enumerate(alphaRs):
                             Tf=Tf,
                             h=h,
                             start_set=start_set,
-                            sets=sets)
+                            sets=sets,
+                            path = DATA_PATH)
 
     # Plot MSD
     env.compute_msd()

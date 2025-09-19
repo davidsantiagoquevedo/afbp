@@ -1,7 +1,7 @@
 from world import Base
 import numpy as np
 
-def read_env(L_type, mode, alpha, H, realizations, Tf, h, start_set, sets, alphaR=None, HR=None, nu=None, AHT=None):
+def read_env(L_type, mode, alpha, H, realizations, Tf, h, start_set, sets, path, alphaR=None, HR=None, nu=None, AHT=None):
     
     if mode == 'phi':
         alphaH = f"alphaR{alpha}_HR{H}"
@@ -14,7 +14,7 @@ def read_env(L_type, mode, alpha, H, realizations, Tf, h, start_set, sets, alpha
         env = Base(realizations=realizations, alpha=alpha, H=H, Tf=Tf, h=h, L_type=L_type)
         
         filepath = (
-            f"data/{L_type}_{mode}_"
+            f"{path}/{L_type}_{mode}_"
             f"{alphaH}_"
             f"r{realizations}_"
             f"Tf{Tf}_"

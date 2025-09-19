@@ -6,7 +6,7 @@ import plotting as plot
 import utilities
 import plotting_param as par
 
-
+DATA_PATH = 'data_tests'
 alpha = [1., 0.7, 0.5, 0.3]
 mode = 'r'
 L_type = 'L1'
@@ -27,7 +27,7 @@ h = 0.005
 
 for hi in H:
 
-    env = utilities.read_env(L_type=L_type, mode=mode, alpha=ai, H=hi, alphaR=ai, HR=hi, nu=nu, realizations=realizations,Tf=Tf,h=h,start_set=start_set,sets=sets, AHT=AHT)
+    env = utilities.read_env(L_type=L_type, mode=mode, alpha=ai, H=hi, alphaR=ai, HR=hi, nu=nu, realizations=realizations,Tf=Tf,h=h,start_set=start_set,sets=sets, AHT=AHT, path=DATA_PATH)
     env.compute_msd()
     color = plot.plot_moment(ax[0], env, variable='sim', mom_type='msd', pic_in_grid=True, label = '(a)')
     color = par.lighten_color(color, 0.5)

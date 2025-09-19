@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import plotting
 import utilities
 
+DATA_PATH = 'data_tests'
 mode = 'phi'
 L_type = 'L1'
 realizations = 1000
@@ -26,7 +27,7 @@ for i, alphaR in enumerate(alphaRs):
         h=0.001
         sets=1
 
-    env = utilities.read_env(L_type, mode, alphaR, HR, realizations, Tf, h, start_set= start_set, sets=sets)
+    env = utilities.read_env(L_type, mode, alphaR, HR, realizations, Tf, h, start_set= start_set, sets=sets, path=DATA_PATH)
 
     # Plot variance
     env.compute_var()
