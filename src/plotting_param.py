@@ -8,7 +8,7 @@ size_labels_figures =16
 msd_style = {
     'sim': dict(lw=2, label = 'sim', zorder=2),  
     'sol': dict(lw=2, label = 'sol'),  
-    'an': dict(lw=3, label = '', ls='--', zorder=1),  
+    'an': dict(lw=4.5, label = '', ls='--', zorder=1),  
     'fit': dict(lw=2, marker = 'o', label = 'fit')  
 }
 
