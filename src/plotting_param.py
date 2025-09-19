@@ -6,14 +6,15 @@ title_fontsize = 15
 size_labels_figures =16
 
 msd_style = {
-    'sim': dict(lw=2, label = 'sim', zorder=1),  
+    'sim': dict(lw=2, label = 'sim', zorder=2),  
     'sol': dict(lw=2, label = 'sol'),  
-    'an': dict(lw=5, label = '', ls='--', zorder=0),  
+    'an': dict(lw=3, label = '', ls='--', zorder=1),  
     'fit': dict(lw=2, marker = 'o', label = 'fit')  
 }
 
 ylabel_map = {
-    'var': r'$\sigma^2(t)$',
+    # 'var': r'$\sigma^2(t)$',
+    'var': r'MSD$\langle (\phi(t)-\phi_0)^2 \rangle$',
     'mean': r'$\langle \phi(t) \rangle$',
     'msd_r': r'MSD$\langle (\boldsymbol{r}(t)-\boldsymbol{r}_0)^2 \rangle$',
     'msd_phi': r'MSD$\langle (\phi(t)-\phi_0)^2 \rangle$'

@@ -6,6 +6,9 @@ from scipy.special import gamma
 import plotting_param as par
 import data_analysis
 from world import Angular, rModulus
+import seaborn as sns
+# sns.set_palette("colorblind")     
+# sns.set_palette("husl", 9) 
 # plt.style.use("plotting_style.mplstyle")
 
 # Analytic functions for fitting
@@ -43,6 +46,9 @@ def phi_fBm_msd(time, H):
     # return (1/(2*H*(gamma(H+1/2)**2)))*(time**(2*H))
     return (time**(2*H))
 
+def plot_trajectory(ax, x, y):
+
+    ax.plot(x, y)
 
 def plot_moment(ax, env, mom_type, variable, log = False, legend_label = True, pic_in_grid = False, color=None, label=''):
 
@@ -77,7 +83,8 @@ def plot_moment(ax, env, mom_type, variable, log = False, legend_label = True, p
         if pic_in_grid:
             style['label'] = rf"$H=${env.H}"
         else:
-            style['label'] = rf"{style['label']} $\alpha=${env.alpha} $H=${env.H}"
+            # style['label'] = rf"{style['label']} $\alpha=${env.alpha} $H=${env.H}"
+            style['label'] = rf"$\alpha=${env.alpha}"
 
     if variable == 'sim':
         moment = env.msd if mom_type=='msd' else env.var#/env.var.max()
@@ -102,7 +109,7 @@ def plot_moment(ax, env, mom_type, variable, log = False, legend_label = True, p
     if pic_in_grid:
         ax.legend(fontsize = par.legend_size)
     else:
-        ax.grid(':')    
+        ax.grid(':', zorder=0)    
         ax.legend(fontsize = par.legend_size,bbox_to_anchor=(1, 1))
         if mom_type == 'msd':
             mom_type = 'msd_phi' if isinstance(env, Angular) else 'msd_r'
@@ -145,3 +152,30 @@ def plot_pdf(ax, env, mode, time):
     ax.tick_params(axis='both', labelsize=par.size_ticks)
     ax.legend(fontsize = par.legend_size)
 
+def add_trend(ax, x0, xf, func, y0=1, text = "", xtext = False, dx = 0, dy = 0, fontsize = 15, **kwargs):
+    t = np.arange(x0,xf,0.01)
+    if xtext:
+        xloc = xtext
+    else:
+        xloc = xf
+    if kwargs:
+        y = func(t, alpha = kwargs["alpha"])*y0
+        ax.plot(t, y, color = "black", alpha = 1, ls = ":")
+        ax.text(xloc + dx, func(xloc, alpha = kwargs["alpha"]) + dy, text, fontsize=fontsize)
+    else:
+        y = func(t)*y0
+        ax.plot(t, y, color = "black", alpha = 1, ls = ":")
+        ax.text(xloc + dx, func(xloc) + dy, text, fontsize = fontsize)
+
+def t(t):
+    return t
+
+def t2(t):
+    return t**2
+
+def t3(t):
+    return t**3
+
+def talpha(t, **kwargs):
+    alpha = kwargs["alpha"]
+    return t**alpha
