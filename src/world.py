@@ -103,7 +103,7 @@ class Base:
             alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_nu{self.nu}_AHT{self.A_H}"
             delattr(self, "phi_trajectories") #removed to avoid duplicating information
         else:
-            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_nu{self.nu}_AHT{self.A_H}"
+            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_nu{self.nu}_AHT{self.AHT}"
             delattr(self, "x_trajectories") #removed to avoid duplicating information
             delattr(self, "y_trajectories") #removed to avoid duplicating information
         os.makedirs(folder, exist_ok=True)
@@ -300,7 +300,8 @@ class xDirection(Base):
         self.phi_trajectories = phi.trajectories
         self.alphaR = phi.alpha
         self.HR = phi.H
-        self.DHR = phi.D_H
+        self.DHR = self.calc_general_diff_coeff(self.alphaR, self.HR)
+        self.A_H = AHT
         if self.realizations != phi.realizations:
             self.realizations = phi.realizations
             
@@ -338,20 +339,18 @@ class yDirection(Base):
         
         super().__init__(**kwargs) #since init defined, it doesn't inherit init from parent
            
-        # initial condition
+         # initial condition
         self.y0 = y0
         # self_propulsion modulus
         self.nu = nu
-        self.A_H = AHT
         
-        if phi is not None:
-            # We must overwrite some features
-            self.phi_trajectories = phi.trajectories
-            self.alphaR = phi.alpha
-            self.HR = phi.H
-            self.DHR = phi.D_H
-            if self.realizations != phi.realizations:
-                self.realizations = phi.realizations
+        self.phi_trajectories = phi.trajectories
+        self.alphaR = phi.alpha
+        self.HR = phi.H
+        self.DHR = self.calc_general_diff_coeff(self.alphaR, self.HR)
+        self.A_H = AHT
+        if self.realizations != phi.realizations:
+            self.realizations = phi.realizations
 
     def run_one(self, realization_index):
         """
@@ -394,10 +393,11 @@ class rModulus(Base):
             self.nu = x.nu
             self.alphaT = x.alpha
             self.HT = x.H
+            self.AHT = x.A_H
             # rotational properties
             self.alphaR = x.alphaR
             self.HR = x.HR
-        # read as input if only interested in an expression
+        # read as input if only interested in analytical expression
         else:
             # translational properties
             self.nu = nu
@@ -412,8 +412,8 @@ class rModulus(Base):
         self.trajectories = np.sqrt(self.x_trajectories**2+self.y_trajectories**2)
         
     def compute_msd_an(self, total = True):
-        alphaT = self.alphaT
-        HT = self.HT
+        alphaT = self.alpha
+        HT = self.H
         alphaR = self.alphaR
         HR = self.HR
         DHT = self.calc_general_diff_coeff(alphaT, HT)
