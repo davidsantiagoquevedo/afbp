@@ -8,6 +8,12 @@ import utilities
 import warnings
 warnings.filterwarnings("ignore") 
 
+"""
+Run example: nohup pyhton3 scripts/run.py --alphaT 1 0.5 0.3 --HT 0.5 0.75 0.85 --alphaR 1 0.5 0.3 --HR 0.5 0.75 0.85 --h 0.01
+The parameters α and H are read element-wise: the first run with alphaT[0], HT[0], alphaR[0], HR[0]. Thus, they have to have the same number of elements!
+The same list structure has to be used in the plotting modules.
+"""
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--L", type=str, default='L1', choices=["L1", "L2"], help="Which discretization type")
 parser.add_argument("--modes", nargs='+', default=["phi"], choices=["phi", "x", "y", "r"], help="Which motion to simulate: phi, x, y, r"
