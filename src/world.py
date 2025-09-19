@@ -95,7 +95,7 @@ class Base:
         self.var_sol = np.var(self.trajectory_sol, axis=0)
 
     # --------- Save/Load --------- #
-    def save(self, set_label, folder="data", mode="phi"):
+    def save(self, set_label, folder="data_tests", mode="phi"):
         
         if isinstance(self, Angular):
             alphaH = f"alphaR{self.alpha}_HR{self.H}"
@@ -147,7 +147,7 @@ class Angular(Base):
         D_H = self.calc_general_diff_coeff(alpha, H)
         self.make_B_H() #generate time
         if log:
-            self.var_an = 2*D_H*(np.log(self.t[1:]/self.h))
+            self.var_an = 2*D_H*(np.log(self.t[1:]/(self.h)))
             return D_H*(np.log(time))
         else:
             D_H = D_H/(alpha+H-1)
