@@ -7,3 +7,4 @@ slurm_jobs/
 .err
 .slurm
 plots/tests/
+data_tests/
