@@ -80,12 +80,10 @@ def plot_moment(ax, env, mom_type, variable, log = False, legend_label = True, p
     if legend_label:
         if log:
             style['label'] = 'analytic log' 
-        if pic_in_grid:
-            style['label'] = rf"$H=${env.H}"
-        else:
-            # style['label'] = rf"{style['label']} $\alpha=${env.alpha} $H=${env.H}"
-            style['label'] = rf"$\alpha=${env.alpha}"
-
+            #style['label'] = rf"$H=${env.H}"
+        if variable == 'sim':
+            style['label'] = rf"{style['label']} $\alpha=${env.alpha} $H=${env.H}"
+        
     if variable == 'sim':
         moment = env.msd if mom_type=='msd' else env.var#/env.var.max()
         time = env.t
