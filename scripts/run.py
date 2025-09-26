@@ -16,6 +16,7 @@ The same list structure has to be used in the plotting modules.
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--L", type=str, default='L1', choices=["L1", "L2"], help="Which discretization type")
+parser.add_argument("--folder", type=str, default='data', choices=["data", "data_tests"], help="Which output folder")
 parser.add_argument("--modes", nargs='+', default=["phi"], choices=["phi", "x", "y", "r"], help="Which motion to simulate: phi, x, y, r"
 )
 parser.add_argument("--alphaR", nargs='+', type=float, default=[0.5], help="Rotational alpha value(s)")
@@ -36,6 +37,7 @@ args = parser.parse_args()
 start_time = time.time()
 
 L_type = args.L
+folder = args.folder
 
 alphaRs = args.alphaR
 HRs = args.HR
@@ -67,7 +69,7 @@ for i in range(len(alphaRs)):
             phi = Angular(realizations=realizations, alpha=alphaR, H=HR, Tf=Tf, h=h, L_type=L_type)
             # phi.run()
             phi = parallelization.run_trajectories_parallel(phi, batch_size=batch_size)
-            phi.save(set_label= set_label, folder="data")
+            phi.save(set_label= set_label, folder=folder)
 
         if "x" in args.modes:
 
@@ -79,7 +81,7 @@ for i in range(len(alphaRs)):
             x = xDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, nu=nu, AHT=AHT, L_type=L_type)
             # x.run()
             x = parallelization.run_trajectories_parallel(x, batch_size)
-            x.save(set_label= set_label, folder="data", mode='x')
+            x.save(set_label= set_label, folder=folder, mode='x')
             
         if "y" in args.modes:
 
@@ -91,14 +93,14 @@ for i in range(len(alphaRs)):
             y = yDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, nu=nu, AHT=AHT, L_type=L_type)
             # y.run()
             y = parallelization.run_trajectories_parallel(y, batch_size)
-            y.save(set_label= set_label, folder="data", mode='y')
+            y.save(set_label= set_label, folder=folder, mode='y')
             
         if "r" in args.modes:
             print(f"-- Running r")
             
             r = rModulus(x=x, y=y, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, L_type=L_type)
             r.compute_r_modulus()
-            r.save(set_label= set_label, folder="data", mode='r')
+            r.save(set_label= set_label, folder=folder, mode='r')
 
 
 elapsed_time = time.time() - start_time
