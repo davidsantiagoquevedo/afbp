@@ -141,18 +141,18 @@ class Angular(Base):
         super().__init__(**kwargs)
         self.phi0 = phi0
 
-    def compute_var_an(self, log=False, time = 0):
+    def compute_var_an(self, log=False, time = 0, tl = 0):
         H = self.H
         alpha = self.alpha
         D_H = self.calc_general_diff_coeff(alpha, H)
         self.make_B_H() #generate time
         if log:
-            self.var_an = 2*D_H*(np.log(self.t[1:]/(self.h)))
-            return D_H*(np.log(time))
+            self.var_an = 2*D_H*(np.log(self.t[1:]/(tl)))
+            return 2*D_H*(np.log(time/tl))
         else:
             D_H = D_H/(alpha+H-1)
-            self.var_an = D_H*(self.t**(2*alpha+2*H-2))
-            return D_H*(time**(2*alpha+2*H-2))
+            self.var_an = D_H*(self.t**(2*alpha+2*H-2)-tl**(2*alpha+2*H-2))
+            return D_H*(time**(2*alpha+2*H-2)-tl**(2*alpha+2*H-2))
 
     def compute_msd_an(self):
         if not hasattr(self, "var_an"): #compute variance if not already done
