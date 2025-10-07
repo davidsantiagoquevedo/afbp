@@ -37,7 +37,7 @@ fig, ax = plt.subplots(figsize=(9, 7))
 
 Tf = 70
 h = 0.05
-nu = 1
+ups = 1
 
 linear = 1
 for i, ai in enumerate(alpha):
@@ -45,13 +45,13 @@ for i, ai in enumerate(alpha):
     aRi=alphaR[i]
     hRi=HR[i]
 
-    r = rModulus(alpha=ai, H=hi, alphaR=aRi, HR=hRi, nu=nu, Tf=Tf, h=h)
+    r = rModulus(alpha=ai, H=hi, alphaR=aRi, HR=hRi, ups=ups, Tf=Tf, h=h)
 
     r.compute_msd_an(total=False)
     plot.plot_moment(ax, r, 'msd', 'an')
 ax.set_xlim(xmin = h)
 fig.tight_layout()
-fig.savefig(f"plots/analytics/ra_alphaT{alpha}_HT{H}_alphaR{alphaR}_HR{HR}_Tf{Tf}_h{h}_nu{nu}.png", dpi=100)
+fig.savefig(f"plots/analytics/ra_alphaT{alpha}_HT{H}_alphaR{alphaR}_HR{HR}_Tf{Tf}_h{h}_ups{ups}.png", dpi=100)
 
 ##########################################################
 
@@ -59,7 +59,7 @@ fig, ax = plt.subplots(figsize=(9, 7))
 
 Tf = 70
 h = 0.05
-nu = 1
+ups = 1
 
 linear = 1
 for i, ai in enumerate(alpha):
@@ -67,7 +67,7 @@ for i, ai in enumerate(alpha):
     aRi=alphaR[i]
     hRi=HR[i]
 
-    r = rModulus(alpha=ai, H=hi, alphaR=aRi, HR=hRi, nu=nu, Tf=Tf, h=h)
+    r = rModulus(alpha=ai, H=hi, alphaR=aRi, HR=hRi, ups=ups, Tf=Tf, h=h)
 
     r.compute_msd_an(total=False)
     plot.plot_moment(ax, r, 'msd', 'an')
@@ -76,14 +76,14 @@ ax.set_xscale("log")
 ax.set_yscale("log")
 ax.set_xlim(xmin = h)
 fig.tight_layout()
-fig.savefig(f"plots/analytics/ra_alphaT{alpha}_HT{H}_alphaR{alphaR}_HR{HR}_Tf{Tf}_h{h}_nu{nu}_log.png", dpi=100)
+fig.savefig(f"plots/analytics/ra_alphaT{alpha}_HT{H}_alphaR{alphaR}_HR{HR}_Tf{Tf}_h{h}_ups{ups}_log.png", dpi=100)
 
 ##########################################################
 fig, ax = plt.subplots(figsize=(9, 7))
 
 Tf = 70
 h = 0.05
-nu = 10
+ups = 10
 
 linear = 1
 for i, ai in enumerate(alpha):
@@ -91,14 +91,14 @@ for i, ai in enumerate(alpha):
     aRi=alphaR[i]
     hRi=HR[i]
 
-    r = rModulus(alpha=ai, H=hi, alphaR=aRi, HR=hRi, nu=nu, Tf=Tf, h=h)
+    r = rModulus(alpha=ai, H=hi, alphaR=aRi, HR=hRi, ups=ups, Tf=Tf, h=h)
 
     r.compute_msd_an()
     plot.plot_moment(ax, r, 'msd', 'an')
 
 ax.set_xlim(xmin = h)
 fig.tight_layout()
-fig.savefig(f"plots/analytics/r_alphaT{alpha}_HT{H}_alphaR{alphaR}_HR{HR}_Tf{Tf}_h{h}_nu{nu}.png", dpi=100)
+fig.savefig(f"plots/analytics/r_alphaT{alpha}_HT{H}_alphaR{alphaR}_HR{HR}_Tf{Tf}_h{h}_ups{ups}.png", dpi=100)
 
 
 ##########################################################
@@ -106,7 +106,7 @@ fig, ax = plt.subplots(figsize=(9, 7))
 
 Tf = 70
 h = 0.05
-nu = 100
+ups = 100
 
 linear = 1
 for i, ai in enumerate(alpha):
@@ -114,7 +114,7 @@ for i, ai in enumerate(alpha):
     aRi=alphaR[i]
     hRi=HR[i]
 
-    r = rModulus(alpha=ai, H=hi, alphaR=aRi, HR=hRi, nu=nu, Tf=Tf, h=h)
+    r = rModulus(alpha=ai, H=hi, alphaR=aRi, HR=hRi, ups=ups, Tf=Tf, h=h)
 
     r.compute_msd_an()
     plot.plot_moment(ax, r, 'msd', 'an')
@@ -134,6 +134,6 @@ ax.set_xscale("log")
 ax.set_yscale("log")
 ax.set_xlim(xmin = h)
 fig.tight_layout()
-fig.savefig(f"plots/analytics/r_alphaT{alpha}_HT{H}_alphaR{alphaR}_HR{HR}_Tf{Tf}_h{h}_nu{nu}_log.png", dpi=100)
+fig.savefig(f"plots/analytics/r_alphaT{alpha}_HT{H}_alphaR{alphaR}_HR{HR}_Tf{Tf}_h{h}_ups{ups}_log.png", dpi=100)
 
 

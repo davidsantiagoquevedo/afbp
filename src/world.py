@@ -100,10 +100,10 @@ class Base:
         if isinstance(self, Angular):
             alphaH = f"alphaR{self.alpha}_HR{self.H}"
         elif isinstance(self, xDirection) or isinstance(self, yDirection):
-            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_nu{self.nu}_AHT{self.A_H}"
+            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_ups{self.ups}_AHT{self.A_H}"
             delattr(self, "phi_trajectories") #removed to avoid duplicating information
         else:
-            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_nu{self.nu}_AHT{self.AHT}"
+            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_ups{self.ups}_AHT{self.AHT}"
             delattr(self, "x_trajectories") #removed to avoid duplicating information
             delattr(self, "y_trajectories") #removed to avoid duplicating information
         os.makedirs(folder, exist_ok=True)
@@ -288,14 +288,14 @@ class xDirection(Base):
     ----------
 
     """
-    def __init__(self, phi, x0=0, nu=1, AHT=1, **kwargs):
+    def __init__(self, phi, x0=0, ups=1, AHT=1, **kwargs):
         
         super().__init__(**kwargs) #since init defined, it doesn't inherit init from parent
         
         # initial condition
         self.x0 = x0
         # self_propulsion modulus
-        self.nu = nu
+        self.ups = ups
         
         self.phi_trajectories = phi.trajectories
         self.alphaR = phi.alpha
@@ -322,7 +322,7 @@ class xDirection(Base):
                 sum_phi += self.cnj(time - i) * (np.cos(self.phi_trajectories[realization_index, i])+np.cos(self.phi_trajectories[realization_index, i-1])) * self.h/2
             
             coeff_noise = (self.h**self.alpha) * gamma(2 - self.alpha)
-            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_x + self.nu*sum_phi + (np.cos(self.phi_trajectories[realization_index, time]))*self.h
+            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_x + self.ups*sum_phi + (np.cos(self.phi_trajectories[realization_index, time]))*self.h
 
         return traj
 
@@ -335,14 +335,14 @@ class yDirection(Base):
     ----------
 
     """
-    def __init__(self, phi=None, y0=0, nu=1, AHT=1, **kwargs):
+    def __init__(self, phi=None, y0=0, ups=1, AHT=1, **kwargs):
         
         super().__init__(**kwargs) #since init defined, it doesn't inherit init from parent
            
          # initial condition
         self.y0 = y0
         # self_propulsion modulus
-        self.nu = nu
+        self.ups = ups
         
         self.phi_trajectories = phi.trajectories
         self.alphaR = phi.alpha
@@ -369,7 +369,7 @@ class yDirection(Base):
               sum_phi += self.cnj(time - i) * (np.sin(self.phi_trajectories[realization_index, i])+np.sin(self.phi_trajectories[realization_index, i-1])) * self.h/2
             
             coeff_noise = (self.h**self.alpha) * gamma(2 - self.alpha)
-            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_y + self.nu*sum_phi + (np.sin(self.phi_trajectories[realization_index, time]))*self.h
+            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_y + self.ups*sum_phi + (np.sin(self.phi_trajectories[realization_index, time]))*self.h
 
         return traj
 
@@ -382,7 +382,7 @@ class rModulus(Base):
     ----------
 
     """
-    def __init__(self, x=None, y=None, nu=None, alphaR=None, HR=None, **kwargs):
+    def __init__(self, x=None, y=None, ups=None, alphaR=None, HR=None, **kwargs):
         super().__init__(**kwargs) #since init defined, it doesn't inherit init from parent
         
         # inherit from x and y classes if passed
@@ -390,7 +390,7 @@ class rModulus(Base):
             self.x_trajectories = x.trajectories
             self.y_trajectories = y.trajectories
             # translational properties
-            self.nu = x.nu
+            self.ups = x.ups
             self.alphaT = x.alpha
             self.HT = x.H
             self.AHT = x.A_H
@@ -400,7 +400,7 @@ class rModulus(Base):
         # read as input if only interested in analytical expression
         else:
             # translational properties
-            self.nu = nu
+            self.ups = ups
             self.alphaT = self.alpha
             self.HT = self.H
             # rotational properties
@@ -418,7 +418,7 @@ class rModulus(Base):
         HR = self.HR
         DHT = self.calc_general_diff_coeff(alphaT, HT)
         DHR = self.calc_general_diff_coeff(alphaR, HR)
-        nu = self.nu
+        ups = self.ups
         self.make_B_H()
         t = self.t 
         
@@ -427,7 +427,7 @@ class rModulus(Base):
         DHR = DHR/(alphaR+HR-1)
         DHT = DHT/(alphaT+HT-1)
 
-        coeff = ( nu**2 / (aux_var*((DHR/2)**(1/aux_var))) )
+        coeff = ( ups**2 / (aux_var*((DHR/2)**(1/aux_var))) )
         gamma1 = gamma(1/(2*aux_var))*gammainc(1/(2*aux_var), (DHR*t**(2*aux_var))/2)
         gamma2 = gamma(1/(aux_var))*gammainc(1/  (aux_var), (DHR*t**(2*aux_var))/2)
     

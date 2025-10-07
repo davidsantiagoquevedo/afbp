@@ -28,7 +28,7 @@ parser.add_argument("--realizations", type=int, default=1000, help="Number of re
 parser.add_argument("--sets", type=int, default=1, help="Number of sets")
 parser.add_argument("--Tf", type=float, default=10, help="Final time Tf")
 parser.add_argument("--h", type=float, default=0.05, help="Step size h")
-parser.add_argument("--nu", type=float, default=1, help="Self propulsion velocity")
+parser.add_argument("--ups", type=float, default=1, help="Self propulsion velocity")
 parser.add_argument("--batch_size", type=int, default=10, help="Batch size for paralellization")
 parser.add_argument("--start_set", type=int, default=1, help="first index of set label")
 
@@ -45,9 +45,9 @@ HRs = args.HR
 alphaTs = args.alphaT
 HTs = args.HT
 
-nu = args.nu
+ups = args.ups
 AHT = args.AHT
-realizations, sets, Tf, h, nu, batch_size = args.realizations, args.sets, args.Tf, args.h, args.nu, args.batch_size
+realizations, sets, Tf, h, ups, batch_size = args.realizations, args.sets, args.Tf, args.h, args.ups, args.batch_size
 start_set = args.start_set
 
 for i in range(len(alphaRs)):
@@ -74,11 +74,11 @@ for i in range(len(alphaRs)):
         if "x" in args.modes:
 
             # try:
-            #     x = utilities.read_env('x', alphaT, HT, realizations, Tf, h, start_set=set_index, sets=1, alphaR=alphaR, HR=HR, nu=nu, AHT=AHT)
+            #     x = utilities.read_env('x', alphaT, HT, realizations, Tf, h, start_set=set_index, sets=1, alphaR=alphaR, HR=HR, ups=ups, AHT=AHT)
             #     print(f"-- Loaded x")
             # except:
             print(f"-- Running x alphaT={alphaT}, HT={HT}")
-            x = xDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, nu=nu, AHT=AHT, L_type=L_type)
+            x = xDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, ups=ups, AHT=AHT, L_type=L_type)
             # x.run()
             x = parallelization.run_trajectories_parallel(x, batch_size)
             x.save(set_label= set_label, folder=folder, mode='x')
@@ -86,11 +86,11 @@ for i in range(len(alphaRs)):
         if "y" in args.modes:
 
             # try:
-            #     y = utilities.read_env('y', alphaT, HT, realizations, Tf, h, start_set=set_index, sets=1, alphaR=alphaR, HR=HR, nu=nu, AHT=AHT)
+            #     y = utilities.read_env('y', alphaT, HT, realizations, Tf, h, start_set=set_index, sets=1, alphaR=alphaR, HR=HR, ups=ups, AHT=AHT)
             #     print(f"-- Loaded y")
             # except:
             print(f"-- Running y alphaT={alphaT}, HT={HT}")
-            y = yDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, nu=nu, AHT=AHT, L_type=L_type)
+            y = yDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, ups=ups, AHT=AHT, L_type=L_type)
             # y.run()
             y = parallelization.run_trajectories_parallel(y, batch_size)
             y.save(set_label= set_label, folder=folder, mode='y')

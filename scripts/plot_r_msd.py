@@ -8,17 +8,17 @@ import utilities
 DATA_PATH = 'data_tests'
 mode = 'r'
 L_type = 'L1'
-nu=1
-AHT=1.
-realizations = 1000
+ups=1
+AHT=1
+realizations = 100
 Tf = 10
-h = 0.01
+h = 0.005
 start_set = 1
-sets = 1
+sets = 5
 
 
-alphaTs = [1., 0.7, 0.5, 0.3]  
-HTs = [0.5, 0.65, 0.75, 0.85]   
+alphaTs = [1., 1., 1.]  
+HTs = [0.8, 0.5, 0.2]   
 alphaRs = alphaTs
 HRs = HTs
 
@@ -41,7 +41,7 @@ for i, alphaR in enumerate(alphaRs):
                             L_type = L_type, 
                             alpha=alphaT, H=HT,
                             alphaR=alphaR, HR=HR,
-                            nu=nu,
+                            ups=ups,
                             AHT=AHT,
                             realizations=realizations,
                             Tf=Tf,
@@ -58,5 +58,5 @@ for i, alphaR in enumerate(alphaRs):
 
 
 fig.tight_layout()
-fig.savefig(f"plots/msd/{L_type}_{mode}msd_alphaT{alphaTs}_HT{HTs}_r{realizations*sets}_Tf{Tf}_h{h}_AHT{AHT}_nu{nu}.png", dpi=100)
+fig.savefig(f"plots/msd/{L_type}_{mode}msd_alphaT{alphaTs}_HT{HTs}_r{realizations*sets}_Tf{Tf}_h{h}_AHT{AHT}_ups{ups}.png", dpi=100)
 
