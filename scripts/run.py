@@ -14,9 +14,11 @@ The parameters α and H are read element-wise: the first run with alphaT[0], HT[
 The same list structure has to be used in the plotting modules.
 """
 
+DATA_PATH = 'data_tests'
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--L", type=str, default='L1', choices=["L1", "L2"], help="Which discretization type")
-parser.add_argument("--folder", type=str, default='data', choices=["data", "data_tests"], help="Which output folder")
+parser.add_argument("--folder", type=str, default='data_tests', choices=["data", "data_tests"], help="Which output folder")
 parser.add_argument("--modes", nargs='+', default=["phi"], choices=["phi", "x", "y", "r"], help="Which motion to simulate: phi, x, y, r"
 )
 parser.add_argument("--alphaR", nargs='+', type=float, default=[0.5], help="Rotational alpha value(s)")
@@ -50,6 +52,9 @@ AHT = args.AHT
 realizations, sets, Tf, h, ups, batch_size = args.realizations, args.sets, args.Tf, args.h, args.ups, args.batch_size
 start_set = args.start_set
 
+hR = 0.001
+# hR = h
+
 for i in range(len(alphaRs)):
 
     alphaT = alphaTs[i]
@@ -62,11 +67,11 @@ for i in range(len(alphaRs)):
         print(f"-- Running set {set_index}")
         set_label = str(set_index).zfill(3)
         try:
-            phi = utilities.read_env(L_type, 'phi', alphaR, HR, realizations, Tf, h, start_set=set_index, sets=1)
+            phi = utilities.read_env(L_type, 'phi', alphaR, HR, realizations, Tf, hR, start_set= start_set, sets=sets, path=DATA_PATH)
             print(f"-- Loaded phi")
         except:
             print(f"-- Running phi alphaR={alphaR}, HR={HR}")
-            phi = Angular(realizations=realizations, alpha=alphaR, H=HR, Tf=Tf, h=h, L_type=L_type)
+            phi = Angular(realizations=realizations, alpha=alphaR, H=HR, Tf=Tf, h=hR, L_type=L_type)
             # phi.run()
             phi = parallelization.run_trajectories_parallel(phi, batch_size=batch_size)
             phi.save(set_label= set_label, folder=folder)
