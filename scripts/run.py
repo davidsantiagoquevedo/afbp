@@ -30,6 +30,7 @@ parser.add_argument("--realizations", type=int, default=1000, help="Number of re
 parser.add_argument("--sets", type=int, default=1, help="Number of sets")
 parser.add_argument("--Tf", type=float, default=10, help="Final time Tf")
 parser.add_argument("--h", type=float, default=0.05, help="Step size h")
+parser.add_argument("--hR", type=float, default=0.05, help="Step size hR")
 parser.add_argument("--ups", type=float, default=1, help="Self propulsion velocity")
 parser.add_argument("--batch_size", type=int, default=10, help="Batch size for paralellization")
 parser.add_argument("--start_set", type=int, default=1, help="first index of set label")
@@ -52,7 +53,7 @@ AHT = args.AHT
 realizations, sets, Tf, h, ups, batch_size = args.realizations, args.sets, args.Tf, args.h, args.ups, args.batch_size
 start_set = args.start_set
 
-hR = 0.001
+hR = args.hR
 # hR = h
 
 for i in range(len(alphaRs)):

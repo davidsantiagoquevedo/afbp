@@ -119,10 +119,10 @@ class Base:
         if isinstance(self, Angular):
             alphaH = f"alphaR{self.alpha}_HR{self.H}"
         elif isinstance(self, xDirection) or isinstance(self, yDirection):
-            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_ups{self.ups}_AHT{self.A_H}"
+            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_hR{self.hR}_ups{self.ups}_AHT{self.A_H}"
             delattr(self, "phi_trajectories") #removed to avoid duplicating information
         else:
-            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_ups{self.ups}_AHT{self.AHT}"
+            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_hR{self.hR}_ups{self.ups}_AHT{self.AHT}"
             delattr(self, "x_trajectories") #removed to avoid duplicating information
             delattr(self, "y_trajectories") #removed to avoid duplicating information
         os.makedirs(folder, exist_ok=True)
@@ -331,13 +331,6 @@ class xDirection(Base):
         Compute one trajectory of x for a single realization.
         """
         traj = np.zeros(self.n)
-        # if realization_index==1:
-        #     print(self.nR)
-        #     print(modulus)
-        #     print(self.phi_trajectories[realization_index])
-        #     print(len(self.phi_trajectories[realization_index]))
-        #     print(phi_trajectory)
-        #     print(len(phi_trajectory))
 
         phi_trajectory = self.phi_trajectories[realization_index]
         nt = self.nxt_func(phi_trajectory)
@@ -363,8 +356,8 @@ class xDirection(Base):
             # traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_x + self.ups*sum_phi + (np.cos(self.phi_trajectories[realization_index, time]))*self.h
             # print(traj[time], coeff_noise, )
             traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_x + self.ups*sum_phi + (nt_cut[time]-nt_cut[time-1])
-            if realization_index == 1:
-                print(traj[time], self.dB[time], sum_x, sum_phi, coeff_noise)
+            # if realization_index == 1:
+            #     print(traj[time], self.dB[time], sum_x, sum_phi, coeff_noise)
 
 
         return traj
