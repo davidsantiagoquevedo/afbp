@@ -7,9 +7,10 @@ import plotting_param as par
 import data_analysis
 from world import Angular, rModulus
 import seaborn as sns
-# sns.set_palette("colorblind")     
-# sns.set_palette("husl", 9) 
-# plt.style.use("plotting_style.mplstyle")
+import colormaps as cmaps
+cmap = cmaps.greenorange_6
+palette = sns.color_palette([cmap(i) for i in range(cmap.N)])
+sns.set_palette(palette)
 
 # Analytic functions for fitting
 
@@ -80,9 +81,10 @@ def plot_moment(ax, env, mom_type, variable, log = False, legend_label = True, p
     if legend_label:
         if log:
             style['label'] = 'analytic log' 
-            #style['label'] = rf"$H=${env.H}"
-        if variable == 'sim':
-            style['label'] = rf"{style['label']} $\alpha=${env.alpha} $H=${env.H}"
+            style['label'] = rf"$H=${env.H}"
+        if variable == 'sim' or variable == 'an':
+            # style['label'] = rf"{style['label']} $\alpha_Q=${env.alpha} $H_Q=${env.H}"
+            style['label'] = rf"$H_Q=${env.H}"
         
     if variable == 'sim':
         moment = env.msd if mom_type=='msd' else env.var#/env.var.max()
