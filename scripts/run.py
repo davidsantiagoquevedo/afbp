@@ -14,7 +14,7 @@ The parameters α and H are read element-wise: the first run with alphaT[0], HT[
 The same list structure has to be used in the plotting modules.
 """
 
-DATA_PATH = 'data_tests'
+DATA_PATH = 'data'
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--L", type=str, default='L1', choices=["L1", "L2"], help="Which discretization type")
@@ -26,6 +26,7 @@ parser.add_argument("--alphaT", nargs='+', type=float, default=[1], help="Transl
 parser.add_argument("--HR", nargs='+', type=float, default=[0.5], help="H value(s).")
 parser.add_argument("--HT", nargs='+', type=float, default=[0.5], help="H value(s).")
 parser.add_argument("--AHT", type=float, default=1, help="Translational noise coefficient")
+parser.add_argument("--rule", type=str, default='N', help="Rule for evaluation of N(t)-N(t-1)")
 parser.add_argument("--realizations", type=int, default=1000, help="Number of realizations")
 parser.add_argument("--sets", type=int, default=1, help="Number of sets")
 parser.add_argument("--Tf", type=float, default=10, help="Final time Tf")
@@ -50,6 +51,7 @@ HTs = args.HT
 
 ups = args.ups
 AHT = args.AHT
+rule = args.rule
 realizations, sets, Tf, h, ups, batch_size = args.realizations, args.sets, args.Tf, args.h, args.ups, args.batch_size
 start_set = args.start_set
 
@@ -79,27 +81,27 @@ for i in range(len(alphaRs)):
 
         if "x" in args.modes:
 
-            # try:
-            #     x = utilities.read_env('x', alphaT, HT, realizations, Tf, h, start_set=set_index, sets=1, alphaR=alphaR, HR=HR, ups=ups, AHT=AHT)
-            #     print(f"-- Loaded x")
-            # except:
-            print(f"-- Running x alphaT={alphaT}, HT={HT}")
-            x = xDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, ups=ups, AHT=AHT, L_type=L_type)
-            # x.run()
-            x = parallelization.run_trajectories_parallel(x, batch_size)
-            x.save(set_label= set_label, folder=folder, mode='x')
+            try:
+                x = utilities.read_env(L_type, 'x', alphaT, HT, realizations, Tf, h, start_set=set_index, sets=1, path=DATA_PATH, alphaR=alphaR, HR=HR, ups=ups, AHT=AHT, rule=rule, hR=hR)
+                print(f"-- Loaded x")
+            except:
+                print(f"-- Running x alphaT={alphaT}, HT={HT}")
+                x = xDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, ups=ups, AHT=AHT, rule=rule, L_type=L_type)
+                # x.run()
+                x = parallelization.run_trajectories_parallel(x, batch_size)
+                x.save(set_label= set_label, folder=folder, mode='x')
             
         if "y" in args.modes:
 
-            # try:
-            #     y = utilities.read_env('y', alphaT, HT, realizations, Tf, h, start_set=set_index, sets=1, alphaR=alphaR, HR=HR, ups=ups, AHT=AHT)
-            #     print(f"-- Loaded y")
-            # except:
-            print(f"-- Running y alphaT={alphaT}, HT={HT}")
-            y = yDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, ups=ups, AHT=AHT, L_type=L_type)
-            # y.run()
-            y = parallelization.run_trajectories_parallel(y, batch_size)
-            y.save(set_label= set_label, folder=folder, mode='y')
+            try:
+                y = utilities.read_env(L_type, 'y', alphaT, HT, realizations, Tf, h, start_set=set_index, sets=1, path=DATA_PATH, alphaR=alphaR, HR=HR, ups=ups, AHT=AHT, rule=rule, hR=hR)
+                print(f"-- Loaded y")
+            except:
+                print(f"-- Running y alphaT={alphaT}, HT={HT}")
+                y = yDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, ups=ups, AHT=AHT, rule=rule, L_type=L_type)
+                # y.run()
+                y = parallelization.run_trajectories_parallel(y, batch_size)
+                y.save(set_label= set_label, folder=folder, mode='y')
             
         if "r" in args.modes:
             print(f"-- Running r")

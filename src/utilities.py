@@ -6,9 +6,8 @@ def read_env(L_type, mode, alpha, H, realizations, Tf, h, start_set, sets, path,
     if mode == 'phi':
         alphaH = f"alphaR{alpha}_HR{H}"
     else:
-        alphaH = f"alphaT{alpha}_HT{H}_alphaR{alphaR}_HR{HR}_hR{hR}_ups{ups}_AHT{AHT}"
-        if rule:
-            alphaH = f"alphaT{alpha}_HT{H}_alphaR{alphaR}_HR{HR}_hR{hR}_ups{ups}_AHT{AHT}_rule{rule}"
+
+        alphaH = f"alphaT{alpha}_HT{H}_alphaR{alphaR}_HR{HR}_hR{hR}_ups{ups}_AHT{AHT}_rule{rule}"
 
 
     for set_index in range(start_set, start_set+sets):
