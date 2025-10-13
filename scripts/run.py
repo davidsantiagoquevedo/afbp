@@ -18,7 +18,7 @@ DATA_PATH = 'data'
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--L", type=str, default='L1', choices=["L1", "L2"], help="Which discretization type")
-parser.add_argument("--folder", type=str, default='data_tests', choices=["data", "data_tests"], help="Which output folder")
+parser.add_argument("--folder", type=str, default='data_tests', help="Which output folder")
 parser.add_argument("--modes", nargs='+', default=["phi"], choices=["phi", "x", "y", "r"], help="Which motion to simulate: phi, x, y, r"
 )
 parser.add_argument("--alphaR", nargs='+', type=float, default=[0.5], help="Rotational alpha value(s)")
