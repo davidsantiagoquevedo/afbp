@@ -332,7 +332,6 @@ class xDirection(Base):
 
         phi_trajectory = self.phi_trajectories[realization_index]
         nt = self.nxt_func(phi_trajectory)
-
         modulus = int(self.nR/self.n)
         nt_cut = nt[::modulus]
         
@@ -422,9 +421,9 @@ class yDirection(Base):
             if self.rule == 'N':
                 traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_y + self.ups*sum_phi + (nt_cut[time]-nt_cut[time-1])
             elif self.rule == 'mean':
-                traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_y + self.ups*sum_phi + (np.cos(self.phi_trajectories[realization_index, time])+np.cos(self.phi_trajectories[realization_index, time-1]))*self.h/2
+                traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_y + self.ups*sum_phi + (np.sin(self.phi_trajectories[realization_index, time])+np.sin(self.phi_trajectories[realization_index, time-1]))*self.h/2
             elif self.rule == 'rend':
-                traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_y + self.ups*sum_phi + (np.cos(self.phi_trajectories[realization_index, time]))*self.h
+                traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_y + self.ups*sum_phi + (np.sin(self.phi_trajectories[realization_index, time]))*self.h
 
         return traj
 
