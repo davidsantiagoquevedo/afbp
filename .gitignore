@@ -8,3 +8,4 @@ slurm_jobs/
 .slurm
 plots/tests/
 data_tests/
+data_cluster/
