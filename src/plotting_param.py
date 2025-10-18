@@ -5,6 +5,13 @@ marker_size = 10
 title_fontsize = 15
 size_labels_figures =16
 
+import seaborn as sns
+import colormaps as cmaps
+
+# sns.set_palette("colorblind")     
+# sns.set_palette("husl", 9) 
+# plt.style.use("plotting_style.mplstyle")
+
 msd_style = {
     'sim': dict(lw=2, label = 'sim', zorder=2),  
     'sol': dict(lw=2, label = 'sol'),  

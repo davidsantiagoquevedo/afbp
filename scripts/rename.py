@@ -17,4 +17,4 @@ def rename(files, old_str, new_str, path):
 
 
 #files=index(suffix="r_alphaT1", path="data/")
-#rename(files, "_r", "_nu1_r", path="data/")
+#rename(files, "_r", "_ups1_r", path="data/")

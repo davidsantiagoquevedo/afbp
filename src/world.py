@@ -54,6 +54,24 @@ class Base:
     def cnj(self, k):
         return (k+1)**(1-self.alpha) - k**(1-self.alpha)
 
+    def nxt_func(self, phit):
+        nt = np.zeros(len(phit))
+        for j in range(len(phit)):
+            if j==0:
+                nt[j] = np.cos(phit[j])*self.hR
+            else:
+                nt[j] = nt[j-1] + np.cos(phit[j])*self.hR
+        return nt
+    
+    def nyt_func(self, phit):
+        nt = np.zeros(len(phit))
+        for j in range(len(phit)):
+            if j==0:
+                nt[j] = np.sin(phit[j])*self.hR
+            else:
+                nt[j] = nt[j-1] + np.sin(phit[j])*self.hR
+        return nt
+
     def run(self):
         """Run all realizations"""
         self.trajectories = []
@@ -79,6 +97,7 @@ class Base:
         self.trajectory_sol = np.array(self.trajectory_sol)
            
     # --------- Stats --------- #
+
     def compute_msd(self):
         self.msd = np.mean((self.trajectories - self.trajectories[:, [0]])**2, axis=0)
 
@@ -100,10 +119,10 @@ class Base:
         if isinstance(self, Angular):
             alphaH = f"alphaR{self.alpha}_HR{self.H}"
         elif isinstance(self, xDirection) or isinstance(self, yDirection):
-            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_nu{self.nu}_AHT{self.A_H}"
+            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_hR{self.hR}_ups{self.ups}_AHT{self.A_H}_rule{self.rule}"
             delattr(self, "phi_trajectories") #removed to avoid duplicating information
         else:
-            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_nu{self.nu}_AHT{self.AHT}"
+            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_hR{self.hR}_ups{self.ups}_AHT{self.AHT}_rule{self.rule}"
             delattr(self, "x_trajectories") #removed to avoid duplicating information
             delattr(self, "y_trajectories") #removed to avoid duplicating information
         os.makedirs(folder, exist_ok=True)
@@ -264,15 +283,12 @@ class Angular(Base):
                 for s in range(0, j):
                     
                     sum_term += c(j,s) * (traj[s+1]-traj[s])
-                    # print(j, s, c(j, s), (traj[s+1]-traj[s]))
 
             # Update rule
             coeff_noise = ((self.h)**(self.alpha)) * (gamma(2-self.alpha))/c_0
 
-            # print(j, sum_term, c_0)
             
             traj[j+1] = traj[j] + coeff_noise*self.dB[j] - sum_term/c_0
-            # print(traj[j+1])
         
         return traj
 
@@ -288,20 +304,23 @@ class xDirection(Base):
     ----------
 
     """
-    def __init__(self, phi, x0=0, nu=1, AHT=1, **kwargs):
+    def __init__(self, phi, x0=0, ups=1, AHT=1, rule='N', **kwargs):
         
         super().__init__(**kwargs) #since init defined, it doesn't inherit init from parent
         
         # initial condition
         self.x0 = x0
         # self_propulsion modulus
-        self.nu = nu
+        self.ups = ups
         
         self.phi_trajectories = phi.trajectories
         self.alphaR = phi.alpha
         self.HR = phi.H
         self.DHR = self.calc_general_diff_coeff(self.alphaR, self.HR)
+        self.nR = phi.n
+        self.hR = phi.h
         self.A_H = AHT
+        self.rule = rule
         if self.realizations != phi.realizations:
             self.realizations = phi.realizations
             
@@ -310,6 +329,12 @@ class xDirection(Base):
         Compute one trajectory of x for a single realization.
         """
         traj = np.zeros(self.n)
+
+        phi_trajectory = self.phi_trajectories[realization_index]
+        nt = self.nxt_func(phi_trajectory)
+
+        modulus = int(self.nR/self.n)
+        nt_cut = nt[::modulus]
         
         for time in range(1, self.n):
 
@@ -319,10 +344,21 @@ class xDirection(Base):
             
             sum_phi = 0
             for i in range(1, time):
-                sum_phi += self.cnj(time - i) * (np.cos(self.phi_trajectories[realization_index, i])+np.cos(self.phi_trajectories[realization_index, i-1])) * self.h/2
+
+                if self.rule == 'N':
+                    sum_phi += self.cnj(time - i) * (nt_cut[i]-nt_cut[i-1]) 
+                elif self.rule == 'mean':
+                    sum_phi += self.cnj(time - i) * (np.cos(self.phi_trajectories[realization_index, i])+np.cos(self.phi_trajectories[realization_index, i-1])) * self.h/2
+                elif self.rule == 'rend':
+                    sum_phi += self.cnj(time - i) * np.cos(self.phi_trajectories[realization_index, i]) * self.h
             
             coeff_noise = (self.h**self.alpha) * gamma(2 - self.alpha)
-            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_x + self.nu*sum_phi + (np.cos(self.phi_trajectories[realization_index, time]))*self.h
+            if self.rule == 'N':
+                traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_x + self.ups*sum_phi + (nt_cut[time]-nt_cut[time-1])
+            elif self.rule == 'mean':
+                traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_x + self.ups*sum_phi + (np.cos(self.phi_trajectories[realization_index, time])+np.cos(self.phi_trajectories[realization_index, time-1]))*self.h/2
+            elif self.rule == 'rend':
+                traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_x + self.ups*sum_phi + (np.cos(self.phi_trajectories[realization_index, time]))*self.h
 
         return traj
 
@@ -335,20 +371,23 @@ class yDirection(Base):
     ----------
 
     """
-    def __init__(self, phi=None, y0=0, nu=1, AHT=1, **kwargs):
+    def __init__(self, phi=None, y0=0, ups=1, AHT=1, rule='N', **kwargs):
         
         super().__init__(**kwargs) #since init defined, it doesn't inherit init from parent
            
          # initial condition
         self.y0 = y0
         # self_propulsion modulus
-        self.nu = nu
+        self.ups = ups
         
         self.phi_trajectories = phi.trajectories
         self.alphaR = phi.alpha
         self.HR = phi.H
         self.DHR = self.calc_general_diff_coeff(self.alphaR, self.HR)
+        self.nR = phi.n
+        self.hR = phi.h
         self.A_H = AHT
+        self.rule = rule
         if self.realizations != phi.realizations:
             self.realizations = phi.realizations
 
@@ -357,6 +396,12 @@ class yDirection(Base):
         Compute one trajectory of y for a single realization.
         """                                                              
         traj = np.zeros(self.n)
+
+        phi_trajectory = self.phi_trajectories[realization_index]
+        nt = self.nyt_func(phi_trajectory)
+
+        modulus = int(self.nR/self.n)
+        nt_cut = nt[::modulus]
         
         for time in range(1, self.n):
 
@@ -366,10 +411,20 @@ class yDirection(Base):
             
             sum_phi = 0
             for i in range(1, time):
-              sum_phi += self.cnj(time - i) * (np.sin(self.phi_trajectories[realization_index, i])+np.sin(self.phi_trajectories[realization_index, i-1])) * self.h/2
-            
+                if self.rule == 'N':
+                    sum_phi += self.cnj(time - i) * (nt_cut[i]-nt_cut[i-1])
+                elif self.rule == 'mean':
+                    sum_phi += self.cnj(time - i) * (np.sin(self.phi_trajectories[realization_index, i])+np.sin(self.phi_trajectories[realization_index, i-1])) * self.h/2
+                elif self.rule == 'rend':
+                    sum_phi += self.cnj(time - i) * np.sin(self.phi_trajectories[realization_index, i]) * self.h
+                    
             coeff_noise = (self.h**self.alpha) * gamma(2 - self.alpha)
-            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_y + self.nu*sum_phi + (np.sin(self.phi_trajectories[realization_index, time]))*self.h
+            if self.rule == 'N':
+                traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_y + self.ups*sum_phi + (nt_cut[time]-nt_cut[time-1])
+            elif self.rule == 'mean':
+                traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_y + self.ups*sum_phi + (np.cos(self.phi_trajectories[realization_index, time])+np.cos(self.phi_trajectories[realization_index, time-1]))*self.h/2
+            elif self.rule == 'rend':
+                traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_y + self.ups*sum_phi + (np.cos(self.phi_trajectories[realization_index, time]))*self.h
 
         return traj
 
@@ -382,7 +437,7 @@ class rModulus(Base):
     ----------
 
     """
-    def __init__(self, x=None, y=None, nu=None, alphaR=None, HR=None, **kwargs):
+    def __init__(self, x=None, y=None, ups=None, alphaR=None, HR=None, **kwargs):
         super().__init__(**kwargs) #since init defined, it doesn't inherit init from parent
         
         # inherit from x and y classes if passed
@@ -390,17 +445,19 @@ class rModulus(Base):
             self.x_trajectories = x.trajectories
             self.y_trajectories = y.trajectories
             # translational properties
-            self.nu = x.nu
+            self.ups = x.ups
             self.alphaT = x.alpha
             self.HT = x.H
             self.AHT = x.A_H
+            self.rule = x.rule
             # rotational properties
             self.alphaR = x.alphaR
             self.HR = x.HR
+            self.hR = x.hR
         # read as input if only interested in analytical expression
         else:
             # translational properties
-            self.nu = nu
+            self.ups = ups
             self.alphaT = self.alpha
             self.HT = self.H
             # rotational properties
@@ -418,7 +475,7 @@ class rModulus(Base):
         HR = self.HR
         DHT = self.calc_general_diff_coeff(alphaT, HT)
         DHR = self.calc_general_diff_coeff(alphaR, HR)
-        nu = self.nu
+        ups = self.ups
         self.make_B_H()
         t = self.t 
         
@@ -427,12 +484,12 @@ class rModulus(Base):
         DHR = DHR/(alphaR+HR-1)
         DHT = DHT/(alphaT+HT-1)
 
-        coeff = ( nu**2 / (aux_var*((DHR/2)**(1/aux_var))) )
+        coeff = ( ups**2 / (aux_var*((DHR/2)**(1/aux_var))) )
         gamma1 = gamma(1/(2*aux_var))*gammainc(1/(2*aux_var), (DHR*t**(2*aux_var))/2)
         gamma2 = gamma(1/(aux_var))*gammainc(1/  (aux_var), (DHR*t**(2*aux_var))/2)
     
         if total:
-            self.msd_an =  coeff*( gamma1*((DHR/2)**(1/(2*aux_var)))*t - gamma2  ) + 2*DHT*t**alphaT
+            self.msd_an =  coeff*( gamma1*((DHR/2)**(1/(2*aux_var)))*t - gamma2  ) + 2*DHT*(t**(2*alphaT+2*HT-2))
         else:
             # print(DHT)
             self.msd_an =  coeff*( gamma1*((DHR/2)**(1/(2*aux_var)))*t - gamma2  )
