@@ -178,7 +178,7 @@ class Angular(Base):
             self.compute_var_an()
         self.msd_an = self.var_an + (self.phi0**2)
 
-    def propagator(self, time_index):
+    def propagator(self, time_index, tref, tl=0):
         """
 
         Given a time, it returns the analytical probability function over the interval spanned by the trajectory.
@@ -198,7 +198,7 @@ class Angular(Base):
         limit += limit*0.3 
         x = np.arange(-limit, limit, 1e-3)
 
-        variance = self.compute_var_an(time = time_index*self.h)
+        variance = self.compute_var_an(time = np.abs((time_index*self.h - tref)), tl = tl)
         factor = np.sqrt( 1 / (2*np.pi*variance) )
         argument = (-(x)**2) / (2*variance)
 
