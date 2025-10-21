@@ -1,5 +1,7 @@
 from world import Base
 import numpy as np
+import os 
+import shutil
 
 def read_env(L_type, mode, alpha, H, realizations, Tf, h, start_set, sets, path, alphaR=None, HR=None, hR=None, ups=None, AHT=None, rule=None):
     
@@ -23,8 +25,20 @@ def read_env(L_type, mode, alpha, H, realizations, Tf, h, start_set, sets, path,
             f"h{h}_" 
             f"set{set_label}.pkl"
         )
-
         env = Base.load(filepath)
+
+        # # Define the destination folder
+        # destination_folder = "data/"
+
+        # # Ensure the destination folder exists
+        # os.makedirs(destination_folder, exist_ok=True)
+
+        # # Build the new full path for the file
+        # destination_path = os.path.join(destination_folder, os.path.basename(filepath))
+
+        # # Move the file
+        # shutil.move(filepath, destination_path)
+
         
         if set_index==1:
             env_multiset = env
