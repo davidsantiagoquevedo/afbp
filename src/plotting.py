@@ -51,7 +51,7 @@ def plot_trajectory(ax, x, y):
 
     ax.plot(x, y)
 
-def plot_moment(ax, env, mom_type, variable, log = False, legend_label = True, pic_in_grid = False, color=None, label=''):
+def plot_moment(ax, env, mom_type, variable, legend_id = 'H',  log = False, legend_label = True, pic_in_grid = False, color=None, label=''):
 
     """
     Plots a moment vector (msd or variance).
@@ -84,7 +84,13 @@ def plot_moment(ax, env, mom_type, variable, log = False, legend_label = True, p
             style['label'] = rf"$H=${env.H}"
         if variable == 'sim' or variable == 'an':
             # style['label'] = rf"{style['label']} $\alpha_Q=${env.alpha} $H_Q=${env.H}"
-            style['label'] = rf"$H_Q=${env.H}"
+            if legend_id == 'H':
+                style['label'] = rf"$H_Q=${env.H}"
+            if legend_id == 'alpha':
+                style['label'] = rf"$\alpha_Q=${env.alpha}"
+            if legend_id == 'alphaR':
+                style['label'] = rf"$\alpha_R=${env.alphaR}"
+
         
     if variable == 'sim':
         moment = env.msd if mom_type=='msd' else env.var#/env.var.max()
@@ -118,7 +124,7 @@ def plot_moment(ax, env, mom_type, variable, log = False, legend_label = True, p
 
     return color
 
-def plot_pdf(ax, env, mode, time):
+def plot_pdf(ax, env, mode, time, tl=0, tref=0, xy_label=True, legend=True):
     
     trajectories_points = env.trajectories[:, time]
 
@@ -130,7 +136,7 @@ def plot_pdf(ax, env, mode, time):
     if time == int(env.Tf/(4*env.h)):
         label = r'$\frac{1}{\sqrt{{2\pi(\sigma)^2}}}$'+rf'$e^{{-\frac{{({variable}-\langle {variable} \rangle)^2}}{{2\sigma^2}}}}$'
 
-    x, P = env.propagator(time)
+    x, P = env.propagator(time, tref = tref, tl = tl)
     ax.plot(x, P, lw=2, ls=":", color = 'black', zorder=2, label = label)
 
     # Histogram and Fit
@@ -141,16 +147,21 @@ def plot_pdf(ax, env, mode, time):
     # Get the fitted curve
     coeff = data_analysis.gauss_fit(trajectories_points, num_bins)
     coeff = coeff[0]
-    hist_fit = data_analysis.gauss(bin_centres, *coeff) 
+    min = np.min(trajectories_points)
+    max = np.max(trajectories_points)
+    x_fit = np.linspace(min*1.2, max*1.2)
+    hist_fit = data_analysis.gauss(x_fit, *coeff) 
 
     ax.bar(bin_centres, hist, width=bin_edges[1] - bin_edges[0], alpha=0.5, zorder=0)
-    ax.plot(bin_centres, hist_fit, lw=2, label=f'{(round(time*env.h, 2))}', zorder=1)
-    
+    ax.plot(x_fit, hist_fit, lw=2, label=f'{(round(time*env.h, 2))}', zorder=1)
+
     ax.set_title(rf'$variable: \alpha = {env.alpha}, H = {env.H}, A_H = {round(env.A_H, 2)}$', fontsize=par.axis_fontsize)
-    ax.set_xlabel(rf'${variable}$', fontsize=par.axis_fontsize)
-    ax.set_ylabel(rf'$P({variable},t)$', fontsize=par.axis_fontsize)
+    if xy_label:
+        ax.set_xlabel(rf'${variable}$', fontsize=par.axis_fontsize)
+        ax.set_ylabel(rf'$P({variable},t)$', fontsize=par.axis_fontsize)
     ax.tick_params(axis='both', labelsize=par.size_ticks)
-    ax.legend(fontsize = par.legend_size)
+    if legend:
+        ax.legend(fontsize = par.legend_size)
 
 def add_trend(ax, x0, xf, func, y0=1, text = "", xtext = False, dx = 0, dy = 0, fontsize = 15, **kwargs):
     t = np.arange(x0,xf,0.01)
