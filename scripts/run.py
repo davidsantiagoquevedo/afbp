@@ -14,7 +14,7 @@ The parameters α and H are read element-wise: the first run with alphaT[0], HT[
 The same list structure has to be used in the plotting modules.
 """
 
-DATA_PATH = 'data'
+DATA_PATH = 'data_tests'
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--L", type=str, default='L1', choices=["L1", "L2"], help="Which discretization type")
@@ -84,20 +84,22 @@ for i in range(len(alphaRs)):
             # try:
             #     x = utilities.read_env(L_type, 'x', alphaT, HT, realizations, Tf, h, start_set=set_index, sets=1, path=DATA_PATH, alphaR=alphaR, HR=HR, ups=ups, AHT=AHT, rule=rule, hR=hR)
             #     print(f"-- Loaded x")
+            #     x.rule = rule
             # except:
             print(f"-- Running x alphaT={alphaT}, HT={HT}")
             x = xDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, ups=ups, AHT=AHT, rule=rule, L_type=L_type)
             # x.run()
             x = parallelization.run_trajectories_parallel(x, batch_size)
             x.save(set_label= set_label, folder=folder, mode='x')
-        
+    
         if "y" in args.modes:
 
             # try:
-            #     y = utilities.read_env(L_type, 'y', alphaT, HT, realizations, Tf, h, start_set=set_index, sets=1, path=DATA_PATH, alphaR=alphaR, HR=HR, ups=ups, AHT=AHT, rule=rule, hR=hR)
-            #     print(f"-- Loaded y")
+            # y = utilities.read_env(L_type, 'y', alphaT, HT, realizations, Tf, h, start_set=set_index, sets=1, path=DATA_PATH, alphaR=alphaR, HR=HR, ups=ups, AHT=AHT, rule=rule, hR=hR)
+            # print(f"-- Loaded y")
+            # y.rule = rule
             # except:
-            print(f"-- Running y alphaT={alphaT}, HT={HT}")
+            # print(f"-- Running y alphaT={alphaT}, HT={HT}")
             y = yDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, ups=ups, AHT=AHT, rule=rule, L_type=L_type)
             # y.run()
             y = parallelization.run_trajectories_parallel(y, batch_size)
