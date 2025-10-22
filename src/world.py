@@ -479,6 +479,7 @@ class rModulus(Base):
         t = self.t 
         
         aux_var = alphaR + HR - 1
+        print(alphaR, HR)
 
         DHR = DHR/(alphaR+HR-1)
         DHT = DHT/(alphaT+HT-1)
@@ -492,3 +493,28 @@ class rModulus(Base):
         else:
             # print(DHT)
             self.msd_an =  coeff*( gamma1*((DHR/2)**(1/(2*aux_var)))*t - gamma2  )
+
+
+    def compute_msd_fbm(self, time, total = True):
+        alphaT = self.alpha
+        HT = self.H
+        alphaR = self.alphaR
+        HR = self.HR
+        DHT = self.calc_general_diff_coeff(alphaT, HT)
+        DHR = self.calc_general_diff_coeff(alphaR, HR)
+        ups = self.ups
+        
+
+        DHR = DHR/(alphaR+HR-1)
+        DHT = DHT/(alphaT+HT-1)
+
+        coeff = ( 2*ups**2 / ((DHR/2)**(2))) 
+        gamma1 = (DHR/2)*time
+        gamma2 = np.exp(-(DHR/2)*time) 
+    
+        if total:
+            return  coeff*( gamma1 + gamma2 - 1 ) + 2*DHT*(time**(2*alphaT+2*HT-2))
+        else:
+            # print(DHT)
+            return   coeff*( gamma1 + gamma2 - 1 )
+
