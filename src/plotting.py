@@ -51,7 +51,7 @@ def plot_trajectory(ax, x, y):
 
     ax.plot(x, y)
 
-def plot_moment(ax, env, mom_type, variable, legend_id = 'H',  log = False, legend_label = True, pic_in_grid = False, color=None, label=''):
+def plot_moment(ax, env, mom_type, variable, legend_id = 'H',  log = False, legend_label = True, pic_in_grid = False, color=None, label='', std = False):
 
     """
     Plots a moment vector (msd or variance).
@@ -90,6 +90,8 @@ def plot_moment(ax, env, mom_type, variable, legend_id = 'H',  log = False, lege
                 style['label'] = rf"$\alpha_Q=${env.alpha}"
             if legend_id == 'alphaR':
                 style['label'] = rf"$\alpha_R=${env.alphaR}"
+            if legend_id == 'alphaT':
+                style['label'] = rf"$\alpha_T=${env.alphaT}"
 
         
     if variable == 'sim':
@@ -107,6 +109,15 @@ def plot_moment(ax, env, mom_type, variable, legend_id = 'H',  log = False, lege
     line, = ax.plot(time, moment, **style)
 
     color = line.get_color()
+
+    if std:
+        std_msd = np.std(env.trajectories, axis=0)
+        upper = env.msd + std_msd
+        lower = env.msd - std_msd
+        color_std = par.lighten_color(color, 0.4)
+        ax.fill_between(time, lower, upper, color=color_std, alpha=0.3, zorder=0)  
+
+
 
     at = AnchoredText(label, prop=dict(size=par.size_labels_figures), frameon=False, loc='upper left')
     ax.add_artist(at)
