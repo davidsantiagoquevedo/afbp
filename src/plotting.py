@@ -8,9 +8,9 @@ import data_analysis
 from world import Angular, rModulus
 import seaborn as sns
 import colormaps as cmaps
-cmap = cmaps.greenorange_6
-palette = sns.color_palette([cmap(i) for i in range(cmap.N)])
-sns.set_palette(palette)
+# cmap = cmaps.greenorange_6
+# palette = sns.color_palette([cmap(i) for i in range(cmap.N)])
+# sns.set_palette(palette)
 
 # Analytic functions for fitting
 
@@ -51,7 +51,7 @@ def plot_trajectory(ax, x, y):
 
     ax.plot(x, y)
 
-def plot_moment(ax, env, mom_type, variable, legend_id = 'H',  log = False, legend_label = True, pic_in_grid = False, color=None, label='', std = False):
+def plot_moment(ax, env, mom_type, variable, legend_id = 'H',  log = False, legend_label = True, pic_in_grid = False, color=None, label='', std = False, legend = True):
 
     """
     Plots a moment vector (msd or variance).
@@ -112,26 +112,25 @@ def plot_moment(ax, env, mom_type, variable, legend_id = 'H',  log = False, lege
 
     if std:
         std_msd = np.std(env.trajectories, axis=0)
-        upper = env.msd + std_msd
-        lower = env.msd - std_msd
+        upper = env.msd + 2.33*std_msd/np.sqrt(env.n)
+        lower = env.msd - 2.33*std_msd/np.sqrt(env.n)
         color_std = par.lighten_color(color, 0.4)
         ax.fill_between(time, lower, upper, color=color_std, alpha=0.3, zorder=0)  
-
-
 
     at = AnchoredText(label, prop=dict(size=par.size_labels_figures), frameon=False, loc='upper left')
     ax.add_artist(at)
     
     ax.tick_params(axis='both', labelsize=par.size_ticks)
-    if pic_in_grid:
-        ax.legend(fontsize = par.legend_size)
-    else:
-        ax.grid(':', zorder=0)    
-        ax.legend(fontsize = par.legend_size,bbox_to_anchor=(1, 1))
-        if mom_type == 'msd':
-            mom_type = 'msd_phi' if isinstance(env, Angular) else 'msd_r'
-        ax.set_ylabel(par.ylabel_map[mom_type], fontsize = par.axis_fontsize)
-    ax.set_xlabel('t', fontsize = par.axis_fontsize)
+    if legend:
+        if pic_in_grid:
+            ax.legend(fontsize = par.legend_size)
+        else:
+            ax.grid(':', zorder=0)    
+            ax.legend(fontsize = par.legend_size,bbox_to_anchor=(1, 1))
+            if mom_type == 'msd':
+                mom_type = 'msd_phi' if isinstance(env, Angular) else 'msd_r'
+            ax.set_ylabel(par.ylabel_map[mom_type], fontsize = par.axis_fontsize)
+            ax.set_xlabel('t', fontsize = par.axis_fontsize)
 
     return color
 
@@ -174,20 +173,17 @@ def plot_pdf(ax, env, mode, time, tl=0, tref=0, xy_label=True, legend=True):
     if legend:
         ax.legend(fontsize = par.legend_size)
 
-def add_trend(ax, x0, xf, func, y0=1, text = "", xtext = False, dx = 0, dy = 0, fontsize = 15, **kwargs):
-    t = np.arange(x0,xf,0.01)
-    if xtext:
-        xloc = xtext
-    else:
-        xloc = xf
+def add_trend(ax, x0, xf, func, y0=1, text = "", xloc = 0, yloc = 0, fontsize = 15, **kwargs):
+    t = np.arange(x0,xf,0.05)
+
     if kwargs:
         y = func(t, alpha = kwargs["alpha"])*y0
-        ax.plot(t, y, color = "black", alpha = 1, ls = ":")
-        ax.text(xloc + dx, func(xloc, alpha = kwargs["alpha"]) + dy, text, fontsize=fontsize)
+        ax.plot(t, y, color = "black", alpha = 1, ls = ":", lw=2)
+        ax.text(xloc, yloc, text, fontsize=fontsize)
     else:
         y = func(t)*y0
-        ax.plot(t, y, color = "black", alpha = 1, ls = ":")
-        ax.text(xloc + dx, func(xloc) + dy, text, fontsize = fontsize)
+        ax.plot(t, y, color = "black", alpha = 1, ls = ":", lw=2)
+        ax.text(xloc, yloc, text, fontsize = fontsize)
 
 def t(t):
     return t
