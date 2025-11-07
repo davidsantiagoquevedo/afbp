@@ -69,15 +69,15 @@ for i in range(len(alphaRs)):
     for set_index in range(start_set, start_set+sets):
         print(f"-- Running set {set_index}")
         set_label = str(set_index).zfill(3)
-        # try:
-        #     phi = utilities.read_env(L_type, 'phi', alphaR, HR, realizations, Tf, hR, start_set= start_set, sets=sets, path=DATA_PATH)
-        #     print(f"-- Loaded phi")
-        # except:
-        print(f"-- Running phi alphaR={alphaR}, HR={HR}")
-        phi = Angular(realizations=realizations, alpha=alphaR, H=HR, Tf=Tf, h=hR, L_type=L_type)
-        # phi.run()
-        phi = parallelization.run_trajectories_parallel(phi, batch_size=batch_size)
-        phi.save(set_label= set_label, folder=folder)
+        try:
+            phi = utilities.read_env(L_type, 'phi', alphaR, HR, realizations, Tf, hR, start_set= start_set, sets=sets, path=DATA_PATH)
+            print(f"-- Loaded phi")
+        except:
+            print(f"-- Running phi alphaR={alphaR}, HR={HR}")
+            phi = Angular(realizations=realizations, alpha=alphaR, H=HR, Tf=Tf, h=hR, L_type=L_type)
+            # phi.run()
+            phi = parallelization.run_trajectories_parallel(phi, batch_size=batch_size)
+            phi.save(set_label= set_label, folder=folder)
 
         if "x" in args.modes:
 
