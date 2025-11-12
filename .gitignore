@@ -8,6 +8,5 @@ slurm_jobs/
 .slurm
 plots/tests/
 plots/trajectories/
-plots/presenting_figs/
 data_tests/
 data_cluster/ 
