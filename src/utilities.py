@@ -23,7 +23,7 @@ def read_env(L_type, mode, alpha, H, realizations, Tf, h, start_set, sets, path,
             f"r{realizations}_"
             f"Tf{Tf}_"
             f"h{h}_" 
-            f"set{set_label}.pkl"
+            f"set{set_label}_AHfdt.pkl"
         )
         env = Base.load(filepath)
 

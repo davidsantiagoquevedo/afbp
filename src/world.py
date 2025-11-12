@@ -25,8 +25,9 @@ class Base:
         self.trajectory_sol = []
 
         # Noise Amplitude
-        self.A_H = 1
+        # self.A_H = 1
         # self.A_H = 1/(np.sqrt(2*H)*gamma(H+1/2))
+        self.A_H = 1/(np.sqrt( H*(2*H-1)*gamma(2*H-1) ))
 
     # Generalized diffusion coefficient 
     def calc_general_diff_coeff(self, alpha, H):
@@ -77,6 +78,7 @@ class Base:
         self.trajectories = []
         for r in tqdm(range(self.realizations)):
             self.make_B_H()
+            print(self.A_H)
             if isinstance(self, Angular):
                 # Two discretization types implemented for angular equations
                 if self.L_type == 'L1':         
@@ -132,7 +134,7 @@ class Base:
                     f"r{self.realizations}_"
                     f"Tf{self.Tf}_"
                     f"h{self.h}_" 
-                    f"set{set_label}.pkl")
+                    f"set{set_label}_AHfdt.pkl")
         filepath = os.path.join(folder, filename)
         print(filepath)
         with open(filepath, "wb") as f:
@@ -160,18 +162,23 @@ class Angular(Base):
         super().__init__(**kwargs)
         self.phi0 = phi0
 
-    def compute_var_an(self, log=False, time = 0, tl = 0):
+    def compute_var_an(self, log=False, time = None, tl = 0):
         H = self.H
         alpha = self.alpha
         D_H = self.calc_general_diff_coeff(alpha, H)
-        self.make_B_H() #generate time
+        if time is None:
+            self.make_B_H() #generate time
         if log:
-            self.var_an = 2*D_H*(np.log(self.t[1:]/(tl)))
-            return 2*D_H*(np.log(time/tl))
+            if time is None:
+                self.var_an = 2*D_H*(np.log(self.t[1:]/(tl)))
+            else:
+                return 2*D_H*(np.log(time/tl))
         else:
             D_H = D_H/(alpha+H-1)
-            self.var_an = D_H*(self.t**(2*alpha+2*H-2)-tl**(2*alpha+2*H-2))
-            return D_H*(time**(2*alpha+2*H-2)-tl**(2*alpha+2*H-2))
+            if time is None:
+                self.var_an = D_H*(self.t**(2*alpha+2*H-2)-tl**(2*alpha+2*H-2))
+            else:
+                return D_H*(time**(2*alpha+2*H-2)-tl**(2*alpha+2*H-2))
 
     def compute_msd_an(self):
         if not hasattr(self, "var_an"): #compute variance if not already done
@@ -214,7 +221,6 @@ class Angular(Base):
             # Sum term
             sum_term = 0
             for i in range(1, time):
-                
                 sum_term += self.cnj(time-i) * (traj[i]-traj[i-1])
 
             # Update rule
