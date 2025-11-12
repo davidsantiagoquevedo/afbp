@@ -75,7 +75,8 @@ def plot_moment(ax, env, mom_type, variable, legend_id = 'H',  log = False, lege
 
     #color an curve from sim 
     if color is not None:
-        style['c'] = par.lighten_color(color, 0.3) if log else par.lighten_color(color, 0.7)
+        # style['c'] = par.lighten_color(color, 0.3) if log else par.lighten_color(color, 0.7)
+        style['c'] = color
 
     # legend label
     if legend_label:

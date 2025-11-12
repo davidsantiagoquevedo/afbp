@@ -3,7 +3,7 @@ axis_fontsize = 19
 size_ticks = 20
 marker_size = 10
 title_fontsize = 15
-size_labels_figures =16
+size_labels_figures =17
 
 # Main palette
 import seaborn as sns
@@ -20,9 +20,10 @@ palette = sns.color_palette([cmap(i) for i in range(cmap.N)])
 sns.set_palette(palette)
 
 msd_style = {
-    'sim': dict(lw=2, label = 'sim', zorder=2),  
+    'sim': dict(lw=4, label = 'sim', zorder=2),  
     'sol': dict(lw=2, label = 'sol'),  
-    'an': dict(lw=4.5, label = '', ls='--', zorder=1),  
+    # 'an': dict(lw=4.5, label = '', ls='--', zorder=1),  
+    'an': dict(lw=4.5, label = '', ls='--', zorder=3),  
     'fit': dict(lw=2, marker = 'o', label = 'fit')  
 }
 
