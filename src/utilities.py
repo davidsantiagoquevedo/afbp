@@ -40,9 +40,10 @@ def read_env(L_type, mode, alpha, H, realizations, Tf, h, start_set, sets, path,
         # shutil.move(filepath, destination_path)
 
         
-        if set_index==1:
+        if set_index==start_set:
             env_multiset = env
         else:
+
             env_multiset.realizations += realizations
             env_multiset.trajectories = np.vstack((env_multiset.trajectories, env.trajectories))
 
