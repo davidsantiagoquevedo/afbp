@@ -6,6 +6,9 @@ import os
 import pickle
 from tqdm import tqdm
 from integration import *
+import random
+# import numba
+# @numba.njit
 
 # ---------- Base Class ---------- #
 class Base:
@@ -78,7 +81,6 @@ class Base:
         self.trajectories = []
         for r in tqdm(range(self.realizations)):
             self.make_B_H()
-            print(self.A_H)
             if isinstance(self, Angular):
                 # Two discretization types implemented for angular equations
                 if self.L_type == 'L1':         
@@ -101,6 +103,7 @@ class Base:
     # --------- Stats --------- #
 
     def compute_msd(self):
+        # print(np.shape(self.trajectories))
         self.msd = np.mean((self.trajectories - self.trajectories[:, [0]])**2, axis=0)
 
     def compute_msd_sol(self):
@@ -160,7 +163,8 @@ class Angular(Base):
     def __init__(self,phi0 = 0, **kwargs):
         
         super().__init__(**kwargs)
-        self.phi0 = phi0
+        # self.phi0 = 0
+        self.phi0 = np.pi*random.random()
 
     def compute_var_an(self, log=False, time = None, tl = 0):
         H = self.H
@@ -215,7 +219,8 @@ class Angular(Base):
     
     def run_one_L1(self):
         # Loop over timesteps
-        traj = np.zeros(self.n)
+        # traj = np.zeros(self.n)
+        traj = np.ones(self.n) * self.phi0
         for time in range(1, self.n):
             
             # Sum term
@@ -226,7 +231,7 @@ class Angular(Base):
             # Update rule
             coeff_noise = ((self.h)**(self.alpha)) * (gamma(2-self.alpha))
             traj[time] = traj[time-1] + coeff_noise*self.dB[time] - sum_term
-        
+
         return traj
     
     def a(self, l):
