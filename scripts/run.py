@@ -71,7 +71,8 @@ for i in range(len(alphaRs)):
         print(f"-- Running phi alphaR={alphaR}, HR={HR}")
         phi = Angular(realizations=realizations, alpha=alphaR, H=HR, Tf=Tf, h=h, L_type=L_type)
         # phi.run()
-        phi = parallelization.run_trajectories_parallel(phi, batch_size=batch_size)
+        phi.run_numba()
+        # phi = parallelization.run_trajectories_parallel(phi, batch_size=batch_size)
         phi.save(set_label= set_label, folder=folder)
 
         if "x" in args.modes:

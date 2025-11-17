@@ -7,8 +7,8 @@ import pickle
 from tqdm import tqdm
 from integration import *
 import random
-# import numba
-# @numba.njit
+import numba_functions as nb
+
 
 # ---------- Base Class ---------- #
 class Base:
@@ -90,6 +90,27 @@ class Base:
                 traj = self.run_one(r)
             self.trajectories.append(traj)
         self.trajectories = np.array(self.trajectories)
+
+    def run_numba(self):
+        """Run all realizations"""
+        self.trajectories = []
+        cnj_array = np.zeros(self.n)
+        for time in range(1, self.n):
+            cnj_array[time] = self.cnj(time)
+        coeff_noise = (self.h ** self.alpha) * gamma(2 - self.alpha)
+
+
+        for r in tqdm(range(self.realizations)):
+            self.make_B_H()
+
+            if isinstance(self, Angular):
+                # Two discretization types implemented for angular equations
+                if self.L_type == 'L1':        
+                    traj = nb.run_one_numba(self.n, self.phi0, cnj_array, self.h, self.alpha, coeff_noise, self.dB)
+            else:
+                traj = self.run_one(r)
+            self.trajectories.append(traj)
+        self.trajectories = np.array(self.trajectories)
  
     # --------- Stats --------- #
 
@@ -161,12 +182,12 @@ class Angular(Base):
         if log:
             D_H = D_H*(alpha+H-1)   #extra factor that comes from integration exponent
             if time is None:
-                self.var_an = 2*D_H*(np.log(self.t[1:]/(tl)))
+                self.msd_an = 2*D_H*(np.log(self.t[1:]/(tl)))
             else:
                 return 2*D_H*(np.log(time/tl))
         else:
             if time is None:
-                self.var_an = D_H*(self.t**(2*alpha+2*H-2)-tl**(2*alpha+2*H-2))
+                self.msd_an = D_H*(self.t**(2*alpha+2*H-2)-tl**(2*alpha+2*H-2))
             else:
                 return D_H*(time**(2*alpha+2*H-2)-tl**(2*alpha+2*H-2))
 
@@ -214,6 +235,7 @@ class Angular(Base):
             traj[time] = traj[time-1] + coeff_noise*self.dB[time] - sum_term
 
         return traj
+
     
     def a(self, l):
         assert l >= 0
