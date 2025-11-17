@@ -61,18 +61,18 @@ class Base:
         nt = np.zeros(len(phit))
         for j in range(len(phit)):
             if j==0:
-                nt[j] = np.cos(phit[j])*self.hR
+                nt[j] = np.cos(phit[j])*self.h
             else:
-                nt[j] = nt[j-1] + np.cos(phit[j])*self.hR
+                nt[j] = nt[j-1] + np.cos(phit[j])*self.h
         return nt
     
     def nyt_func(self, phit):
         nt = np.zeros(len(phit))
         for j in range(len(phit)):
             if j==0:
-                nt[j] = np.sin(phit[j])*self.hR
+                nt[j] = np.sin(phit[j])*self.h
             else:
-                nt[j] = nt[j-1] + np.sin(phit[j])*self.hR
+                nt[j] = nt[j-1] + np.sin(phit[j])*self.h
         return nt
 
     def run(self):
@@ -123,10 +123,10 @@ class Base:
         if isinstance(self, Angular):
             alphaH = f"alphaR{self.alpha}_HR{self.H}"
         elif isinstance(self, xDirection) or isinstance(self, yDirection):
-            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_hR{self.hR}_ups{self.ups}"
+            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_ups{self.ups}"
             delattr(self, "phi_trajectories") #removed to avoid duplicating information
         else:
-            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_hR{self.hR}_ups{self.ups}"
+            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_ups{self.ups}"
             delattr(self, "x_trajectories") #removed to avoid duplicating information
             delattr(self, "y_trajectories") #removed to avoid duplicating information
         os.makedirs(folder, exist_ok=True)
@@ -329,8 +329,6 @@ class xDirection(Base):
         self.alphaR = phi.alpha
         self.HR = phi.H
         self.DHR = self.calc_general_diff_coeff(self.alphaR, self.HR)
-        self.nR = phi.n
-        self.hR = phi.h
 
         if self.realizations != phi.realizations:
             self.realizations = phi.realizations
@@ -382,8 +380,6 @@ class yDirection(Base):
         self.alphaR = phi.alpha
         self.HR = phi.H
         self.DHR = self.calc_general_diff_coeff(self.alphaR, self.HR)
-        self.nR = phi.n
-        self.hR = phi.h
 
         if self.realizations != phi.realizations:
             self.realizations = phi.realizations
@@ -438,7 +434,6 @@ class rModulus(Base):
             # rotational properties
             self.alphaR = x.alphaR
             self.HR = x.HR
-            self.hR = x.hR
         # read as input if only interested in analytical expression
         else:
             # translational properties

@@ -30,7 +30,6 @@ parser.add_argument("--realizations", type=int, default=1000, help="Number of re
 parser.add_argument("--sets", type=int, default=1, help="Number of sets")
 parser.add_argument("--Tf", type=float, default=10, help="Final time Tf")
 parser.add_argument("--h", type=float, default=0.05, help="Step size h")
-parser.add_argument("--hR", type=float, default=0.05, help="Step size hR")
 parser.add_argument("--ups", type=float, default=1, help="Self propulsion velocity")
 parser.add_argument("--batch_size", type=int, default=10, help="Batch size for paralellization")
 parser.add_argument("--start_set", type=int, default=1, help="first index of set label")
@@ -53,8 +52,6 @@ rule = args.rule
 realizations, sets, Tf, h, ups, batch_size = args.realizations, args.sets, args.Tf, args.h, args.ups, args.batch_size
 start_set = args.start_set
 
-hR = args.hR
-# hR = h
 
 for i in range(len(alphaRs)):
 
@@ -72,7 +69,7 @@ for i in range(len(alphaRs)):
         #     print(f"-- Loaded phi")
         # except:
         print(f"-- Running phi alphaR={alphaR}, HR={HR}")
-        phi = Angular(realizations=realizations, alpha=alphaR, H=HR, Tf=Tf, h=hR, L_type=L_type)
+        phi = Angular(realizations=realizations, alpha=alphaR, H=HR, Tf=Tf, h=h, L_type=L_type)
         # phi.run()
         phi = parallelization.run_trajectories_parallel(phi, batch_size=batch_size)
         phi.save(set_label= set_label, folder=folder)
