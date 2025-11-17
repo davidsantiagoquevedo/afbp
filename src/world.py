@@ -32,8 +32,9 @@ class Base:
     # Generalized diffusion coefficient 
     def calc_general_diff_coeff(self, alpha, H):
         nominator = H*gamma(2*H)
-        denominator = gamma(alpha)*gamma(alpha+2*H-1)
-        return nominator/denominator
+        denominator = (alpha+H-1)*gamma(alpha)*gamma(alpha+2*H-1)
+        noise_intensity = 1/(2*H*gamma(2-alpha))
+        return 2*noise_intensity*nominator/denominator
 
     # --------- Noise Generator --------- #
     def make_B_H(self, method='daviesharte'):
@@ -150,30 +151,24 @@ class Angular(Base):
         # self.phi0 = 0
         self.phi0 = np.pi*random.random()
 
-    def compute_var_an(self, log=False, time = None, tl = 0):
+    def compute_msd_an(self, log=False, time = None, tl = 0):
         H = self.H
         alpha = self.alpha
         D_H = self.calc_general_diff_coeff(alpha, H)
-        # D_H = D_H/(alpha+H-1)
-        D_H = 2*D_H/(2*H*gamma(2-alpha))
+
         if time is None:
             self.make_B_H() #generate time
         if log:
+            D_H = D_H*(alpha+H-1)   #extra factor that comes from integration exponent
             if time is None:
                 self.var_an = 2*D_H*(np.log(self.t[1:]/(tl)))
             else:
                 return 2*D_H*(np.log(time/tl))
         else:
-            D_H = D_H/(alpha+H-1)
             if time is None:
                 self.var_an = D_H*(self.t**(2*alpha+2*H-2)-tl**(2*alpha+2*H-2))
             else:
                 return D_H*(time**(2*alpha+2*H-2)-tl**(2*alpha+2*H-2))
-
-    def compute_msd_an(self):
-        if not hasattr(self, "var_an"): #compute variance if not already done
-            self.compute_var_an()
-        self.msd_an = self.var_an + (self.phi0**2)
 
     def propagator(self, time_index, tref, tl=0):
         """
@@ -288,9 +283,6 @@ class Angular(Base):
             traj[j+1] = traj[j] + coeff_noise*self.dB[j] - sum_term/c_0
         
         return traj
-
-    def run_one_solution(self):
-        return convolution_weights(self.dB, self.t, self.alpha)
 
 class xDirection(Base):
         
@@ -413,7 +405,6 @@ class rModulus(Base):
             self.ups = x.ups
             self.alphaT = x.alpha
             self.HT = x.H
-            # self.AHT = x.A_H
             self.AHT = 1/(np.sqrt( self.HT*(2*self.HT-1)*gamma(2*self.HT-1) ))
 
             # rotational properties
@@ -445,12 +436,6 @@ class rModulus(Base):
         t = self.t 
         
         aux_var = alphaR + HR - 1
-        print(alphaR, HR)
-
-        DHR = DHR/(alphaR+HR-1)
-        DHR = 2*DHR/(2*HR*gamma(2-alphaR))
-        DHT = DHT/(alphaT+HT-1)
-        DHT = 2*DHT/(2*HT*gamma(2-alphaT))
 
         coeff = ( ups**2 / (aux_var*((DHR/2)**(1/aux_var))) )
         gamma1 = gamma(1/(2*aux_var))*gammainc(1/(2*aux_var), (DHR*t**(2*aux_var))/2)
@@ -459,7 +444,6 @@ class rModulus(Base):
         if total:
             self.msd_an =  coeff*( gamma1*((DHR/2)**(1/(2*aux_var)))*t - gamma2  ) + 2*DHT*(t**(2*alphaT+2*HT-2))
         else:
-            # print(DHT)
             self.msd_an =  coeff*( gamma1*((DHR/2)**(1/(2*aux_var)))*t - gamma2  )
 
 
