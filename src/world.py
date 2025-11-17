@@ -28,8 +28,6 @@ class Base:
         self.trajectory_sol = []
 
         # Noise Amplitude
-        # self.A_H = 1
-        # self.A_H = 1/(np.sqrt(2*H)*gamma(H+1/2))
         self.A_H = 1/(np.sqrt( H*(2*H-1)*gamma(2*H-1) ))
 
     # Generalized diffusion coefficient 
@@ -46,6 +44,7 @@ class Base:
         self.B_H = f.fbm()
         self.dB_H = np.diff(self.B_H) * (self.n / self.Tf)
 
+        # print(self.A_H)
         self.B = self.A_H*self.B_H
         self.dB = self.A_H*self.dB_H
 
@@ -124,10 +123,10 @@ class Base:
         if isinstance(self, Angular):
             alphaH = f"alphaR{self.alpha}_HR{self.H}"
         elif isinstance(self, xDirection) or isinstance(self, yDirection):
-            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_hR{self.hR}_ups{self.ups}_AHT{self.A_H}_rule{self.rule}"
+            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_hR{self.hR}_ups{self.ups}_rule{self.rule}"
             delattr(self, "phi_trajectories") #removed to avoid duplicating information
         else:
-            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_hR{self.hR}_ups{self.ups}_AHT{self.AHT}_rule{self.rule}"
+            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_hR{self.hR}_ups{self.ups}_rule{self.rule}"
             delattr(self, "x_trajectories") #removed to avoid duplicating information
             delattr(self, "y_trajectories") #removed to avoid duplicating information
         os.makedirs(folder, exist_ok=True)
@@ -170,6 +169,8 @@ class Angular(Base):
         H = self.H
         alpha = self.alpha
         D_H = self.calc_general_diff_coeff(alpha, H)
+        # D_H = D_H/(alpha+H-1)
+        D_H = 2*D_H/(2*H*gamma(2-alpha))
         if time is None:
             self.make_B_H() #generate time
         if log:
@@ -330,7 +331,7 @@ class xDirection(Base):
         self.DHR = self.calc_general_diff_coeff(self.alphaR, self.HR)
         self.nR = phi.n
         self.hR = phi.h
-        self.A_H = AHT
+
         self.rule = rule
         if self.realizations != phi.realizations:
             self.realizations = phi.realizations
@@ -396,7 +397,7 @@ class yDirection(Base):
         self.DHR = self.calc_general_diff_coeff(self.alphaR, self.HR)
         self.nR = phi.n
         self.hR = phi.h
-        self.A_H = AHT
+
         self.rule = rule
         if self.realizations != phi.realizations:
             self.realizations = phi.realizations
@@ -458,7 +459,9 @@ class rModulus(Base):
             self.ups = x.ups
             self.alphaT = x.alpha
             self.HT = x.H
-            self.AHT = x.A_H
+            # self.AHT = x.A_H
+            self.AHT = 1/(np.sqrt( self.HT*(2*self.HT-1)*gamma(2*self.HT-1) ))
+
             self.rule = x.rule
             # rotational properties
             self.alphaR = x.alphaR
@@ -493,7 +496,9 @@ class rModulus(Base):
         print(alphaR, HR)
 
         DHR = DHR/(alphaR+HR-1)
+        DHR = 2*DHR/(2*HR*gamma(2-alphaR))
         DHT = DHT/(alphaT+HT-1)
+        DHT = 2*DHT/(2*HT*gamma(2-alphaT))
 
         coeff = ( ups**2 / (aux_var*((DHR/2)**(1/aux_var))) )
         gamma1 = gamma(1/(2*aux_var))*gammainc(1/(2*aux_var), (DHR*t**(2*aux_var))/2)

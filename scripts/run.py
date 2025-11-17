@@ -25,7 +25,6 @@ parser.add_argument("--alphaR", nargs='+', type=float, default=[0.5], help="Rota
 parser.add_argument("--alphaT", nargs='+', type=float, default=[1], help="Translational alpha value")
 parser.add_argument("--HR", nargs='+', type=float, default=[0.5], help="H value(s).")
 parser.add_argument("--HT", nargs='+', type=float, default=[0.5], help="H value(s).")
-parser.add_argument("--AHT", type=float, default=1, help="Translational noise coefficient")
 parser.add_argument("--rule", type=str, default='N', help="Rule for evaluation of N(t)-N(t-1)")
 parser.add_argument("--realizations", type=int, default=1000, help="Number of realizations")
 parser.add_argument("--sets", type=int, default=1, help="Number of sets")
@@ -50,7 +49,6 @@ alphaTs = args.alphaT
 HTs = args.HT
 
 ups = args.ups
-AHT = args.AHT
 rule = args.rule
 realizations, sets, Tf, h, ups, batch_size = args.realizations, args.sets, args.Tf, args.h, args.ups, args.batch_size
 start_set = args.start_set
@@ -69,15 +67,15 @@ for i in range(len(alphaRs)):
     for set_index in range(start_set, start_set+sets):
         print(f"-- Running set {set_index}")
         set_label = str(set_index).zfill(3)
-        try:
-            phi = utilities.read_env(L_type, 'phi', alphaR, HR, realizations, Tf, hR, start_set= start_set, sets=sets, path=DATA_PATH)
-            print(f"-- Loaded phi")
-        except:
-            print(f"-- Running phi alphaR={alphaR}, HR={HR}")
-            phi = Angular(realizations=realizations, alpha=alphaR, H=HR, Tf=Tf, h=hR, L_type=L_type)
-            # phi.run()
-            phi = parallelization.run_trajectories_parallel(phi, batch_size=batch_size)
-            phi.save(set_label= set_label, folder=folder)
+        # try:
+        #     phi = utilities.read_env(L_type, 'phi', alphaR, HR, realizations, Tf, hR, start_set= start_set, sets=sets, path=DATA_PATH)
+        #     print(f"-- Loaded phi")
+        # except:
+        print(f"-- Running phi alphaR={alphaR}, HR={HR}")
+        phi = Angular(realizations=realizations, alpha=alphaR, H=HR, Tf=Tf, h=hR, L_type=L_type)
+        # phi.run()
+        phi = parallelization.run_trajectories_parallel(phi, batch_size=batch_size)
+        phi.save(set_label= set_label, folder=folder)
 
         if "x" in args.modes:
 
@@ -87,7 +85,7 @@ for i in range(len(alphaRs)):
             #     x.rule = rule
             # except:
             print(f"-- Running x alphaT={alphaT}, HT={HT}")
-            x = xDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, ups=ups, AHT=AHT, rule=rule, L_type=L_type)
+            x = xDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, ups=ups, rule=rule, L_type=L_type)
             # x.run()
             x = parallelization.run_trajectories_parallel(x, batch_size)
             x.save(set_label= set_label, folder=folder, mode='x')
@@ -100,7 +98,7 @@ for i in range(len(alphaRs)):
             # y.rule = rule
             # except:
             # print(f"-- Running y alphaT={alphaT}, HT={HT}")
-            y = yDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, ups=ups, AHT=AHT, rule=rule, L_type=L_type)
+            y = yDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, ups=ups, rule=rule, L_type=L_type)
             # y.run()
             y = parallelization.run_trajectories_parallel(y, batch_size)
             y.save(set_label= set_label, folder=folder, mode='y')
