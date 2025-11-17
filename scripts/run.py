@@ -85,7 +85,7 @@ for i in range(len(alphaRs)):
             #     x.rule = rule
             # except:
             print(f"-- Running x alphaT={alphaT}, HT={HT}")
-            x = xDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, ups=ups, rule=rule, L_type=L_type)
+            x = xDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, ups=ups, L_type=L_type)
             # x.run()
             x = parallelization.run_trajectories_parallel(x, batch_size)
             x.save(set_label= set_label, folder=folder, mode='x')
@@ -98,7 +98,7 @@ for i in range(len(alphaRs)):
             # y.rule = rule
             # except:
             # print(f"-- Running y alphaT={alphaT}, HT={HT}")
-            y = yDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, ups=ups, rule=rule, L_type=L_type)
+            y = yDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, ups=ups, L_type=L_type)
             # y.run()
             y = parallelization.run_trajectories_parallel(y, batch_size)
             y.save(set_label= set_label, folder=folder, mode='y')

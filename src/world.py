@@ -123,10 +123,10 @@ class Base:
         if isinstance(self, Angular):
             alphaH = f"alphaR{self.alpha}_HR{self.H}"
         elif isinstance(self, xDirection) or isinstance(self, yDirection):
-            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_hR{self.hR}_ups{self.ups}_rule{self.rule}"
+            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_hR{self.hR}_ups{self.ups}"
             delattr(self, "phi_trajectories") #removed to avoid duplicating information
         else:
-            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_hR{self.hR}_ups{self.ups}_rule{self.rule}"
+            alphaH = f"alphaT{self.alpha}_HT{self.H}_alphaR{self.alphaR}_HR{self.HR}_hR{self.hR}_ups{self.ups}"
             delattr(self, "x_trajectories") #removed to avoid duplicating information
             delattr(self, "y_trajectories") #removed to avoid duplicating information
         os.makedirs(folder, exist_ok=True)
@@ -316,7 +316,7 @@ class xDirection(Base):
     ----------
 
     """
-    def __init__(self, phi, x0=0, ups=1, AHT=1, rule='N', **kwargs):
+    def __init__(self, phi, x0=0, ups=1, AHT=1, **kwargs):
         
         super().__init__(**kwargs) #since init defined, it doesn't inherit init from parent
         
@@ -332,7 +332,6 @@ class xDirection(Base):
         self.nR = phi.n
         self.hR = phi.h
 
-        self.rule = rule
         if self.realizations != phi.realizations:
             self.realizations = phi.realizations
             
@@ -344,8 +343,6 @@ class xDirection(Base):
 
         phi_trajectory = self.phi_trajectories[realization_index]
         nt = self.nxt_func(phi_trajectory)
-        modulus = int(self.nR/self.n)
-        nt_cut = nt[::modulus]
         
         for time in range(1, self.n):
 
@@ -356,20 +353,10 @@ class xDirection(Base):
             sum_phi = 0
             for i in range(1, time):
 
-                if self.rule == 'N':
-                    sum_phi += self.cnj(time - i) * (nt_cut[i]-nt_cut[i-1]) 
-                elif self.rule == 'mean':
-                    sum_phi += self.cnj(time - i) * (np.cos(self.phi_trajectories[realization_index, i])+np.cos(self.phi_trajectories[realization_index, i-1])) * self.h/2
-                elif self.rule == 'rend':
-                    sum_phi += self.cnj(time - i) * np.cos(self.phi_trajectories[realization_index, i]) * self.h
+                sum_phi += self.cnj(time - i) * (nt[i]-nt[i-1]) 
             
             coeff_noise = (self.h**self.alpha) * gamma(2 - self.alpha)
-            if self.rule == 'N':
-                traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_x + self.ups*sum_phi + (nt_cut[time]-nt_cut[time-1])
-            elif self.rule == 'mean':
-                traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_x + self.ups*sum_phi + (np.cos(self.phi_trajectories[realization_index, time])+np.cos(self.phi_trajectories[realization_index, time-1]))*self.h/2
-            elif self.rule == 'rend':
-                traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_x + self.ups*sum_phi + (np.cos(self.phi_trajectories[realization_index, time]))*self.h
+            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_x + self.ups*sum_phi + (nt[time]-nt[time-1])
 
         return traj
 
@@ -382,7 +369,7 @@ class yDirection(Base):
     ----------
 
     """
-    def __init__(self, phi=None, y0=0, ups=1, AHT=1, rule='N', **kwargs):
+    def __init__(self, phi=None, y0=0, ups=1, **kwargs):
         
         super().__init__(**kwargs) #since init defined, it doesn't inherit init from parent
            
@@ -398,7 +385,6 @@ class yDirection(Base):
         self.nR = phi.n
         self.hR = phi.h
 
-        self.rule = rule
         if self.realizations != phi.realizations:
             self.realizations = phi.realizations
 
@@ -411,9 +397,6 @@ class yDirection(Base):
         phi_trajectory = self.phi_trajectories[realization_index]
         nt = self.nyt_func(phi_trajectory)
 
-        modulus = int(self.nR/self.n)
-        nt_cut = nt[::modulus]
-        
         for time in range(1, self.n):
 
             sum_y = 0
@@ -422,20 +405,10 @@ class yDirection(Base):
             
             sum_phi = 0
             for i in range(1, time):
-                if self.rule == 'N':
-                    sum_phi += self.cnj(time - i) * (nt_cut[i]-nt_cut[i-1])
-                elif self.rule == 'mean':
-                    sum_phi += self.cnj(time - i) * (np.sin(self.phi_trajectories[realization_index, i])+np.sin(self.phi_trajectories[realization_index, i-1])) * self.h/2
-                elif self.rule == 'rend':
-                    sum_phi += self.cnj(time - i) * np.sin(self.phi_trajectories[realization_index, i]) * self.h
+                sum_phi += self.cnj(time - i) * (nt[i]-nt[i-1])
                     
             coeff_noise = (self.h**self.alpha) * gamma(2 - self.alpha)
-            if self.rule == 'N':
-                traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_y + self.ups*sum_phi + (nt_cut[time]-nt_cut[time-1])
-            elif self.rule == 'mean':
-                traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_y + self.ups*sum_phi + (np.sin(self.phi_trajectories[realization_index, time])+np.sin(self.phi_trajectories[realization_index, time-1]))*self.h/2
-            elif self.rule == 'rend':
-                traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_y + self.ups*sum_phi + (np.sin(self.phi_trajectories[realization_index, time]))*self.h
+            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_y + self.ups*sum_phi + (nt[time]-nt[time-1])
 
         return traj
 
@@ -462,7 +435,6 @@ class rModulus(Base):
             # self.AHT = x.A_H
             self.AHT = 1/(np.sqrt( self.HT*(2*self.HT-1)*gamma(2*self.HT-1) ))
 
-            self.rule = x.rule
             # rotational properties
             self.alphaR = x.alphaR
             self.HR = x.HR
