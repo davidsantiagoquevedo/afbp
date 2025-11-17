@@ -25,7 +25,6 @@ class Base:
 
         # Preallocate storage (to be specialized in subclasses)
         self.trajectories = []
-        self.trajectory_sol = []
 
         # Noise Amplitude
         self.A_H = 1/(np.sqrt( H*(2*H-1)*gamma(2*H-1) ))
@@ -90,23 +89,12 @@ class Base:
                 traj = self.run_one(r)
             self.trajectories.append(traj)
         self.trajectories = np.array(self.trajectories)
-
-    def run_solution(self):
-        
-        for _ in tqdm(range(self.realizations)):
-            self.make_B_H()
-            traj = self.run_one_solution()
-            self.trajectory_sol.append(traj)
-        self.trajectory_sol = np.array(self.trajectory_sol)
-           
+ 
     # --------- Stats --------- #
 
     def compute_msd(self):
         # print(np.shape(self.trajectories))
         self.msd = np.mean((self.trajectories - self.trajectories[:, [0]])**2, axis=0)
-
-    def compute_msd_sol(self):
-        self.msd_sol = np.mean((self.trajectory_sol - self.trajectory_sol[:, [0]])**2, axis=0)
 
     def compute_mean(self):
         self.mean = np.mean(self.trajectories, axis=0)
@@ -114,9 +102,6 @@ class Base:
     def compute_var(self):
         self.var = np.var(self.trajectories, axis=0)
         
-    def compute_var_sol(self):
-        self.var_sol = np.var(self.trajectory_sol, axis=0)
-
     # --------- Save/Load --------- #
     def save(self, set_label, folder="data_tests", mode="phi"):
         
