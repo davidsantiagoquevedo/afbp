@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.special import gamma, gammainc
-import pandas as pd
 from fbm import FBM
 import os
 import pickle
@@ -106,7 +105,7 @@ class Base:
             if isinstance(self, Angular):
                 # Two discretization types implemented for angular equations
                 if self.L_type == 'L1':        
-                    traj = nb.run_one_numba(self.n, self.phi0, cnj_array, self.h, self.alpha, coeff_noise, self.dB)
+                    traj = nb.run_one_numba(self.n, self.phi0, cnj_array, coeff_noise, self.dB)
             else:
                 traj = self.run_one(r)
             self.trajectories.append(traj)

@@ -2,6 +2,8 @@ import numpy as np
 import multiprocessing as mp
 from tqdm import tqdm
 from world import Angular, xDirection, yDirection
+import numba_functions as nb
+from scipy.special import gamma
 
 def single_trajectory_helper(env, p, stored_matrix, lock):
     """
@@ -9,9 +11,14 @@ def single_trajectory_helper(env, p, stored_matrix, lock):
 
     """
     env.make_B_H()
+    cnj_array = np.zeros(env.n)
+    for time in range(1, env.n):
+        cnj_array[time] = env.cnj(time)
+    coeff_noise = (env.h ** env.alpha) * gamma(2 - env.alpha)
     if isinstance(env, Angular):
         if env.L_type == 'L1':         
-            traj = env.run_one_L1()
+            # traj = env.run_one_L1()
+            traj = nb.run_one_numba(env.n, env.phi0, cnj_array, coeff_noise, env.dB)
         elif env.L_type == 'L2':
             traj = env.run_one_L2()
     else:

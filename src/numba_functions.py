@@ -4,7 +4,7 @@ from scipy.special import gamma
 import numpy as np
 
 @njit
-def run_one_numba(n, phi0, cnj_array, h, alpha, coeff_noise, dB):
+def run_one_numba(n, phi0, cnj_array, coeff_noise, dB):
     traj = np.ones(n) * phi0
 
     for time in range(1, n):
