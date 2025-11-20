@@ -26,7 +26,7 @@ class Base:
         self.trajectories = []
 
         # Noise Amplitude
-        self.A_H = 1/(np.sqrt( 2*self.H*gamma(2-self.alpha) ))
+        self.A_H = 1/(np.sqrt(self.H*gamma(2-self.alpha) ))
 
     # Generalized diffusion coefficient 
     def calc_general_diff_coeff(self, alpha, H):
@@ -103,11 +103,13 @@ class Base:
             self.make_B_H()
 
             if isinstance(self, Angular):
-                # Two discretization types implemented for angular equations
-                if self.L_type == 'L1':        
-                    traj = nb.run_one_numba(self.n, self.phi0, cnj_array, coeff_noise, self.dB)
+                traj = nb.run_one_phi(self.n, self.phi0, cnj_array, coeff_noise, self.dB)
             else:
-                traj = self.run_one(r)
+                if isinstance(self, xDirection):
+                    nt_array = nb.nxt_func(self.phi_trajectories[r], self.h)
+                if isinstance(self, yDirection):
+                    nt_array = nb.nyt_func(self.phi_trajectories[r], self.h)
+                traj = nb.run_one(self.n, self.ups, nt_array, cnj_array, coeff_noise, self.dB, traj0=0)
             self.trajectories.append(traj)
         self.trajectories = np.array(self.trajectories)
  
@@ -171,15 +173,13 @@ class Angular(Base):
         # self.phi0 = 0
         self.phi0 = np.pi*random.random()
 
-    def compute_msd_an(self, log=False, time = None, tl = 0):
+    def compute_msd_an(self, time = None, tl = 0):
         H = self.H
         alpha = self.alpha
         D_H = self.calc_general_diff_coeff(alpha, H)
 
         if time is None:
             self.make_B_H() #generate time
-
-        if time is None:
             self.msd_an = D_H*(self.t**(2*alpha+2*H-2)-tl**(2*alpha+2*H-2))
         else:
             return D_H*(time**(2*alpha+2*H-2)-tl**(2*alpha+2*H-2))

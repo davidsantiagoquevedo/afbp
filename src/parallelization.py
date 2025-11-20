@@ -11,18 +11,23 @@ def single_trajectory_helper(env, p, stored_matrix, lock):
 
     """
     env.make_B_H()
+
     cnj_array = np.zeros(env.n)
     for time in range(1, env.n):
         cnj_array[time] = env.cnj(time)
     coeff_noise = (env.h ** env.alpha) * gamma(2 - env.alpha)
+
     if isinstance(env, Angular):
         if env.L_type == 'L1':         
             # traj = env.run_one_L1()
-            traj = nb.run_one_numba(env.n, env.phi0, cnj_array, coeff_noise, env.dB)
-        elif env.L_type == 'L2':
-            traj = env.run_one_L2()
+            traj = nb.run_one_phi(env.n, env.phi0, cnj_array, coeff_noise, env.dB)
+
     else:
-        traj = env.run_one(p)
+        if isinstance(env, xDirection):
+            nt_array = nb.nxt_func(env.phi_trajectories[p], env.h)
+        if isinstance(env, yDirection):
+            nt_array = nb.nyt_func(env.phi_trajectories[p], env.h)
+        traj = nb.run_one(env.n, env.ups, nt_array, cnj_array, coeff_noise, env.dB, traj0=0)
 
     with lock:
         stored_matrix[p, :] = traj
