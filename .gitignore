@@ -6,7 +6,6 @@ slurm_jobs/
 .out
 .err
 .slurm
-plots/tests/
-plots/trajectories/
+plots/
 data_tests/
 data_cluster/ 
