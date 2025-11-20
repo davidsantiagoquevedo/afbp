@@ -26,7 +26,7 @@ class Base:
         self.trajectories = []
 
         # Noise Amplitude
-        self.A_H = 1/(np.sqrt( H*(2*H-1)*gamma(2*H-1) ))
+        self.A_H = 1/(np.sqrt( 2*self.H*gamma(2-self.alpha) ))
 
     # Generalized diffusion coefficient 
     def calc_general_diff_coeff(self, alpha, H):
@@ -178,17 +178,12 @@ class Angular(Base):
 
         if time is None:
             self.make_B_H() #generate time
-        if log:
-            D_H = D_H*(alpha+H-1)   #extra factor that comes from integration exponent
-            if time is None:
-                self.msd_an = 2*D_H*(np.log(self.t[1:]/(tl)))
-            else:
-                return 2*D_H*(np.log(time/tl))
+
+        if time is None:
+            self.msd_an = D_H*(self.t**(2*alpha+2*H-2)-tl**(2*alpha+2*H-2))
         else:
-            if time is None:
-                self.msd_an = D_H*(self.t**(2*alpha+2*H-2)-tl**(2*alpha+2*H-2))
-            else:
-                return D_H*(time**(2*alpha+2*H-2)-tl**(2*alpha+2*H-2))
+            return D_H*(time**(2*alpha+2*H-2)-tl**(2*alpha+2*H-2))
+            # return (1/(2*H*gamma(2-alpha)))*(time**(alpha))
 
     def propagator(self, time_index, tref, tl=0):
         """
@@ -235,7 +230,6 @@ class Angular(Base):
 
         return traj
 
-    
     def a(self, l):
         assert l >= 0
         alpha=self.alpha
