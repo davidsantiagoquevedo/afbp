@@ -1,51 +1,9 @@
 # -- FUNCTIONS --
-import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredText
 import numpy as np
-from scipy.special import gamma
 import plotting_param as par
 import data_analysis
-from world import Angular, rModulus
-import seaborn as sns
-import colormaps as cmaps
-# cmap = cmaps.greenorange_6
-# palette = sns.color_palette([cmap(i) for i in range(cmap.N)])
-# sns.set_palette(palette)
-
-# Analytic functions for fitting
-
-def phi_propagator(phi, time, H, alpha, phi0=0):
-    
-    factor = np.sqrt(H/np.pi)*( gamma(H+1/2) / (gamma(2-alpha)*(time**(H+alpha-1))) )
-    
-    argument = -(H*gamma(H+1/2)**2 / gamma(2-alpha)**2) * ((phi - phi0)**2 / time**(2*H+2*alpha-2))
-    
-    return factor*np.exp(argument)
-
-def phi_propagator_ansatz(phi, time, alpha, phi0=0):
-    
-    factor = np.sqrt( gamma(alpha+1) / (4*np.pi*(time**alpha)) )
-    
-    argument = - gamma(1+alpha)*(((phi - phi0)**2) / (4*time**(alpha)))
-    
-    return factor*np.exp(argument)
-
-def phi_fBm_propagator_ansatz(phi, time, H, phi0=0):
-    
-    factor = np.sqrt( 1 / (2*np.pi*(time**(2*H))) )
-    
-    argument = - ((phi - phi0)**2) / (2*time**(2*H))
-    
-    return factor*np.exp(argument)
-
-def phi_fBm_propagator_calvo(phi, time, H, phi0=0):
-    
-    
-    return (np.sqrt(H/np.pi)) * (gamma(H+1/2)/(time**H)) * np.exp(-H*((gamma(H+1/2)*(phi-phi0)/(time**(H)))**2))
-
-def phi_fBm_msd(time, H):
-    # return (1/(2*H*(gamma(H+1/2)**2)))*(time**(2*H))
-    return (time**(2*H))
+from world import Angular
 
 def plot_trajectory(ax, x, y):
 
@@ -97,7 +55,8 @@ def plot_moment(ax, env, mom_type, variable, legend_id = 'H',  log = False, lege
         
     if variable == 'sim':
         moment = env.msd if mom_type=='msd' else env.var#/env.var.max()
-        time = env.t
+        # time = env.t
+        time = np.linspace(0, env.Tf, len(moment))
 
     elif variable == 'sol':
         moment = env.msd_sol if mom_type=='msd' else env.var_sol
