@@ -15,6 +15,7 @@ colors_main = [
     "#F4BAEA",  
     "#FE6C23"   
 ]
+color_analytic = "#57281E"
 cmap = ListedColormap(colors_main)
 palette = sns.color_palette([cmap(i) for i in range(cmap.N)])
 sns.set_palette(palette)
@@ -23,7 +24,7 @@ msd_style = {
     'sim': dict(lw=4, label = 'sim', zorder=2),  
     'sol': dict(lw=2, label = 'sol'),  
     # 'an': dict(lw=4.5, label = '', ls='--', zorder=1),  
-    'an': dict(lw=4.5, label = '', ls='--', zorder=3),  
+    'an': dict(lw=4, label = '', ls=':', zorder=3),  
     'fit': dict(lw=2, marker = 'o', label = 'fit')  
 }
 
