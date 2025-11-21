@@ -32,8 +32,8 @@ class Base:
     def calc_general_diff_coeff(self, alpha, H):
         nominator = H*gamma(2*H)
         denominator = (alpha+H-1)*gamma(alpha)*gamma(alpha+2*H-1)
-        noise_intensity = 1/(2*H*gamma(2-alpha))
-        return 2*noise_intensity*nominator/denominator
+        noise_intensity = (1)/(H*gamma(2-alpha))
+        return noise_intensity*nominator/denominator
 
     # --------- Noise Generator --------- #
     def make_B_H(self, method='daviesharte'):
