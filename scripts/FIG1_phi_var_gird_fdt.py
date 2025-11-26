@@ -37,7 +37,7 @@ mode = 'phi'
 Tf = 10.
 start_set=1
 L_type = 'L1'
-DATA_PATH = 'data_tests/data_numba'
+DATA_PATH = 'data'
 eta=1
 tref = 5
 realizations = 1000
@@ -68,19 +68,20 @@ for a, alphaR in enumerate(alphaR):
     # COS
     plot_deltaphicos(ax[1], tref, env, color_cos = color)
 
-ax[0].set_ylabel(fr'$\langle (r(t)-r_0)^2 \rangle_{{\eta=0}}$', fontsize = par.axis_fontsize)
-ax[1].set_ylabel(fr'$\langle \cos\left(\Delta q(t)\right) \rangle$', fontsize = par.axis_fontsize)
-ax[0].set_xlabel('t', fontsize = par.axis_fontsize)
-ax[1].set_xlabel('t', fontsize = par.axis_fontsize)
+ax[0].set_ylabel(fr'$\langle (r(t)-r_0)^2 \rangle_{{\eta=0}}/L_{{\alpha}}^{2}$', fontsize = par.axis_fontsize)
+ax[1].set_ylabel(fr'$\langle \cos\left(\phi(t) - \phi(t_{{ref}})\right) \rangle$', fontsize = par.axis_fontsize)
+ax[0].set_xlabel(r'$t/\tau_{\alpha}$', fontsize = par.axis_fontsize)
+ax[1].set_xlabel(r'$t/\tau_{\alpha}$', fontsize = par.axis_fontsize)
 
 handles, legend = ax[0].get_legend_handles_labels()
 ax[0].get_legend().remove()
-fig.legend(handles, legend, bbox_to_anchor = (0.75,0.99), ncol = 4, fontsize = legend_fontsize)
+fig_leg = fig.legend(handles, legend, bbox_to_anchor = (1.3,0.99), ncol = 1, fontsize = legend_fontsize)
+fig_leg.get_frame().set_facecolor('none')
+fig_leg.get_frame().set_edgecolor('none')
 
 at = AnchoredText('(a)', prop=dict(size=par.size_labels_figures), frameon=False, loc='upper left')
 ax[0].add_artist(at)
 at = AnchoredText('(b)', prop=dict(size=par.size_labels_figures), frameon=False, loc='upper left')
 ax[1].add_artist(at)
-
 # fig.tight_layout()
-fig.savefig(f"plots/paper/phi_msd_cos_numb.png", bbox_inches='tight', dpi=100)
+fig.savefig(f"plots/paper/phi_msd_cos_numb_trasp.png", bbox_inches='tight', dpi=100, transparent=True)
