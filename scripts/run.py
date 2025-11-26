@@ -52,7 +52,6 @@ rule = args.rule
 realizations, sets, Tf, h, ups, batch_size = args.realizations, args.sets, args.Tf, args.h, args.ups, args.batch_size
 start_set = args.start_set
 
-
 for i in range(len(alphaRs)):
 
     alphaT = alphaTs[i]
@@ -70,7 +69,6 @@ for i in range(len(alphaRs)):
         # except:
         print(f"-- Running phi alphaR={alphaR}, HR={HR}")
         phi = Angular(realizations=realizations, alpha=alphaR, H=HR, Tf=Tf, h=h, L_type=L_type)
-        # phi.run()
         # phi.run_numba()
         phi = parallelization.run_trajectories_parallel(phi, batch_size=batch_size)
         phi.save(set_label= set_label, folder=folder)
@@ -84,7 +82,7 @@ for i in range(len(alphaRs)):
             # except:
             print(f"-- Running x alphaT={alphaT}, HT={HT}")
             x = xDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, ups=ups, L_type=L_type)
-            # x.run()
+            # x.run_numba()
             x = parallelization.run_trajectories_parallel(x, batch_size)
             x.save(set_label= set_label, folder=folder, mode='x')
     
@@ -97,7 +95,7 @@ for i in range(len(alphaRs)):
             # except:
             # print(f"-- Running y alphaT={alphaT}, HT={HT}")
             y = yDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, ups=ups, L_type=L_type)
-            # y.run()
+            # y.run_numba()
             y = parallelization.run_trajectories_parallel(y, batch_size)
             y.save(set_label= set_label, folder=folder, mode='y')
         
