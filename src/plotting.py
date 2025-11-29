@@ -6,6 +6,9 @@ import data_analysis
 from world import Angular
 import math
 
+def add_caption_letter(ax, cap):
+    ax.text(.07, .98, cap, ha='left', va='top', transform=ax.transAxes)
+
 def get_sampling_indices(upper_limit, samplesize, type, loglin_rat):
     n = upper_limit
     # linear spacing
@@ -121,7 +124,6 @@ def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', xy
         time_s = time_s[idx]
             
     if ci:
-        #color_std = par.lighten_color(color, 0.4)
         n = int(time.shape[0]*max_value)
         idx = get_sampling_indices(upper_limit = n, samplesize = n + 1, type = None, loglin_rat = None)
         time = time[idx]
@@ -131,18 +133,9 @@ def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', xy
     
     line, = ax.plot(time_s, moment, alpha = 1, **style)
     color = line.get_color()
-    # add label () to figure
-    at = AnchoredText(label, prop=dict(size=par.size_labels_figures), frameon=False, loc='upper left')
-    ax.add_artist(at)
-    
-    ax.tick_params(axis='both', labelsize=par.size_ticks)
     
     if legend:
-        ax.legend(fontsize = par.legend_size)
-
-    if xylabel:         
-        ax.set_ylabel(par.ylabel_map[mom_type], fontsize = par.axis_fontsize)
-        ax.set_xlabel(r'$t/\tau_{\alpha}$', fontsize = par.axis_fontsize)
+        ax.legend()
 
     return color
 

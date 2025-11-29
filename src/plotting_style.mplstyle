@@ -1,38 +1,49 @@
-# Created on Thu Jul  7 16:17:49 2022
-# @author: davidsantiagoquevedo
 # default matplotlibrc file: https://matplotlib.org/stable/tutorials/introductory/customizing.html
 
 #Ticks
-xtick.labelsize: 15
-ytick.labelsize: 15
-
+xtick.labelsize: 20
+ytick.labelsize: 20
 xtick.direction: in
 ytick.direction: in
 
-#Axes
-axes.labelsize: 15
-axes.titlesize: 15
-axes.titlelocation: center
+xtick.top       : True
+xtick.bottom    : True
+ytick.left      : True
+ytick.right     : True
 
-axes.spines.right: True
+# Tick lengths
+xtick.major.size : 8
+xtick.minor.size : 4
+
+ytick.major.size : 8
+ytick.minor.size : 4
+
+# Tick width
+xtick.major.width : 2
+ytick.major.width : 2
+
+#Axes
+axes.labelsize: 20
+axes.titlesize: 20
+axes.titlelocation: center
+axes.linewidth:     2.0
 
 #Colors
-axes.prop_cycle: cycler("color", ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"]) 
+axes.prop_cycle: cycler("color", ["#AEA435", "#FEBA27", "#76B3D0", "#F4BAEA", "#FE6C23"  ]) 
 
 #Legend
-legend.fontsize: 15
-legend.framealpha:    0.0
+legend.fontsize: 20
+legend.framealpha:    1.0
 legend.edgecolor:     1.0
 
-font.size:    15.0
+font.size:    20.0
 
 
 #Figure
-figure.figsize: 5, 5
 figure.autolayout: True
 
 #Saving
-savefig.dpi:  1000
+#savefig.dpi:  1000
 savefig.bbox: tight
 savefig.transparent: False
 savefig.facecolor: white
