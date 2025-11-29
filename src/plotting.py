@@ -90,7 +90,7 @@ def plot_moment(ax, env, mom_type, variable, legend_id = 'H',  log = False, lege
             if mom_type == 'msd':
                 mom_type = 'msd_phi' if isinstance(env, Angular) else 'msd_r'
             ax.set_ylabel(par.ylabel_map[mom_type], fontsize = par.axis_fontsize)
-            ax.set_xlabel('t', fontsize = par.axis_fontsize)
+            ax.set_xlabel(r'$t/\tau_{\alpha}$', fontsize = par.axis_fontsize)
 
     return color
 
@@ -138,11 +138,11 @@ def add_trend(ax, x0, xf, func, y0=1, text = "", xloc = 0, yloc = 0, fontsize = 
 
     if kwargs:
         y = func(t, alpha = kwargs["alpha"])*y0
-        ax.plot(t, y, color = "black", alpha = 1, ls = ":", lw=2)
+        ax.plot(t, y, color = "black", alpha = 1, ls = "-", lw=1.5)
         ax.text(xloc, yloc, text, fontsize=fontsize)
     else:
         y = func(t)*y0
-        ax.plot(t, y, color = "black", alpha = 1, ls = ":", lw=2)
+        ax.plot(t, y, color = "black", alpha = 1, ls = "-", lw=1.5)
         ax.text(xloc, yloc, text, fontsize = fontsize)
 
 def t(t):
