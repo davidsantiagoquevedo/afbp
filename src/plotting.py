@@ -4,12 +4,49 @@ import numpy as np
 import plotting_param as par
 import data_analysis
 from world import Angular
+import math
+
+def get_sampling_indices(upper_limit, samplesize, type, loglin_rat):
+    n = upper_limit
+    # linear spacing
+    sampling_step = n / (samplesize - 1)
+    indices_lin = (np.arange(samplesize) * sampling_step).astype(int)
+    indices_lin = np.clip(indices_lin, 0, n - 1)
+    
+    # logarithmic spacing
+    O = math.log10(n - 1)
+    indices_log = np.logspace(0, O, samplesize)
+    indices_log = np.round(indices_log).astype(int)
+    indices_log = np.unique(indices_log)
+    indices_log = indices_log[indices_log < n]
+    if indices_log[0] != 0: #zero index
+        indices_log = np.insert(indices_log, 0, 0)
+    if indices_log[-1] != n - 1: #last index
+        indices_log = np.append(indices_log, n - 1)
+    
+    if type is None:
+        return indices_lin
+
+    elif type == 'log':
+        return indices_log
+    
+    if type == 'loglin':
+        cut = int(n*loglin_rat)
+        first = indices_log[indices_log < cut]
+        step = int(first[-1]-first[-2])
+        second = np.arange(cut, n, step)
+        indices_loglin = np.append(first ,second)
+        if indices_log[-1] != n - 1: #last index
+            indices_loglin = np.append(indices_loglin, n - 1)
+        return indices_loglin
+
 
 def plot_trajectory(ax, x, y):
 
     ax.plot(x, y)
 
-def plot_moment(ax, env, mom_type, variable, legend_id = 'H',  log = False, legend_label = True, pic_in_grid = False, color=None, label='', std = False, legend = True):
+def plot_moment(ax, env, mom_type, variable, legend_id = 'H', log = False, legend_label = True, pic_in_grid = False, color=None, label='', ci = False, legend = True, 
+                sample = False, max_value = 1, sampling_type = None, sample_size = None, loglin_rat = 0.3):
 
     """
     Plots a moment vector (msd or variance).
@@ -24,7 +61,7 @@ def plot_moment(ax, env, mom_type, variable, legend_id = 'H',  log = False, lege
         Can be 'sim' or 'sol': The moment was computed using L1 discretization of eom or of the convolution with the memory kernel, respectively
 
     moment_type : str
-        Can be 'msd' or 'var' defining the type of moment, it will change y label.
+        Can be 'msd' or 'orcorr' defining the type of moment, it will change y label.
 
     """
 
@@ -51,32 +88,53 @@ def plot_moment(ax, env, mom_type, variable, legend_id = 'H',  log = False, lege
                 style['label'] = rf"$\alpha_R=${env.alphaR}"
             if legend_id == 'alphaT':
                 style['label'] = rf"$\alpha_T=${env.alphaT}"
-
         
     if variable == 'sim':
-        moment = env.msd if mom_type=='msd' else env.var#/env.var.max()
-        # time = env.t
+        if mom_type=='msd':
+            env.compute_msd()
+            moment = env.msd
+            upper = env.msd_upper_ci
+            lower = env.msd_lower_ci
+        elif mom_type=='orcorr':
+            env.compute_orientation_corr()
+            moment = env.orientation_corr
+            upper = env.orientation_corr_upper_ci
+            lower = env.orientation_corr_lower_ci
         time = np.linspace(0, env.Tf, len(moment))
-
-    elif variable == 'sol':
-        moment = env.msd_sol if mom_type=='msd' else env.var_sol
-        time = env.t
-
+        
+        if sample:
+            n = int(moment.shape[0]*max_value)
+            idx = get_sampling_indices(upper_limit = n, samplesize = sample_size, type = sampling_type, loglin_rat = loglin_rat)
+            style.update({'ls':'', 'marker':'^', 'markersize':10})
+        else:
+            idx = time.__index__
+        
+        moment = moment[idx]
+        time_s = time[idx]
+        
     elif variable == 'an':
-        moment = env.msd_an if mom_type=='msd' else env.var_an
-        time = env.t[1:] if log else env.t
-
-    line, = ax.plot(time, moment, **style)
-
-    color = line.get_color()
-
-    if std:
-        std_msd = np.std(env.trajectories, axis=0)
-        upper = env.msd + 2.33*std_msd/np.sqrt(env.n)
-        lower = env.msd - 2.33*std_msd/np.sqrt(env.n)
-        color_std = par.lighten_color(color, 0.4)
-        ax.fill_between(time, lower, upper, color=color_std, alpha=0.3, zorder=0)  
-
+        if mom_type=='msd':
+            env.compute_msd_an(tl=0)
+            moment = env.msd_an
+        if mom_type=='orcorr':
+            env.compute_orientation_corr_an()
+            moment = env.orientation_corr_an
+        time_s = env.t
+        n = int(time_s.shape[0]*max_value)
+        idx = get_sampling_indices(upper_limit = n, samplesize = n + 1, type = None, loglin_rat = None)
+        moment = moment[idx]
+        time_s = time_s[idx]
+            
+    if ci:
+        #color_std = par.lighten_color(color, 0.4)
+        n = int(time.shape[0]*max_value)
+        idx = get_sampling_indices(upper_limit = n, samplesize = n + 1, type = None, loglin_rat = None)
+        time = time[idx]
+        upper = upper[idx]
+        lower = lower[idx]
+        ax.fill_between(time, lower, upper, alpha=0.5, zorder=0)
+    
+    ax.plot(time_s, moment, alpha = 1, **style)
     at = AnchoredText(label, prop=dict(size=par.size_labels_figures), frameon=False, loc='upper left')
     ax.add_artist(at)
     
