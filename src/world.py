@@ -110,6 +110,7 @@ class Base:
                     nt_array = nb.nxt_func(self.phi_trajectories[r], self.h)
                 if isinstance(self, yDirection):
                     nt_array = nb.nyt_func(self.phi_trajectories[r], self.h)
+
                 traj = nb.run_one(self.n, self.ups, nt_array, cnj_array, coeff_noise, self.dB, traj0=0)
             self.trajectories.append(traj)
         self.trajectories = np.array(self.trajectories)
@@ -372,7 +373,7 @@ class xDirection(Base):
                 sum_phi += self.cnj(time - i) * (nt[i]-nt[i-1]) 
             
             coeff_noise = (self.h**self.alpha) * gamma(2 - self.alpha)
-            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_x + self.ups*sum_phi + (nt[time]-nt[time-1])
+            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_x + self.ups*sum_phi + self.ups*(nt[time]-nt[time-1])
 
         return traj
 
@@ -422,7 +423,7 @@ class yDirection(Base):
                 sum_phi += self.cnj(time - i) * (nt[i]-nt[i-1])
                     
             coeff_noise = (self.h**self.alpha) * gamma(2 - self.alpha)
-            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_y + self.ups*sum_phi + (nt[time]-nt[time-1])
+            traj[time] = traj[time-1] + coeff_noise * self.dB[time] - sum_y + self.ups*sum_phi + self.ups*(nt[time]-nt[time-1])
 
         return traj
 
