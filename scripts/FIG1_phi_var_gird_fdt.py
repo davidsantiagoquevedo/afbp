@@ -7,30 +7,6 @@ import utilities
 import plotting_param as par
 from matplotlib.offsetbox import AnchoredText
 
-
-def plot_deltaphicos(ax, t_ref, env, color_cos):
-    t_ref_index = int(t_ref/h)
-
-    # Delta phi
-    matrix_ref = (env.trajectories.transpose() - env.trajectories[:, t_ref_index]).transpose()
-    var_ref = np.var(matrix_ref, axis=0)
-    time = np.arange(0, len(var_ref))*h
-    analytics = env.compute_msd_an(time=np.abs(time-t_ref))
-
-    # Cos Delta phi
-
-    mean_cos_deltaphi =  np.mean(np.cos(matrix_ref), axis=0)
-    analytics = np.exp(-analytics/2)
-
-    ax.plot(time, mean_cos_deltaphi, c = color_cos, lw=2)
-    style = par.msd_style['an']
-    style['c'] = par.color_analytic
-    ax.plot(time, analytics, **style) 
-
-    ax.tick_params(axis='both', labelsize=par.size_ticks)
-
-##########################################################
-
 legend_fontsize = 15
 
 mode = 'phi'
@@ -46,36 +22,38 @@ fig, ax = plt.subplots(1, 2, figsize = (14, 6))
 
 ##########################################################
 
-# alphaR = [1., 0.7, 0.5, 0.3, 0.1]
-alphaR = [1., 0.7, 0.5, 0.3, 0.2]
-HRs = (2-np.array(alphaR))/2
+alphaR_ = [1., 0.7, 0.5, 0.3, 0.2]
+HRs = (2-np.array(alphaR_))/2
 hs = [0.005, 0.005, 0.005, 0.001, 5e-5]
 setsvec = [3, 3, 3, 3, 1]
 
-for a, alphaR in enumerate(alphaR):
+for a, alphaR in enumerate(alphaR_):
     HR = HRs[a]
     h = hs[a]
     sets = setsvec[a]
 
     # MSD
     env = utilities.read_env(L_type, mode, alphaR, HR, realizations, Tf, h, start_set= start_set, sets=sets, path = DATA_PATH)
-    env.compute_msd()
-    color = plotting.plot_moment(ax[0], env, variable='sim', mom_type='msd', legend_id='alpha', pic_in_grid=True)
-    # color = par.lighten_color(color, 0.5)
-    env.compute_msd_an(tl=0)
     plotting.plot_moment(ax[0], env, variable='an', mom_type='msd', pic_in_grid=True, legend_label=False, color=par.color_analytic)
+    plotting.plot_moment(ax[0], env, variable='sim', mom_type='msd', legend_id='alpha', pic_in_grid=True, ci=True,
+                         sample = True, sample_size = 41,  sampling_type = 'loglin')
+    # Orientation correlation
+    plotting.plot_moment(ax[1], env, variable='an', mom_type='orcorr', pic_in_grid=True, legend_label=False, color=par.color_analytic, max_value = 0.5)
+    plotting.plot_moment(ax[1], env, variable='sim', mom_type='orcorr', legend_id='alpha', pic_in_grid=True, ci=True,
+                         sample = True, sample_size = 41,  sampling_type = 'loglin', max_value = 0.5)    
 
-    # COS
-    plot_deltaphicos(ax[1], tref, env, color_cos = color)
 
-ax[0].set_ylabel(fr'$\langle (r(t)-r_0)^2 \rangle_{{\eta=0}}/L_{{\alpha}}^{2}$', fontsize = par.axis_fontsize)
-ax[1].set_ylabel(fr'$\langle \cos\left(\phi(t) - \phi(t_{{ref}})\right) \rangle$', fontsize = par.axis_fontsize)
+
+
+ax[0].set_ylabel(fr'$\langle (r(t)-r_0)^2 \rangle_{{\upsilon=0}}/L_{{\alpha}}^{2}$', fontsize = par.axis_fontsize)
+ax[1].set_ylabel(r'$\langle \hat{n}(t) \cdot \hat{n}(0) \rangle$', fontsize = par.axis_fontsize)
 ax[0].set_xlabel(r'$t/\tau_{\alpha}$', fontsize = par.axis_fontsize)
 ax[1].set_xlabel(r'$t/\tau_{\alpha}$', fontsize = par.axis_fontsize)
 
 handles, legend = ax[0].get_legend_handles_labels()
 ax[0].get_legend().remove()
-fig_leg = fig.legend(handles, legend, bbox_to_anchor = (1.3,0.99), ncol = 1, fontsize = legend_fontsize)
+ax[1].get_legend().remove()
+fig_leg = fig.legend(handles, legend, bbox_to_anchor = (0.85,1.1), ncol = 5, fontsize = legend_fontsize)
 fig_leg.get_frame().set_facecolor('none')
 fig_leg.get_frame().set_edgecolor('none')
 
@@ -83,5 +61,6 @@ at = AnchoredText('(a)', prop=dict(size=par.size_labels_figures), frameon=False,
 ax[0].add_artist(at)
 at = AnchoredText('(b)', prop=dict(size=par.size_labels_figures), frameon=False, loc='upper left')
 ax[1].add_artist(at)
-# fig.tight_layout()
-fig.savefig(f"plots/paper/phi_msd_cos_numb_trasp.png", bbox_inches='tight', dpi=100, transparent=True)
+fig.tight_layout()
+fig.savefig(f"plots/paper/phi_msd_cos_numb_trasp.png", bbox_inches='tight', dpi=100, transparent=False)
+
