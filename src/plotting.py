@@ -114,7 +114,7 @@ def plot_moment(ax, env, mom_type, variable, legend_id = 'H', log = False, legen
         
     elif variable == 'an':
         if mom_type=='msd':
-            env.compute_msd_an(tl=0)
+            env.compute_msd_an()
             moment = env.msd_an
         if mom_type=='orcorr':
             env.compute_orientation_corr_an()
