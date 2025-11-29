@@ -45,7 +45,7 @@ def plot_trajectory(ax, x, y):
 
     ax.plot(x, y)
 
-def plot_moment(ax, env, mom_type, variable, legend_id = 'H', log = False, legend_label = True, pic_in_grid = False, color=None, label='', ci = False, legend = True, 
+def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', xylabel=False, color=None, label='', ci = False,
                 sample = False, max_value = 1, sampling_type = None, sample_size = None, loglin_rat = 0.3):
 
     """
@@ -68,26 +68,20 @@ def plot_moment(ax, env, mom_type, variable, legend_id = 'H', log = False, legen
     style = par.msd_style[variable].copy()
     env.make_B_H()
 
-    #color an curve from sim 
+    # specify color  
     if color is not None:
-        # style['c'] = par.lighten_color(color, 0.3) if log else par.lighten_color(color, 0.7)
         style['c'] = color
 
-    # legend label
-    if legend_label:
-        if log:
-            style['label'] = 'analytic log' 
-            style['label'] = rf"$H=${env.H}"
-        if variable == 'sim' or variable == 'an':
-            # style['label'] = rf"{style['label']} $\alpha_Q=${env.alpha} $H_Q=${env.H}"
-            if legend_id == 'H':
-                style['label'] = rf"$H_Q=${env.H}"
-            if legend_id == 'alpha':
-                style['label'] = rf"$\alpha_Q=${env.alpha}"
-            if legend_id == 'alphaR':
-                style['label'] = rf"$\alpha_R=${env.alphaR}"
-            if legend_id == 'alphaT':
-                style['label'] = rf"$\alpha_T=${env.alphaT}"
+    # set legend id if legend
+    if legend:
+        if legend_id == 'H':
+            style['label'] = rf"$H_Q=${env.H}"
+        if legend_id == 'alpha':
+            style['label'] = rf"$\alpha_Q=${env.alpha}"
+        if legend_id == 'alphaR':
+            style['label'] = rf"$\alpha_R=${env.alphaR}"
+        if legend_id == 'alphaT':
+            style['label'] = rf"$\alpha_T=${env.alphaT}"
         
     if variable == 'sim':
         if mom_type=='msd':
@@ -136,20 +130,20 @@ def plot_moment(ax, env, mom_type, variable, legend_id = 'H', log = False, legen
         ax.fill_between(time, lower, upper, alpha=0.5, zorder=0)
     
     ax.plot(time_s, moment, alpha = 1, **style)
+    
+    # add label () to figure
     at = AnchoredText(label, prop=dict(size=par.size_labels_figures), frameon=False, loc='upper left')
     ax.add_artist(at)
     
     ax.tick_params(axis='both', labelsize=par.size_ticks)
+    
     if legend:
-        if pic_in_grid:
-            ax.legend(fontsize = par.legend_size)
-        else:
-            ax.grid(':', zorder=0)    
-            ax.legend(fontsize = par.legend_size,bbox_to_anchor=(1, 1))
-            if mom_type == 'msd':
-                mom_type = 'msd_phi' if isinstance(env, Angular) else 'msd_r'
-            ax.set_ylabel(par.ylabel_map[mom_type], fontsize = par.axis_fontsize)
-            ax.set_xlabel(r'$t/\tau_{\alpha}$', fontsize = par.axis_fontsize)
+        ax.grid(':', zorder=0)    
+        ax.legend(fontsize = par.legend_size)
+
+    if xylabel:         
+        ax.set_ylabel(par.ylabel_map[mom_type], fontsize = par.axis_fontsize)
+        ax.set_xlabel(r'$t/\tau_{\alpha}$', fontsize = par.axis_fontsize)
 
     return color
 
