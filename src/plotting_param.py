@@ -32,7 +32,7 @@ ylabel_map = {
     # 'var': r'$\sigma^2(t)$',
     'var': r'MSD$\langle (\phi(t)-\phi_0)^2 \rangle$',
     'mean': r'$\langle \phi(t) \rangle$',
-    'msd_r': r'MSD$\langle (\boldsymbol{r}(t)-\boldsymbol{r}_0)^2 \rangle$',
+    'msd_r': r'MSD$\langle (\mathbf{r}(t)-\mathbf{r}_0)^2 \rangle/L^2_{\alpha}$',
     'msd_phi': r'MSD$\langle (\phi(t)-\phi_0)^2 \rangle$'
 }
 
@@ -82,7 +82,8 @@ cmap_alpha1 = ListedColormap(colors)
 traj_style = {
     '0.1': dict(s=3, cmap = cmap_alpha01),
     '0.3': dict(s=3, cmap = cmap_alpha03),
-    '1.0': dict(s=3, cmap = cmap_alpha1)
+    '1.0': dict(s=3, cmap = cmap_alpha1),
+    '0.7': dict(s=3, cmap = cmap_alpha1)
 }
 
 colors01 = [
@@ -120,3 +121,13 @@ traj_colors_unique = {
     '0.3': colors_main[2],
     '1.0': colors_main[0]
 }
+
+colors_main_black = [
+    "black",
+    "#AEA435",  
+    "#FEBA27",  
+    "#76B3D0",  
+    "#F4BAEA",  
+    "#FE6C23"   
+]
+cmap_black = ListedColormap(colors_main_black)
