@@ -129,8 +129,8 @@ def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', xy
         lower = lower[idx]
         ax.fill_between(time, lower, upper, alpha=0.5, zorder=0)
     
-    ax.plot(time_s, moment, alpha = 1, **style)
-    
+    line, = ax.plot(time_s, moment, alpha = 1, **style)
+    color = line.get_color()
     # add label () to figure
     at = AnchoredText(label, prop=dict(size=par.size_labels_figures), frameon=False, loc='upper left')
     ax.add_artist(at)
