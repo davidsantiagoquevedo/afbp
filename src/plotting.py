@@ -138,7 +138,6 @@ def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', xy
     ax.tick_params(axis='both', labelsize=par.size_ticks)
     
     if legend:
-        ax.grid(':', zorder=0)    
         ax.legend(fontsize = par.legend_size)
 
     if xylabel:         
