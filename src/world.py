@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.special import gamma, gammainc
+from scipy import stats
 from fbm import FBM
 import os
 import pickle
@@ -114,16 +115,27 @@ class Base:
         self.trajectories = np.array(self.trajectories)
  
     # --------- Stats --------- #
+    def confidence_intervals(self, data, p):
+        N = data.shape[0]
+        z_p = stats.t.ppf(1-(1-p)/2, df=N-1)
+        std = data.std(axis=0, ddof=1)
+        se = std / np.sqrt(N)
+        return z_p*se
 
-    def compute_msd(self):
+    def compute_msd(self, p=0.95):
         # print(np.shape(self.trajectories))
-        self.msd = np.mean((self.trajectories - self.trajectories[:, [0]])**2, axis=0)
+        sqdis = (self.trajectories - self.trajectories[:, [0]])**2 
+        ci = self.confidence_intervals(data = sqdis, p = p)
+        self.msd = np.mean(sqdis, axis=0)
+        self.msd_upper_ci = self.msd + ci
+        self.msd_lower_ci = self.msd - ci
 
     def compute_mean(self):
         self.mean = np.mean(self.trajectories, axis=0)
 
     def compute_var(self):
         self.var = np.var(self.trajectories, axis=0)
+        
         
     # --------- Save/Load --------- #
     def save(self, set_label, folder="data_tests", mode="phi"):
@@ -172,6 +184,20 @@ class Angular(Base):
         super().__init__(**kwargs)
         # self.phi0 = 0
         self.phi0 = np.pi*random.random()
+        
+    def compute_orientation_corr(self, p=0.95):
+        cos_dphi = np.cos(self.trajectories-self.trajectories[:, [0]])
+        ci = self.confidence_intervals(data = cos_dphi, p = p)
+        self.orientation_corr = cos_dphi.mean(axis=0)
+        self.orientation_corr_upper_ci = self.orientation_corr + ci
+        self.orientation_corr_lower_ci = self.orientation_corr - ci
+        
+    def compute_orientation_corr_an(self):
+        H = self.H
+        alpha = self.alpha
+        D_H = self.calc_general_diff_coeff(alpha, H)
+        self.make_B_H() #generate time
+        self.orientation_corr_an = np.exp((-D_H/2)*np.abs(self.t)**alpha)
 
     def compute_msd_an(self, time = None, tl = 0):
         H = self.H
