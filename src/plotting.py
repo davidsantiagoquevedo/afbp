@@ -107,8 +107,9 @@ def plot_moment(ax, env, mom_type, variable, legend_id = 'H', log = False, legen
             idx = get_sampling_indices(upper_limit = n, samplesize = sample_size, type = sampling_type, loglin_rat = loglin_rat)
             style.update({'ls':'', 'marker':'^', 'markersize':10})
         else:
-            idx = time.__index__
-        
+            n = int(time.shape[0]*max_value)
+            idx = get_sampling_indices(upper_limit = n, samplesize = n + 1, type = None, loglin_rat = None)
+
         moment = moment[idx]
         time_s = time[idx]
         
