@@ -21,6 +21,7 @@ class Base:
         self.Tf = Tf
         self.h = h
         self.n = int(Tf / h)
+        self.t = np.arange(0, self.n)*self.h
         self.L_type = L_type
 
         # Preallocate storage (to be specialized in subclasses)
@@ -47,9 +48,6 @@ class Base:
         # print(self.A_H)
         self.B = self.A_H*self.B_H
         self.dB = self.A_H*self.dB_H
-
-        self.t_BH = f.times()
-        self.t = self.t_BH[:self.n]
 
         return 
 
@@ -95,8 +93,8 @@ class Base:
         """Run all realizations"""
         self.trajectories = []
         cnj_array = np.zeros(self.n)
-        for time in range(1, self.n):
-            cnj_array[time] = self.cnj(time)
+        for k in range(1, self.n):
+            cnj_array[k] = self.cnj(k)
         coeff_noise = (self.h ** self.alpha) * gamma(2 - self.alpha)
 
 
@@ -197,7 +195,6 @@ class Angular(Base):
         H = self.H
         alpha = self.alpha
         D_H = self.calc_general_diff_coeff(alpha, H)
-        self.make_B_H() #generate time
         self.orientation_corr_an = np.exp((-D_H/2)*np.abs(self.t)**alpha)
 
     def compute_msd_an(self, time = None, tl = 0):
@@ -206,7 +203,6 @@ class Angular(Base):
         D_H = self.calc_general_diff_coeff(alpha, H)
 
         if time is None:
-            self.make_B_H() #generate time
             self.msd_an = D_H*(self.t**(2*alpha+2*H-2)-tl**(2*alpha+2*H-2))
         else:
             return D_H*(time**(2*alpha+2*H-2)-tl**(2*alpha+2*H-2))
@@ -321,7 +317,6 @@ class Angular(Base):
             # Update rule
             coeff_noise = ((self.h)**(self.alpha)) * (gamma(2-self.alpha))/c_0
 
-            
             traj[j+1] = traj[j] + coeff_noise*self.dB[j] - sum_term/c_0
         
         return traj
@@ -474,7 +469,6 @@ class rModulus(Base):
         DHT = self.calc_general_diff_coeff(alphaT, HT)
         DHR = self.calc_general_diff_coeff(alphaR, HR)
         ups = self.ups
-        self.make_B_H()
         t = self.t 
         
         aux_var = alphaR + HR - 1
