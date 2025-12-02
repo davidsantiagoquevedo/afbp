@@ -3,7 +3,7 @@ import numpy as np
 import os 
 import shutil
 
-def read_env(L_type, mode, alpha, H, realizations, Tf, h, start_set, sets, path, alphaR=None, HR=None, ups=None):
+def read_env(L_type, mode, alpha, H, realizations, Tf, Tth, h, start_set, sets, path, alphaR=None, HR=None, ups=None):
     
     if mode == 'phi':
         alphaH = f"alphaR{alpha}_HR{H}"
@@ -15,13 +15,14 @@ def read_env(L_type, mode, alpha, H, realizations, Tf, h, start_set, sets, path,
     for set_index in range(start_set, start_set+sets):
         set_label = str(set_index).zfill(3)
         
-        env = Base(realizations=realizations, alpha=alpha, H=H, Tf=Tf, h=h, L_type=L_type)
+        env = Base(realizations=realizations, alpha=alpha, H=H, Tf=Tf, Tth=Tth, h=h, L_type=L_type)
         
         filepath = (
             f"{path}/{L_type}_{mode}_"
             f"{alphaH}_"
             f"r{realizations}_"
             f"Tf{Tf}_"
+            f"Tth{Tth}_"
             f"h{h}_" 
             f"set{set_label}_AHfdt.pkl"
         )

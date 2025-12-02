@@ -27,7 +27,7 @@ def single_trajectory_helper(env, p, stored_matrix, lock):
             nt_array = nb.nxt_func(env.phi_trajectories[p], env.h)
         if isinstance(env, yDirection):
             nt_array = nb.nyt_func(env.phi_trajectories[p], env.h)
-        traj = nb.run_one(env.n, env.ups, nt_array, cnj_array, coeff_noise, env.dB, traj0=0)
+        traj = nb.run_one(env.n, env.upsth, nt_array, cnj_array, coeff_noise, env.dB, traj0=0)
 
     with lock:
         stored_matrix[p, :] = traj
