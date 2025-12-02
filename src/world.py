@@ -48,6 +48,13 @@ class Base:
         D = self.calc_general_diff_coeff(alphaR, HR)
         pers_time = ((2/D)**(1/alphaR))*gamma(1/alphaR+1)
         return pers_time
+    
+    # Persistent time
+    def calc_crossover_time(self):
+
+        D = self.calc_general_diff_coeff(self.alpha, self.H)
+        crossover_time = (D/(self.ups**2))**(1/(2-self.alpha))
+        return crossover_time
 
     # --------- Noise Generator --------- #
     def make_B_H(self, method='daviesharte'):
