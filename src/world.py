@@ -37,6 +37,18 @@ class Base:
         noise_intensity = (1)/(H*gamma(2-alpha))
         return noise_intensity*nominator/denominator
 
+    # Persistent time
+    def calc_persistance_time(self):
+        if isinstance(self, Angular):
+            alphaR = self.alpha
+            HR = self.H
+        else:
+            alphaR = self.alphaR
+            HR = self.HR
+        D = self.calc_general_diff_coeff(alphaR, HR)
+        pers_time = ((2/D)**(1/alphaR))*gamma(1/alphaR+1)
+        return pers_time
+
     # --------- Noise Generator --------- #
     def make_B_H(self, method='daviesharte'):
         np.random.seed()
