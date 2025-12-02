@@ -47,7 +47,7 @@ def run_one(n, ups, nt, cnj, coeff_noise, dB, traj0=0):
         for i in range(1, time):
             sum_phi += cnj[time - i] * (nt[i]-nt[i-1]) 
         
-        traj[time] = traj[time-1] + coeff_noise * dB[time] - sum_x + ups[time]*sum_phi + ups[time]*(nt[time]-nt[time-1])
+        traj[time] = traj[time-1] + coeff_noise * dB[time] - sum_x + ups*sum_phi + ups*(nt[time]-nt[time-1])
 
     return traj
 

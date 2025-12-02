@@ -29,7 +29,6 @@ parser.add_argument("--rule", type=str, default='N', help="Rule for evaluation o
 parser.add_argument("--realizations", type=int, default=1000, help="Number of realizations")
 parser.add_argument("--sets", type=int, default=1, help="Number of sets")
 parser.add_argument("--Tf", type=float, default=10, help="Final time Tf")
-parser.add_argument("--Tth", type=float, default=0, help="Thermalization time")
 parser.add_argument("--h", type=float, default=0.05, help="Step size h")
 parser.add_argument("--ups", type=float, default=1, help="Self propulsion velocity")
 parser.add_argument("--batch_size", type=int, default=10, help="Batch size for paralellization")
@@ -50,7 +49,7 @@ HTs = args.HT
 
 ups = args.ups
 rule = args.rule
-realizations, sets, Tf, Tth, h, ups, batch_size = args.realizations, args.sets, args.Tf, args.Tth, args.h, args.ups, args.batch_size
+realizations, sets, Tf, h, ups, batch_size = args.realizations, args.sets, args.Tf, args.h, args.ups, args.batch_size
 start_set = args.start_set
 
 for i in range(len(alphaRs)):
@@ -64,15 +63,15 @@ for i in range(len(alphaRs)):
     for set_index in range(start_set, start_set+sets):
         print(f"-- Running set {set_index}")
         set_label = str(set_index).zfill(3)
-        #try:
-        phi = utilities.read_env(mode='phi', L_type = L_type, alpha=alphaR, H=HR, realizations=realizations, Tf=Tf, Tth=Tth, h=h, start_set=set_index, sets=1, path = DATA_PATH)
-        print(f"-- Loaded phi")
+        # try:
+        #     phi = utilities.read_env(L_type, 'phi', alphaR, HR, realizations, Tf, hR, start_set= start_set, sets=sets, path=DATA_PATH)
+        #     print(f"-- Loaded phi")
         # except:
-            # print(f"-- Running phi alphaR={alphaR}, HR={HR}")
-            # phi = Angular(realizations=realizations, alpha=alphaR, H=HR, Tf=Tf, Tth=Tth, h=h, L_type=L_type)
-            #phi.run_numba()
-            # phi = parallelization.run_trajectories_parallel(phi, batch_size=batch_size)
-            # phi.save(set_label= set_label, folder=folder)
+        print(f"-- Running phi alphaR={alphaR}, HR={HR}")
+        phi = Angular(realizations=realizations, alpha=alphaR, H=HR, Tf=Tf, h=h, L_type=L_type)
+        # phi.run_numba()
+        phi = parallelization.run_trajectories_parallel(phi, batch_size=batch_size)
+        phi.save(set_label= set_label, folder=folder)
 
         if "x" in args.modes:
 
@@ -82,8 +81,8 @@ for i in range(len(alphaRs)):
             #     x.rule = rule
             # except:
             print(f"-- Running x alphaT={alphaT}, HT={HT}")
-            x = xDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, Tth=Tth, h=h, ups=ups, L_type=L_type)
-            #x.run_numba()
+            x = xDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, ups=ups, L_type=L_type)
+            # x.run_numba()
             x = parallelization.run_trajectories_parallel(x, batch_size)
             x.save(set_label= set_label, folder=folder, mode='x')
     
@@ -95,7 +94,7 @@ for i in range(len(alphaRs)):
             # y.rule = rule
             # except:
             # print(f"-- Running y alphaT={alphaT}, HT={HT}")
-            y = yDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, Tth=Tth, h=h, ups=ups, L_type=L_type)
+            y = yDirection(phi=phi, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, ups=ups, L_type=L_type)
             # y.run_numba()
             y = parallelization.run_trajectories_parallel(y, batch_size)
             y.save(set_label= set_label, folder=folder, mode='y')
@@ -103,7 +102,7 @@ for i in range(len(alphaRs)):
         if "r" in args.modes:
             print(f"-- Running r")
             
-            r = rModulus(x=x, y=y, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, Tth=Tth, h=h, L_type=L_type)
+            r = rModulus(x=x, y=y, realizations=realizations, alpha=alphaT, H=HT, Tf=Tf, h=h, L_type=L_type)
             r.compute_r_modulus()
             r.save(set_label= set_label, folder=folder, mode='r')
 
