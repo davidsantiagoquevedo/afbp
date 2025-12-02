@@ -16,8 +16,8 @@ sns.set_palette(palette)
 msd_style = {
     'sim': dict(lw=2, label = 'sim', zorder=2),  
     'sol': dict(lw=2, label = 'sol'),  
-    # 'an': dict(lw=4.5, label = '', ls='--', zorder=1),  
     'an': dict(lw=2, label = '', ls='--', zorder=3),  
+    'an_longlim': dict(lw=4, label = '', ls='--', zorder=3),  
     'fit': dict(lw=2, marker = 'o', label = 'fit')  
 }
 

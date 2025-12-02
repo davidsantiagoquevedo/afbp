@@ -44,12 +44,23 @@ def get_sampling_indices(upper_limit, samplesize, type, loglin_rat):
         return indices_loglin
 
 
-def plot_trajectory(ax, x, y):
+def plot_trajectory(ax, fig, x, y, mod, k):
+    # mod slice trajectory points
+    # k interpolation points
 
-    ax.plot(x, y)
+    x=x[::mod]
+    y=y[::mod]
 
-def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', xylabel=False, color=None, label='', ci = False,
-                sample = False, max_value = 1, sampling_type = None, sample_size = None, loglin_rat = 0.3):
+    n=len(x)
+    x = np.interp(np.arange(n * k), np.arange(n) * k, x)
+    y = np.interp(np.arange(n * k), np.arange(n) * k, y)
+    t = np.linspace(0, 100, len(x))
+
+    sc = ax.scatter(x, y, s=3, c=t,  cmap=par.cmap_black)
+
+    fig.colorbar(sc, ax=ax, label=r'$t/t_{\alpha}$')
+
+def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', color=None, ci = False, sample = False, max_value = 1, sampling_type = None, sample_size = None, loglin_rat = 0.3):
 
     """
     Plots a moment vector (msd or variance).
@@ -69,7 +80,7 @@ def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', xy
     """
 
     style = par.msd_style[variable].copy()
-    env.make_B_H()
+    time = np.arange(0, env.n)*env.h
 
     # specify color  
     if color is not None:
@@ -97,7 +108,6 @@ def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', xy
             moment = env.orientation_corr
             upper = env.orientation_corr_upper_ci
             lower = env.orientation_corr_lower_ci
-        time = np.linspace(0, env.Tf, len(moment))
         
         if sample:
             n = int(moment.shape[0]*max_value)
@@ -110,14 +120,14 @@ def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', xy
         moment = moment[idx]
         time_s = time[idx]
         
-    elif variable == 'an':
+    elif variable == 'an' or variable == 'an_longlim':
         if mom_type=='msd':
             env.compute_msd_an()
             moment = env.msd_an
         if mom_type=='orcorr':
             env.compute_orientation_corr_an()
             moment = env.orientation_corr_an
-        time_s = env.t
+        time_s = time
         n = int(time_s.shape[0]*max_value)
         idx = get_sampling_indices(upper_limit = n, samplesize = n + 1, type = None, loglin_rat = None)
         moment = moment[idx]
@@ -178,16 +188,16 @@ def plot_pdf(ax, env, mode, time, tl=0, tref=0, xy_label=True, legend=True):
     if legend:
         ax.legend(fontsize = par.legend_size)
 
-def add_trend(ax, x0, xf, func, y0=1, text = "", xloc = 0, yloc = 0, fontsize = 15, **kwargs):
-    t = np.arange(x0,xf,0.05)
+def add_trend(ax, x0, xf, func, y0=1, h=0.05, text = "", xloc = 0, yloc = 0, fontsize = 15, **kwargs):
+    t = np.arange(x0,xf,h)
 
     if kwargs:
         y = func(t, alpha = kwargs["alpha"])*y0
-        ax.plot(t, y, color = "black", alpha = 1, ls = "-", lw=1.5)
+        ax.plot(t, y, color = "black", alpha = 1, ls = "-", lw=2)
         ax.text(xloc, yloc, text, fontsize=fontsize)
     else:
         y = func(t)*y0
-        ax.plot(t, y, color = "black", alpha = 1, ls = "-", lw=1.5)
+        ax.plot(t, y, color = "black", alpha = 1, ls = "-", lw=2)
         ax.text(xloc, yloc, text, fontsize = fontsize)
 
 def t(t):
