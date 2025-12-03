@@ -34,12 +34,20 @@ for a, alphaR in enumerate(alphaR_):
 
     # MSD
     env = utilities.read_env(L_type, mode, alphaR, HR, realizations, Tf, h, start_set= start_set, sets=sets, path = DATA_PATH)
+    try:
+        env.t
+    except:
+        env.t = np.arange(0, env.n)*env.h
     plotting.plot_moment(ax[0], env, variable='an', mom_type='msd', color=par.color_analytic)
-    color = plotting.plot_moment(ax[0], env, variable='sim', mom_type='msd', legend = True, legend_id='alpha',  ci=True,
+    color = plotting.plot_moment(ax[0], env, variable='sim', mom_type='msd', legend = True, legend_id='alphaR',  ci=True,
                          sample = True, sample_size = 41,  sampling_type = 'loglin')
     if alphaR in [0.2, 0.7]:
     ## inset
         env_ther = utilities.read_env(L_type, mode, alphaR, HR, realizations, Tf, h = 0.005, start_set= start_set, sets=1, path = DATA_PATH)
+        try:
+            env_ther.t
+        except:
+            env_ther.t = np.arange(0, env_ther.n)*env_ther.h
         plotting.plot_moment(axins, env_ther, variable='an', mom_type='msd',  legend=False, color=par.color_analytic)
         plotting.plot_moment(axins, env_ther, variable='sim', mom_type='msd',  legend=False, color=color)
     # Orientation correlation
@@ -54,9 +62,9 @@ axins.set_yscale('log')
 axins.set_xlim(0.005)
 
 
-ax[0].set_ylabel(fr'$\langle (r(t)-r_0)^2 \rangle_{{\upsilon=0}}/L_{{\alpha}}^{2}$')
+ax[0].set_ylabel(fr'$\langle (\phi(t)-\phi_0)^2 \rangle$')
 ax[1].set_ylabel(r'$\langle \hat{n}(t) \cdot \hat{n}(0) \rangle$')
-ax[1].set_xlabel(r'$t/\tau_{\alpha}$')
+ax[1].set_xlabel(r'$t/\tau_{R}$')
 
 handles, legend = ax[0].get_legend_handles_labels()
 ax[0].get_legend().remove()
