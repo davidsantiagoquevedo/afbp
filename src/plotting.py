@@ -62,7 +62,7 @@ def plot_trajectory(ax, x, y, mod, k, fig=None):
     if fig:
         fig.colorbar(sc, ax=ax, label=r'$t/t_{\alpha}$')
 
-def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', color=None, ci = False, sample = False, max_value = 1, sampling_type = None, sample_size = None, loglin_rat = 0.3):
+def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', color=None, ci = False, sample = False, max_value = 1, sampling_type = None, sample_size = None, loglin_rat = 0.3, rescale = 1):
 
     """
     Plots a moment vector (msd or variance).
@@ -90,9 +90,9 @@ def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', co
 
     # set legend id if legend
     if legend:
-        if legend_id == 'H':
-            style['label'] = rf"$H_Q=${env.H}"
         if legend_id == 'alpha':
+            style['label'] = rf"$\alpha=${env.alpha}"
+        if legend_id == 'alphaQ':
             style['label'] = rf"$\alpha_Q=${env.alpha}"
         if legend_id == 'alphaR':
             if isinstance(env, Angular):
@@ -144,9 +144,9 @@ def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', co
         time = time[idx]
         upper = upper[idx]
         lower = lower[idx]
-        ax.fill_between(time, lower, upper, alpha=0.5, zorder=0)
+        ax.fill_between(time, lower/rescale, upper/rescale, alpha=0.5, zorder=0)
     
-    line, = ax.plot(time_s, moment, alpha = 1, **style)
+    line, = ax.plot(time_s, moment/rescale, alpha = 1, **style)
     color = line.get_color()
     
     if legend:
