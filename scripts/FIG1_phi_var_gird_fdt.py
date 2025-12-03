@@ -63,7 +63,7 @@ axins.set_xlim(0.005)
 
 
 ax[0].set_ylabel(fr'$\langle (\phi(t)-\phi_0)^2 \rangle$')
-ax[1].set_ylabel(r'$\langle \hat{n}(t) \cdot \hat{n}(0) \rangle$')
+ax[1].set_ylabel(r'$\langle \boldsymbol{\hat{n}}(t) \cdot \boldsymbol{\hat{n}}(0) \rangle$')
 ax[1].set_xlabel(r'$t/\tau_{R}$')
 
 handles, legend = ax[0].get_legend_handles_labels()
