@@ -31,6 +31,8 @@ ylabel_map = {
 
 colors_main_black = [
     "black",
+    '#897bc1',
+    "#b27236",
     "#AEA435",  
     "#FEBA27",  
     "#76B3D0",  
