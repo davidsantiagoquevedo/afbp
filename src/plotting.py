@@ -1,10 +1,12 @@
-# -- FUNCTIONS --
+
 from matplotlib.offsetbox import AnchoredText
 import numpy as np
 import plotting_param as par
 import data_analysis
 from world import Angular
 import math
+from scipy.special import gamma
+
 
 def add_caption_letter(ax, cap):
     ax.text(.07, .98, cap, ha='left', va='top', transform=ax.transAxes)
@@ -44,7 +46,7 @@ def get_sampling_indices(upper_limit, samplesize, type, loglin_rat):
         return indices_loglin
 
 
-def plot_trajectory(ax, fig, x, y, mod, k):
+def plot_trajectory(ax, x, y, mod, k, fig=None):
     # mod slice trajectory points
     # k interpolation points
 
@@ -57,8 +59,8 @@ def plot_trajectory(ax, fig, x, y, mod, k):
     t = np.linspace(0, 100, len(x))
 
     sc = ax.scatter(x, y, s=3, c=t,  cmap=par.cmap_black)
-
-    fig.colorbar(sc, ax=ax, label=r'$t/t_{\alpha}$')
+    if fig:
+        fig.colorbar(sc, ax=ax, label=r'$t/t_{\alpha}$')
 
 def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', color=None, ci = False, sample = False, max_value = 1, sampling_type = None, sample_size = None, loglin_rat = 0.3):
 
@@ -193,13 +195,20 @@ def add_trend(ax, x0, xf, func, y0=1, h=0.05, text = "", xloc = 0, yloc = 0, fon
 
     if kwargs:
         y = func(t, alpha = kwargs["alpha"])*y0
-        ax.plot(t, y, color = "black", alpha = 1, ls = "-", lw=2)
+        ax.plot(t, y, color = "black", alpha = 1, ls = "-", lw=2, zorder=4)
         ax.text(xloc, yloc, text, fontsize=fontsize)
     else:
         y = func(t)*y0
-        ax.plot(t, y, color = "black", alpha = 1, ls = "-", lw=2)
+        ax.plot(t, y, color = "black", alpha = 1, ls = "-", lw=2, zorder=4)
         ax.text(xloc, yloc, text, fontsize = fontsize)
 
+def add_pers_time(ax, pers_time, ymax, color):
+    ax.axvline(x = pers_time, ymax = ymax, c=color, lw = 4.4, ls=':')
+ 
+def add_cross_time(ax, cross_time, color):
+    ax.axvline(x = cross_time, c=color, lw = 2.5, ls='-')
+ 
+ 
 def t(t):
     return t
 
