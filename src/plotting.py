@@ -1,5 +1,6 @@
 
 from matplotlib.offsetbox import AnchoredText
+import matplotlib as mpl
 import numpy as np
 import plotting_param as par
 import data_analysis
@@ -60,7 +61,8 @@ def plot_trajectory(ax, x, y, mod, k, fig=None):
 
     sc = ax.scatter(x, y, s=3, c=t,  cmap=par.cmap_black)
     if fig:
-        fig.colorbar(sc, ax=ax, label=r'$t/t_{\alpha}$')
+        with mpl.rc_context(fname="src/plotting_style_colorbar.mplstyle"):  
+            fig.colorbar(sc, ax=ax, label=r'$t/t_{\alpha}$')
 
 def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', color=None, ci = False, sample = False, max_value = 1, sampling_type = None, sample_size = None, loglin_rat = 0.3, rescale = 1):
 
@@ -144,7 +146,10 @@ def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', co
         time = time[idx]
         upper = upper[idx]
         lower = lower[idx]
-        ax.fill_between(time, lower/rescale, upper/rescale, alpha=0.5, zorder=0)
+        if color is not None:
+            ax.fill_between(time, lower/rescale, upper/rescale, alpha=0.5, zorder=0, color=color)
+        else:
+            ax.fill_between(time, lower/rescale, upper/rescale, alpha=0.5, zorder=0)
     
     line, = ax.plot(time_s, moment/rescale, alpha = 1, **style)
     color = line.get_color()
@@ -198,19 +203,18 @@ def add_trend(ax, x0, xf, func, y0=1, h=0.05, text = "", xloc = 0, yloc = 0, fon
 
     if kwargs:
         y = func(t, alpha = kwargs["alpha"])*y0
-        ax.plot(t, y, color = "black", alpha = 1, ls = "-", lw=2, zorder=4)
-        ax.text(xloc, yloc, text, fontsize=fontsize)
+        ax.plot(t, y, color = 'black', alpha = 1, ls = "-", lw=2, zorder=4)
+        ax.text(xloc, yloc, text, fontsize=fontsize, color = 'black')
     else:
         y = func(t)*y0
-        ax.plot(t, y, color = "black", alpha = 1, ls = "-", lw=2, zorder=4)
-        ax.text(xloc, yloc, text, fontsize = fontsize)
+        ax.plot(t, y, color = 'black', alpha = 1, ls = "-", lw=2, zorder=4)
+        ax.text(xloc, yloc, text, fontsize = fontsize, color = 'black')
 
 def add_pers_time(ax, pers_time, ymax, color):
     ax.axvline(x = pers_time, ymax = ymax, c=color, lw = 4.4, ls=':')
  
-def add_cross_time(ax, cross_time, color):
-    ax.axvline(x = cross_time, c=color, lw = 2.5, ls='-')
- 
+def add_cross_time(ax, cross_time, color, ymax=1):
+    ax.axvline(x = cross_time, c=color, ymax=ymax,  lw = 2.5, ls='-')
  
 def t(t):
     return t
