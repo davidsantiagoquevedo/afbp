@@ -93,9 +93,12 @@ def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', co
         if legend_id == 'alpha':
             style['label'] = rf"$\alpha_Q=${env.alpha}"
         if legend_id == 'alphaR':
-            style['label'] = rf"$\alpha_R=${env.alphaR}"
+            if isinstance(env, Angular):
+                style['label'] = rf"$\alpha_R=${env.alpha}"
+            else:
+                style['label'] = rf"$\alpha_R=${env.alphaR}"
         if legend_id == 'alphaT':
-            style['label'] = rf"$\alpha_T=${env.alphaT}"
+            style['label'] = rf"$\alpha_T=${env.alpha}"
         
     if variable == 'sim':
         if mom_type=='msd':
