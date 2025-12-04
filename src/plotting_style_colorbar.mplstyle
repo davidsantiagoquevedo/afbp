@@ -4,3 +4,5 @@ xtick.minor.size: 0
 ytick.minor.size: 0
 xtick.labelsize: 22
 ytick.labelsize: 22
+axes.labelsize: 22
+axes.labelrotation: 0
