@@ -64,7 +64,7 @@ def plot_trajectory(ax, x, y, mod, k, fig=None):
         with mpl.rc_context(fname="src/plotting_style_colorbar.mplstyle"):  
             fig.colorbar(sc, ax=ax, label=r'$t/t_{\alpha}$')
 
-def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', color=None, ci = False, sample = False, max_value = 1, sampling_type = None, sample_size = None, loglin_rat = 0.3, rescale = 1):
+def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', color=None, ci = False, sample = False, max_value = 1, sampling_type = None, sample_size = None, loglin_rat = 0.3, rescale = 1, total_msd = True):
 
     """
     Plots a moment vector (msd or variance).
@@ -129,7 +129,7 @@ def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', co
         
     elif variable == 'an' or variable == 'an_longlim':
         if mom_type=='msd':
-            env.compute_msd_an()
+            env.compute_msd_an(total=total_msd)
             moment = env.msd_an
         if mom_type=='orcorr':
             env.compute_orientation_corr_an()
