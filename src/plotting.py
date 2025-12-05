@@ -47,7 +47,7 @@ def get_sampling_indices(upper_limit, samplesize, type, loglin_rat):
         return indices_loglin
 
 
-def plot_trajectory(ax, x, y, mod, k, fig=None):
+def plot_trajectory(ax, x, y, mod, k, fig=False):
     # mod slice trajectory points
     # k interpolation points
 
@@ -62,7 +62,7 @@ def plot_trajectory(ax, x, y, mod, k, fig=None):
     sc = ax.scatter(x, y, s=3, c=t,  cmap=par.cmap_black)
     if fig:
         with mpl.rc_context(fname="src/plotting_style_colorbar.mplstyle"):  
-            fig.colorbar(sc, ax=ax, label=r'$t/t_{\alpha}$')
+            fig.colorbar(sc, ax=ax, label=r'$t/\tau_{R}$')
 
 def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', color=None, ci = False, sample = False, max_value = 1, sampling_type = None, sample_size = None, loglin_rat = 0.3, rescale = 1, total_msd = True):
 
@@ -127,7 +127,7 @@ def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', co
         moment = moment[idx]
         time_s = time[idx]
         
-    elif variable == 'an' or variable == 'an_longlim':
+    elif variable == 'an' or variable == 'an_a' or variable == 'an_tot':
         if mom_type=='msd':
             env.compute_msd_an(total=total_msd)
             moment = env.msd_an
