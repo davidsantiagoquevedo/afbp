@@ -6,3 +6,6 @@ xtick.labelsize: 22
 ytick.labelsize: 22
 axes.labelsize: 22
 axes.labelrotation: 0
+#Text
+text.usetex : True
+text.latex.preamble : \usepackage{amsmath}
