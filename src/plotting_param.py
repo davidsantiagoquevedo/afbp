@@ -13,22 +13,6 @@ cmap = ListedColormap(colors_main)
 palette = sns.color_palette([cmap(i) for i in range(cmap.N)])
 sns.set_palette(palette)
 
-msd_style = {
-    'sim': dict(lw=2, label = 'sim', zorder=2),  
-    'sol': dict(lw=2, label = 'sol'),  
-    'an': dict(lw=2, label = '', ls='--', zorder=3),  
-    'an_longlim': dict(lw=4, label = '', ls='--', zorder=3),  
-    'fit': dict(lw=2, marker = 'o', label = 'fit')  
-}
-
-ylabel_map = {
-    # 'var': r'$\sigma^2(t)$',
-    'var': r'MSD$\langle (\phi(t)-\phi_0)^2 \rangle$',
-    'mean': r'$\langle \phi(t) \rangle$',
-    'msd_r': r'MSD$\langle (\mathbf{r}(t)-\mathbf{r}_0)^2 \rangle/L^2_{\alpha}$',
-    'msd_phi': r'MSD$\langle (\phi(t)-\phi_0)^2 \rangle$'
-}
-
 colors_main_black = [
     "black",
     '#897bc1',
@@ -40,3 +24,20 @@ colors_main_black = [
     "#FE6C23"   
 ]
 cmap_black = ListedColormap(colors_main_black)
+
+msd_style = {
+    'sim': dict(lw=2, label = 'sim', zorder=2),  
+    'sol': dict(lw=2, label = 'sol'),  
+    'an': dict(lw=3.5, label = '', ls='-', zorder=3),  
+    'an_a': dict(lw=2, label = '', ls='-', zorder=3, color = 'midnightblue'),  
+    'an_tot': dict(lw=5, label = '', ls='-', zorder=2.5, color = colors_main_black[7]),  
+    'fit': dict(lw=2, marker = 'o', label = 'fit')  
+}
+
+ylabel_map = {
+    # 'var': r'$\sigma^2(t)$',
+    'var': r'MSD$\langle (\phi(t)-\phi_0)^2 \rangle$',
+    'mean': r'$\langle \phi(t) \rangle$',
+    'msd_r': r'MSD$\langle (\mathbf{r}(t)-\mathbf{r}_0)^2 \rangle/L^2_{\alpha}$',
+    'msd_phi': r'MSD$\langle (\phi(t)-\phi_0)^2 \rangle$'
+}
