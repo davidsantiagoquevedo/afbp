@@ -5,115 +5,121 @@ import matplotlib.pyplot as plt
 import plotting as plot
 import plotting_param as par
 import utilities
-plt.style.use("src/plotting_style.mplstyle")
+plt.style.use("src/plotting_style.mplstyle") 
+from matplotlib.gridspec import GridSpec
 
+alpha = [0.7, 0.5, 0.3]
+ups = 50.
+Tf = 1e4
+h = 0.0005
+h_siminset = [0.005, 0.005, 0.0001]
 
-alphaR = [1., 0.7, 0.5, 0.3, 0.2]
-HR = [(2 - a) / 2 for a in alphaR]   
+ymax_cross = [0.4, 0.4, 1]
+ymax_pers = [0.6, 0.6, 1]
+ymax_pers_gamma = [0.6, 0.6, 1]
+ymin_rel = [0,0,0.6]
 
-h_siminset =  [0.005, 0.005, 0.005, 0.0001, 0.0005]   
-sets_inset = [3,3,3,1,1]
+xloc_sub = [0.006, 0.007, 0.009]
+yloc_sub = [0.003, 0.007, 0.02]
 
-fig, ax = plt.subplots(2, 2, figsize = (15, 12))
+xloc_insets = [0.05, 0.16]
+yloc_insets = [0.35, 0.65]
 
-rescales = [1, 400]
+xloc_rel = [70, 4e2, 2e3]
+yloc_rel = [6e2, 4e3, 9e4]
 
-y0_long = [2.4, 2]
-yloc_long = [4e3, 3e3]
+y0_pers = [0.3, 0.27, 0.2]
+y0_relax = [4.5, 6.5, 25]
 
-ymax_pers = [0.55, 0.65]
+fig = plt.figure(figsize=(15, 8))
 
-siminset_size = [0.3, 0.27]
-siminset_ypos = [0.65, 0.7]
-y0_inset = [[2, 7], [3, 6.3]]
-yloc_inset = [[0.003, 3], [0.003, 2]]
-xloc_insets = [0.005, 0.002]
-Tf_insets = [3, 0.1]
-xf_insets = [0.1, 0.01]
+outer = GridSpec(2, 1, height_ratios=[1, 1], figure=fig)
+top = outer[0].subgridspec(1, 3) 
+bottom = outer[1].subgridspec(1, 3, width_ratios=[1, 0.5, 1.5])
 
-##########################################################
+for i, a in enumerate(alpha):
 
-Tf = 7e4
-h = 0.5
-ups_vec = [1, 20.]
+    ax = fig.add_subplot(top[0, i])
 
+    r = rModulus(alpha=a, H=(2 - a) / 2, alphaR=a, HR=(2 - a) / 2, ups=ups, Tf=Tf, h=h)
 
-for column in range(2):
-    ups = ups_vec[column]
-    
-    siminset_ax = ax[0][column].inset_axes([0.1, siminset_ypos[column], siminset_size[column], siminset_size[column]])
-    siminset_ax.tick_params(labelsize=15)
-    aninset_ax = ax[0][column].inset_axes([0.6, 0.07, 0.35, 0.35])
-    aninset_ax.tick_params(labelsize=15)
-    index_inset = 0
-    for i, ar in enumerate(alphaR):
+    plot.plot_moment(ax , r, 'msd', 'an_a', legend=False, rescale=ups**2, total_msd=False)
+    plot.plot_moment(ax , r, 'msd', 'an_tot', legend=False, rescale=ups**2, total_msd=True)
 
-        r = rModulus(alpha=ar, H=(2 - ar) / 2, alphaR=ar, HR=(2 - ar) / 2, ups=ups, Tf=Tf, h=h)
+    pers_time = r.calc_persistance_time()
+    pers_time_gamma = pers_time/gamma(1/a + 1)
+    cross_time = r.calc_crossover_time()
+    relax_time = gamma(2/a)*(pers_time)/gamma(1/a)
 
-        r.compute_msd_an()
-        color = plot.plot_moment(ax[0][column], r, 'msd', 'an_longlim', legend = True, legend_id='alpha', rescale = rescales[column])
+    ax.axvline(x = cross_time, ymax = ymax_cross[i], color = 'gray', lw = 3.5, ls='-')
+    ax.axvline(x = pers_time_gamma, ymax = ymax_pers[i], color = 'gray', lw = 3.5, ls='--')
+    ax.axvline(x = pers_time, ymax = ymax_pers_gamma[i], color = 'gray', lw = 3.5, ls=':')
+    ax.axvline(x = relax_time, ymax = 1, ymin=ymin_rel[i], color = 'gray', lw = 3.5, ls='-.')
 
-        # INSETS SIM
-        if i!=4 and i!=1:
-            hsim = h_siminset[i]
-            env = utilities.read_env(mode='r',L_type = 'L1', alpha=ar, H=(2 - ar) / 2, alphaR=ar, HR=(2 - ar) / 2, ups=ups, realizations=1000, Tf=20., h=hsim, start_set=1, sets=1, path = 'data')
+    plot.add_trend(ax, x0 = h, xf = cross_time, h=0.005, y0=0.03, func = plot.talpha, alpha=a, text = fr"$~t^{{{a}}}$", xloc = xloc_sub[i], yloc = yloc_sub[i])
 
-            env.compute_msd()
-            plot.plot_moment(siminset_ax, env, 'msd', 'sim', legend_id='alphaR', color=color, legend=False,  ci=True, sample = True, sample_size = 41,  sampling_type = 'loglin', rescale=rescales[column])
-            env.t = np.arange(0, env.n)*hsim
-            env.compute_msd_an(total=True)
-            plot.plot_moment(siminset_ax, env, 'msd', 'an', color=par.color_analytic, legend = False, rescale=rescales[column])
+    plot.add_trend(ax, x0 = cross_time, xf = pers_time_gamma, y0=y0_pers[i], func = plot.t2, text = fr"$~t^2$", xloc = 2e-1, yloc = 1e-3)
+
+    plot.add_trend(ax, x0 = relax_time, xf = Tf, y0=y0_relax[i], func = plot.t, text = fr"$~t$", xloc = xloc_rel[i], yloc = yloc_rel[i])
+
+    if i==2:
+        plot.add_trend(ax, x0 = pers_time_gamma, xf = pers_time, y0=1.4, func = plot.talpha, text = fr"$~t^{{{2-a}}}$", xloc = 1.5, yloc = 2e1, alpha=(2-a))
+    else:
+    # ANALYTICAL INSETS
+        axinset = ax.inset_axes([0.08, 0.59, 0.3, 0.35])
+
+        plot.plot_moment(axinset, r, 'msd', 'an_a', legend=False, rescale=ups**2, total_msd=False)
+        plot.plot_moment(axinset, r, 'msd', 'an_tot', legend=False, rescale=ups**2, total_msd=False)
+        axinset.axvline(x = pers_time, ymax = 1, color = 'gray', lw = 3.5, ls=':')
+        axinset.axvline(x = pers_time_gamma, ymax = 1, color = 'gray', lw = 3.5, ls='--')
+
+        axinset.set_xscale("log")
+        axinset.set_yscale("log")
+        axinset.set_xlim(pers_time_gamma-pers_time_gamma/10, pers_time+pers_time/10)
+        xmin_index = int((pers_time_gamma-pers_time_gamma/10)/r.h)
+        xmax_index = int((pers_time+pers_time/3)/r.h)
+        axinset.set_ylim(r.msd_an[xmin_index]/ups**2, r.msd_an[xmax_index]/ups**2)
+
+        axinset.tick_params(labelsize=12)
+        axinset.tick_params(which='minor', labelbottom=False, labelleft=False)
         
-        # INSETS AN
-        Tf_inset=Tf_insets[column]
-        h_inset = 0.001
-        rins = rModulus(alpha=ar, H=(2 - ar) / 2, alphaR=ar, HR=(2 - ar) / 2, ups=ups, Tf=Tf_inset, h=h_inset)
-        rins.compute_msd_an()
-        plot.plot_moment(aninset_ax, rins, 'msd', 'an_longlim', legend=False)
-        if i==0 or i==4:
-            text = fr"$~t$" if i==0 else fr"$~t^{{{ar}}}$"
-            plot.add_trend(aninset_ax, x0 = h_inset, xf = xf_insets[column], y0=y0_inset[column][index_inset], h = h_inset, func = plot.talpha, text = text, xloc = xloc_insets[column], yloc = yloc_inset[column][index_inset], alpha = ar, fontsize=17)
-            index_inset+=1
+        plot.add_trend(axinset, x0 = pers_time_gamma, xf = pers_time, h=0.001, y0=0.75, func = plot.talpha, text = fr"$~t^{{{2-a}}}$", xloc = (pers_time_gamma+pers_time)/2-xloc_insets[i], yloc = r.msd_an[xmin_index]/ups**2+yloc_insets[i], alpha=(2-a))
 
-        # PERSISTENCE TIME
-        pers_time = r.calc_persistance_time()
-        plot.add_pers_time(ax[0][column], pers_time, ymax=ymax_pers[column], color = color)
+    # SIM INSETS
+    # axinset = ax.inset_axes([0.6, 0.15, 0.35, 0.4])
         
-        # CROSSOVER TIME
-        cross_time = r.calc_crossover_time()
-        plot.add_cross_time(aninset_ax, cross_time, color = color)
+    # hsim = h_siminset[i]
+    # env = utilities.read_env(mode='r',L_type = 'L1', alpha=a, H=(2 - a) / 2, alphaR=a, HR=(2 - a) / 2, ups=ups, realizations=1000, Tf=20., h=hsim, start_set=1, sets=1, path = 'data')
+    # env.compute_msd()
+    # plot.plot_moment(axinset, env, 'msd', 'sim', legend_id='alphaR', color=par.colors_main_black[1], legend=False,  ci=True, sample = True, sample_size = 41,  sampling_type = 'loglin', rescale=ups**2)
+    # env.t = np.arange(0, env.n)*hsim
+    # env.compute_msd_an(total=True)
+    # plot.plot_moment(axinset, env, 'msd', 'an_tot', legend = False, rescale=ups**2)
 
-    #T TRENDS    
-    plot.add_trend(ax[0][column], x0 = pers_time, xf = Tf, y0=y0_long[column], h=h, func = plot.t, text = fr"$~t$", xloc = 5e3, yloc = yloc_long[column], fontsize=20)
-    plot.add_trend(ax[0][column], x0 = pers_time, xf = Tf, y0=1.3e2, h=h, func = plot.t, text = fr"$~t$", xloc = 5e3, yloc = 1.5e6, fontsize=20)
-    
-    ax[0][column].set_xscale("log")
-    ax[0][column].set_yscale("log")
-    ax[0][column].set_xlim(xmin = h)
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlim(xmin = h)
+    ax.set_yscale("log")
+    ax.set_title(rf"$\alpha={a}$")
 
-    handles, legend = ax[0][column].get_legend_handles_labels()
-    ax[0][column].get_legend().remove()
-    
-    aninset_ax.set_xscale("log")
-    aninset_ax.set_yscale("log")
-    aninset_ax.set_xlim(xmin = h_inset)
+    if i==0:
+        ax.set_ylabel(fr'$\langle (\boldsymbol{{r}}(t)-\boldsymbol{{r}}_0)^2 \rangle/\upsilon^2\tau_R^2$')
+    ax.set_xlabel(r'$t/\tau_R$')
 
-#T2 TREND
-plot.add_trend(ax[0][1], x0 = 0.15, xf = pers_time, y0=0.5, func = plot.t2, text = fr"$~t^2$", xloc = 15, yloc = 2.5e2, fontsize=20)
-ax[1][1].remove()
 
+ax = fig.add_subplot(bottom[0, 2])
 # TRAJECTORIES
 hs = [0.005, 0.005, 0.0001]
-js = [4, 1, 1]
-mods = [10, 10, 400]
+js = [3, 5, 1]
+mods = [10, 10, 10]
 ks = [10, 10, 10]
-offsets = [[18, 18], [-25, 15], [0, 30]]
+offsets = [[5, 5], [25, -8], [0, 0]]
 color_bar = False
-for a, alpha  in enumerate([1., 0.5, 0.3]):
-    x = utilities.read_env(mode='x', L_type = 'L1', alpha=alpha, H=(2 - alpha) / 2, alphaR=alpha, HR= (2 - alpha) / 2, ups=1,realizations=10, Tf=100., h=hs[a], start_set=1, sets=1, path='data')
-    y = utilities.read_env(mode='y', L_type = 'L1', alpha=alpha, H=(2 - alpha) / 2, alphaR=alpha, HR= (2 - alpha) / 2, ups=1,realizations=10, Tf=100., h=hs[a], start_set=1, sets=1, path='data')
-    x_val = x.trajectories[js[a],:]
-    y_val = y.trajectories[js[a],:]
+for a, alpha  in enumerate([0.7, 0.5, 0.3]):
+    y = utilities.read_env(mode='x', L_type = 'L1', alpha=alpha, H=(2 - alpha) / 2, alphaR=alpha, HR= (2 - alpha) / 2, ups=20.,realizations=10, Tf=100., h=hs[a], start_set=1, sets=1, path='data_tests')
+    x = utilities.read_env(mode='y', L_type = 'L1', alpha=alpha, H=(2 - alpha) / 2, alphaR=alpha, HR= (2 - alpha) / 2, ups=20.,realizations=10, Tf=100., h=hs[a], start_set=1, sets=1, path='data_tests')
+    x_val = x.trajectories[js[a],:]/ups
+    y_val = y.trajectories[js[a],:]/ups
 
     x_val = x_val + offsets[a][0]
     y_val = y_val + offsets[a][1]
@@ -121,19 +127,15 @@ for a, alpha  in enumerate([1., 0.5, 0.3]):
     if a==2:
         color_bar=fig
 
-    plot.plot_trajectory(ax[1][0], x_val, y_val, mod=mods[a], k=ks[a], fig=color_bar)
+    plot.plot_trajectory(ax, x_val, y_val, mod=mods[a], k=ks[a], fig=color_bar)
 
-ax[1][0].text(12, 36, r'$\alpha=1$', fontsize = 20)
-ax[1][0].text(-25, 27.5, r'$\alpha=0.5$', fontsize = 20)
-ax[1][0].text(-12, 25, r'$\alpha=0.3$', fontsize = 20)
+ax.text(14, 9, r'$\alpha=0.7$', fontsize = 20)
+ax.text(15, -11, r'$\alpha=0.5$', fontsize = 20)
+ax.text(0, -7, r'$\alpha=0.3$', fontsize = 20)
 
 
-ax[1][0].set_xlabel(r'$x/\upsilon\tau_R$')
-ax[1][0].set_ylabel(r'$y/\upsilon\tau_R$')
+ax.set_xlabel(r'$x/\upsilon\tau_R$')
+ax.set_ylabel(r'$y/\upsilon\tau_R$')
 
-ax[0][0].set_ylabel(fr'$\langle (\boldsymbol{{r}}(t)-\boldsymbol{{r}}_0)^2 \rangle/\upsilon^2\tau_R^2$')
-ax[0][0].set_xlabel(r'$t/\tau_R$')
-ax[0][1].set_xlabel(r'$t/\tau_{R}$')
-
-fig.legend(handles, legend, bbox_to_anchor = (0.9,1.05), ncol = 5)
-fig.savefig(f"plots/paper/rmsd_traj_ups1.png", dpi=100, bbox_inches='tight')
+# fig.legend(handles, legend, bbox_to_anchor = (0.9,1.05), ncol = 5)
+fig.savefig(f"plots/paper/fig2_v2.png", dpi=100, bbox_inches='tight')
