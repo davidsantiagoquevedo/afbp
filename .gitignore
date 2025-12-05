@@ -6,6 +6,13 @@ slurm_jobs/
 .out
 .err
 .slurm
-plots/
+plots/analytics
+plots/mean
+plots/msd
+plots/pdf
+plots/presentig_figs
+plots/tests
+plots/trajectories
+plots/var
 data_tests/
 data_cluster/ 
