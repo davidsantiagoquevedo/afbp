@@ -36,9 +36,16 @@ class Base:
         denominator = (alpha+H-1)*gamma(alpha)*gamma(alpha+2*H-1)
         noise_intensity = (1)/(H*gamma(2-alpha))
         return noise_intensity*nominator/denominator
+    
+    # Crossover time
+    def calc_crossover_time(self):
 
-    # Persistent time
-    def calc_persistance_time(self):
+        D = self.calc_general_diff_coeff(self.alpha, self.H)
+        crossover_time = (D/(self.ups**2))**(1/(2-self.alpha))
+        return crossover_time
+
+    # Ballistic time
+    def calc_ballistic_time(self):
         if isinstance(self, Angular):
             alphaR = self.alpha
             HR = self.H
@@ -46,15 +53,29 @@ class Base:
             alphaR = self.alphaR
             HR = self.HR
         D = self.calc_general_diff_coeff(alphaR, HR)
-        pers_time = ((2/D)**(1/alphaR))*gamma(1/alphaR+1)
-        return pers_time
+        ball_time = ((2/D)**(1/alphaR))
+        return ball_time
     
     # Persistent time
-    def calc_crossover_time(self):
-
-        D = self.calc_general_diff_coeff(self.alpha, self.H)
-        crossover_time = (D/(self.ups**2))**(1/(2-self.alpha))
-        return crossover_time
+    def calc_persistance_time(self):
+        if isinstance(self, Angular):
+            alphaR = self.alpha
+        else:
+            alphaR = self.alphaR
+        
+        ball_time = self.calc_ballistic_time()
+        return ball_time*gamma(1/alphaR+1)
+    
+    # Relaxation time
+    def calc_relaxation_time(self):
+        if isinstance(self, Angular):
+            alphaR = self.alpha
+        else:
+            alphaR = self.alphaR
+        
+        ball_time = self.calc_ballistic_time()
+        return ball_time*gamma(2/alphaR)/gamma(1/alphaR)
+    
 
     # --------- Noise Generator --------- #
     def make_B_H(self, method='daviesharte'):
