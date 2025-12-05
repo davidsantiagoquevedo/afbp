@@ -9,9 +9,9 @@ plt.style.use("src/plotting_style.mplstyle")
 from matplotlib.gridspec import GridSpec
 
 alpha = [0.7, 0.5, 0.3]
-ups = 50.
+ups = 20.
 Tf = 1e4
-h = 0.0005
+h = 0.005
 h_siminset = [0.005, 0.005, 0.0001]
 
 ymax_cross = [0.4, 0.4, 1]
@@ -86,15 +86,15 @@ for i, a in enumerate(alpha):
         plot.add_trend(axinset, x0 = pers_time_gamma, xf = pers_time, h=0.001, y0=0.75, func = plot.talpha, text = fr"$~t^{{{2-a}}}$", xloc = (pers_time_gamma+pers_time)/2-xloc_insets[i], yloc = r.msd_an[xmin_index]/ups**2+yloc_insets[i], alpha=(2-a))
 
     # SIM INSETS
-    # axinset = ax.inset_axes([0.6, 0.15, 0.35, 0.4])
+    axinset = ax.inset_axes([0.6, 0.15, 0.35, 0.4])
         
-    # hsim = h_siminset[i]
-    # env = utilities.read_env(mode='r',L_type = 'L1', alpha=a, H=(2 - a) / 2, alphaR=a, HR=(2 - a) / 2, ups=ups, realizations=1000, Tf=20., h=hsim, start_set=1, sets=1, path = 'data')
-    # env.compute_msd()
-    # plot.plot_moment(axinset, env, 'msd', 'sim', legend_id='alphaR', color=par.colors_main_black[1], legend=False,  ci=True, sample = True, sample_size = 41,  sampling_type = 'loglin', rescale=ups**2)
-    # env.t = np.arange(0, env.n)*hsim
-    # env.compute_msd_an(total=True)
-    # plot.plot_moment(axinset, env, 'msd', 'an_tot', legend = False, rescale=ups**2)
+    hsim = h_siminset[i]
+    env = utilities.read_env(mode='r',L_type = 'L1', alpha=a, H=(2 - a) / 2, alphaR=a, HR=(2 - a) / 2, ups=ups, realizations=1000, Tf=20., h=hsim, start_set=1, sets=1, path = 'data')
+    env.compute_msd()
+    plot.plot_moment(axinset, env, 'msd', 'sim', legend_id='alphaR', color=par.colors_main_black[1], legend=False,  ci=True, sample = True, sample_size = 41,  sampling_type = 'loglin', rescale=ups**2)
+    env.t = np.arange(0, env.n)*hsim
+    env.compute_msd_an(total=True)
+    plot.plot_moment(axinset, env, 'msd', 'an_tot', legend = False, rescale=ups**2)
 
     ax.set_xscale("log")
     ax.set_yscale("log")
