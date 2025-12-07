@@ -61,7 +61,6 @@ axins.set_xscale('log')
 axins.set_yscale('log')
 axins.set_xlim(0.005)
 
-
 ax[0].set_ylabel(fr'$\langle (\phi(t)-\phi_0)^2 \rangle$')
 ax[1].set_ylabel(r'$\langle \boldsymbol{\hat{n}}(t) \cdot \boldsymbol{\hat{n}}(0) \rangle$')
 ax[1].set_xlabel(r'$t/\tau_{R}$')
@@ -72,8 +71,8 @@ fig_leg = fig.legend(handles, legend, bbox_to_anchor = (0.95,0.5), ncol = 2)
 #fig_leg.get_frame().set_facecolor('none')
 #fig_leg.get_frame().set_edgecolor('none')
 
-plotting.add_caption_letter(ax[0], "(a)")
-plotting.add_caption_letter(ax[1], "(b)")
+plotting.add_caption_letter(ax[0], "(a)", xloc=-0.15, yloc=1.05)
+plotting.add_caption_letter(ax[1], "(b)", xloc=-0.15, yloc=1.05)
 fig.tight_layout()
 fig.savefig(f"plots/paper/phi_msd_cos_numb_trasp.png", bbox_inches='tight', dpi=100, transparent=False)
 

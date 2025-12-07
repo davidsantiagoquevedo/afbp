@@ -35,8 +35,9 @@ fig = plt.figure(figsize=(15, 8))
 
 outer = GridSpec(2, 1, height_ratios=[1, 1], figure=fig)
 top = outer[0].subgridspec(1, 3) 
-bottom = outer[1].subgridspec(1, 3, width_ratios=[1, 0.5, 1.5])
-
+# bottom = outer[1].subgridspec(1, 3, width_ratios=[1, 0.7, 0.8])
+bottom = outer[1].subgridspec(1, 3, width_ratios=[1, 1, 1])
+caption = ['(a)', '(b)', '(c)']
 for i, a in enumerate(alpha):
 
     ax = fig.add_subplot(top[0, i])
@@ -94,13 +95,14 @@ for i, a in enumerate(alpha):
     plot.plot_moment(axinset, env, 'msd', 'sim', legend_id='alphaR', color=par.colors_main_black[1], legend=False,  ci=True, sample = True, sample_size = 41,  sampling_type = 'loglin', rescale=ups**2)
     env.t = np.arange(0, env.n)*hsim
     env.compute_msd_an(total=True)
-    plot.plot_moment(axinset, env, 'msd', 'an_tot', legend = False, rescale=ups**2)
+    plot.plot_moment(axinset, env, 'msd', 'an_tot_oversim', legend = False, rescale=ups**2)
 
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xlim(xmin = h)
     ax.set_yscale("log")
     ax.set_title(rf"$\alpha={a}$")
+    plot.add_caption_letter(ax, caption[i], xloc=-0.1, yloc=1.05)
 
     if i==0:
         ax.set_ylabel(fr'$\langle (\boldsymbol{{r}}(t)-\boldsymbol{{r}}_0)^2 \rangle/\upsilon^2\tau_R^2$')
@@ -129,13 +131,54 @@ for a, alpha  in enumerate([0.7, 0.5, 0.3]):
 
     plot.plot_trajectory(ax, x_val, y_val, mod=mods[a], k=ks[a], fig=color_bar)
 
-ax.text(14, 9, r'$\alpha=0.7$', fontsize = 20)
-ax.text(15, -11, r'$\alpha=0.5$', fontsize = 20)
-ax.text(0, -7, r'$\alpha=0.3$', fontsize = 20)
-
-
+ax.text(14, 9, r'$\alpha=0.7$', fontsize = 18)
+ax.text(13.5, -14, r'$\alpha=0.5$', fontsize = 18)
+ax.text(-1 , -7, r'$\alpha=0.3$', fontsize = 18)
 ax.set_xlabel(r'$x/\upsilon\tau_R$')
 ax.set_ylabel(r'$y/\upsilon\tau_R$')
+ax.yaxis.set_label_coords(-0.1, 0.5)
+plot.add_caption_letter(ax, '(f)', xloc=-0.15, yloc=1.05)
+
+
+Tf = 10
+h = 0.1
+
+alpha = np.linspace(0,1,100)
+tau_a1 = np.zeros(alpha.shape)
+tau_a2 = np.zeros(alpha.shape)
+tau_p = np.zeros(alpha.shape)
+tau_2 = np.zeros(alpha.shape)
+tau_1 = np.zeros(alpha.shape)
+
+for k, a in enumerate(alpha):
+    ups1 = 1
+    r1 = rModulus(alpha=a, H=(2 - a) / 2, alphaR=a, HR=(2 - a) / 2, ups=ups1, Tf=Tf, h=h)
+    ups2 = 3
+    r2 = rModulus(alpha=a, H=(2 - a) / 2, alphaR=a, HR=(2 - a) / 2, ups=ups2, Tf=Tf, h=h)
+    tau_a1[k] = r1.calc_crossover_time()
+    tau_a2[k] = r2.calc_crossover_time()
+    tau_2[k] = r1.calc_ballistic_time()
+    tau_p[k] = r1.calc_persistance_time()
+    tau_1[k] = r1.calc_relaxation_time()
+    
+# TIME SCALES
+ax = fig.add_subplot(bottom[0, 1])
+ax.plot(alpha, tau_a1, label = rf"$\tau_{{\alpha_T}}(\upsilon={ups1})$", color = par.colors_main_black[7], ls="-", lw = 3.5)
+ax.plot(alpha, tau_a2, label = rf"$\tau_{{\alpha_T}}(\upsilon={ups2})$", color = "grey", ls="-", lw = 3.5)
+ax.plot(alpha, tau_2, label = r"$\tau_{2}$", color = "grey", ls="--", lw = 3.5)
+ax.plot(alpha, tau_p, label = r"$\tau_{p}$", color = "grey", ls=":", lw = 3.5)
+ax.plot(alpha, tau_1, label = r"$\tau_{1}$", color = "grey", ls="-.", lw = 3.5)
+ax.set_xlabel(r"$\alpha$")
+ax.set_ylabel(r"$\tau$")
+ax.yaxis.set_label_coords(-0.1, 0.5)
+ax.set_ylim((0.1,10000))
+ax.set_yscale('log')
+ax.legend(loc='best', fontsize = 15)
+plot.add_caption_letter(ax, '(e)', xloc=-0.15, yloc=1.05)
+
+ax = fig.add_subplot(bottom[0, 0])
+plot.add_caption_letter(ax, '(d)', xloc=-0.15, yloc=1.05)
+ax.axis('off')
 
 # fig.legend(handles, legend, bbox_to_anchor = (0.9,1.05), ncol = 5)
-fig.savefig(f"plots/paper/fig2_v2.png", dpi=100, bbox_inches='tight')
+fig.savefig(f"plots/paper/fig2_v2.png", dpi=200, bbox_inches='tight')

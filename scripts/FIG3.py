@@ -61,8 +61,12 @@ for column in range(2):
             plot.plot_moment(inset_ax[column], env, 'msd', 'an', color=color, legend = False, rescale=ups**2)
 
             if column==1:
-                inset_ax[column].set_xlim(h, 0.1)
-                inset_ax[column].set_ylim(0, 0.1)
+            #     inset_ax[column].set_xlim(h, 0.1)
+            #     inset_ax[column].set_ylim(0, 0.1)
+
+                inset_ax[column].set_xscale("log")
+                inset_ax[column].set_yscale("log")
+                inset_ax[column].set_xlim(xmin = 0.005)
 
         pers_time = r.calc_persistance_time()
         if i==3:
@@ -103,4 +107,7 @@ ax[1].set_title(r'$\alpha_R=0.7$')
 
 ax[0].legend(loc = 'lower right', fontsize=14)
 ax[1].legend(loc = 'upper left', fontsize=14)
+plot.add_caption_letter(ax[0], '(a)', xloc=-0.15, yloc=1.05)
+plot.add_caption_letter(ax[1], '(b)', xloc=-0.15, yloc=1.05)
+
 fig.savefig(f"plots/paper/fig3.png", dpi=200, bbox_inches='tight')

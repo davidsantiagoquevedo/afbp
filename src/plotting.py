@@ -9,8 +9,8 @@ import math
 from scipy.special import gamma
 
 
-def add_caption_letter(ax, cap):
-    ax.text(.07, .98, cap, ha='left', va='top', transform=ax.transAxes)
+def add_caption_letter(ax, cap, xloc=.07, yloc=.98):
+    ax.text(xloc, yloc, cap, ha='left', va='top', transform=ax.transAxes)
 
 def get_sampling_indices(upper_limit, samplesize, type, loglin_rat):
     n = upper_limit
@@ -127,9 +127,12 @@ def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', co
         moment = moment[idx]
         time_s = time[idx]
         
-    elif variable == 'an' or variable == 'an_a' or variable == 'an_tot':
+    elif variable == 'an' or variable == 'an_a' or variable == 'an_tot' or variable == 'an_tot_oversim':
         if mom_type=='msd':
-            env.compute_msd_an(total=total_msd)
+            if isinstance(env, Angular):
+                env.compute_msd_an()
+            else:
+                env.compute_msd_an(total=total_msd)
             moment = env.msd_an
         if mom_type=='orcorr':
             env.compute_orientation_corr_an()
