@@ -31,6 +31,7 @@ msd_style = {
     'an': dict(lw=3.5, label = '', ls='-', zorder=3),  
     'an_a': dict(lw=2, label = '', ls='-', zorder=3, color = 'midnightblue'),  
     'an_tot': dict(lw=5, label = '', ls='-', zorder=2.5, color = colors_main_black[7]),  
+    'an_tot_oversim': dict(lw=3, label = '', ls='-', zorder=2.5, color = colors_main_black[7]),  
     'fit': dict(lw=2, marker = 'o', label = 'fit')  
 }
 
