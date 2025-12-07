@@ -2,9 +2,9 @@ xtick.major.size: 0
 ytick.major.size: 0
 xtick.minor.size: 0
 ytick.minor.size: 0
-xtick.labelsize: 22
-ytick.labelsize: 22
-axes.labelsize: 22
+xtick.labelsize: 20
+ytick.labelsize: 20
+axes.labelsize: 20
 axes.labelrotation: 0
 #Text
 text.usetex : True
