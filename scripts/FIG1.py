@@ -17,8 +17,8 @@ eta=1
 tref = 5
 realizations = 1000
 
-fig, ax = plt.subplots(2, 1, figsize = (7, 10), sharex = True)
-axins = ax[0].inset_axes([0.15, 0.57, 0.3, 0.3])
+fig, ax = plt.subplots(2, 1, figsize = (6, 8.5), sharex = True)
+axins = ax[0].inset_axes([0.15, 0.6, 0.3, 0.3])
 
 ##########################################################
 
@@ -67,12 +67,12 @@ ax[1].set_xlabel(r'$t/\tau_{R}$')
 
 handles, legend = ax[0].get_legend_handles_labels()
 ax[0].get_legend().remove()
-fig_leg = fig.legend(handles, legend, bbox_to_anchor = (0.95,0.5), ncol = 2)
+fig_leg = fig.legend(handles, legend, bbox_to_anchor = (0.95,0.5), ncol = 2, fontsize=14)
 #fig_leg.get_frame().set_facecolor('none')
 #fig_leg.get_frame().set_edgecolor('none')
 
 plotting.add_caption_letter(ax[0], "(a)", xloc=-0.15, yloc=1.05)
-plotting.add_caption_letter(ax[1], "(b)", xloc=-0.15, yloc=1.05)
+plotting.add_caption_letter(ax[1], "(b)", xloc=-0.15, yloc=1.1)
 fig.tight_layout()
-fig.savefig(f"plots/paper/phi_msd_cos_numb_trasp.png", bbox_inches='tight', dpi=100, transparent=False)
+fig.savefig(f"plots/paper/fig1.png", bbox_inches='tight', dpi=200, transparent=False)
 
