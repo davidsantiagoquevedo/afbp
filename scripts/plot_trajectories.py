@@ -17,10 +17,10 @@ start_set=1
 sets=1
 L_type = 'L1'
 alphaT = 0.5
-HT = 0.85
+HT = 0.75
 alphaR = alphaT
 HR = HT
-ups=1
+ups=20.
 
 x = utilities.read_env(mode='x',
                         L_type = 'L1', 
@@ -47,26 +47,16 @@ y = utilities.read_env(mode='y',
 
 
 for j in range(10):
-
-    fig, ax = plt.subplots()
+    
     x_val = x.trajectories[j,:]
     y_val = y.trajectories[j,:]
 
-    x_val=x_val[::10]
-    y_val=y_val[::10]
-
-    k=10
-    n=len(x_val)
-    x_val = np.interp(np.arange(n * k), np.arange(n) * k, x_val)
-    y_val = np.interp(np.arange(n * k), np.arange(n) * k, y_val)
-    t = np.linspace(0, 100, len(x_val))
-
-    sc = ax.scatter(x_val, y_val, s=3, c=t,  cmap=par.cmap_black)
-
-    fig.colorbar(sc, ax=ax, label='t')
+    fig, ax = plt.subplots()
+    
+    plot.plot_trajectory(ax,  x_val, y_val, 10, 10, fig=fig)
 
     # fig.tight_layout()
-    fig.savefig(f"plots/trajectories/alphaT{alphaT}/h{h}/traj_alphaT{alphaT}_HT{HT}_r{j}_Tf{Tf}_h{h}_ups{ups}.png", dpi=100, transparent=True)
+    fig.savefig(f"plots/trajectories/alphaT{alphaT}/h{h}/traj_alphaT{alphaT}_HT{HT}_r{j}_Tf{Tf}_h{h}_ups{ups}.png", dpi=100)
 
 
 # 3D
