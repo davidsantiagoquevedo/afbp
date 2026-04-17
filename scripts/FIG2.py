@@ -84,6 +84,8 @@ for i, a in enumerate(alpha):
         axinset.tick_params(labelsize=12)
         axinset.tick_params(which='minor', labelbottom=False, labelleft=False)
         
+        axinset.set_facecolor("none")
+        
         plot.add_trend(axinset, x0 = pers_time_gamma, xf = pers_time, h=0.001, y0=0.75, func = plot.talpha, text = fr"$~t^{{{2-a}}}$", xloc = (pers_time_gamma+pers_time)/2-xloc_insets[i], yloc = r.msd_an[xmin_index]/ups**2+yloc_insets[i], alpha=(2-a))
 
     # SIM INSETS
@@ -97,12 +99,16 @@ for i, a in enumerate(alpha):
     env.compute_msd_an(total=True)
     plot.plot_moment(axinset, env, 'msd', 'an_tot_oversim', legend = False, rescale=ups**2)
 
+    # axinset.set_facecolor("none")
+
+
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xlim(xmin = h)
     ax.set_yscale("log")
     ax.set_title(rf"$\alpha={a}$")
     plot.add_caption_letter(ax, caption[i], xloc=-0.1, yloc=1.05)
+    
 
     if i==0:
         ax.set_ylabel(fr'$\langle (\boldsymbol{{r}}(t)-\boldsymbol{{r}}_0)^2 \rangle/\upsilon^2\tau_R^2$')
@@ -163,17 +169,19 @@ for k, a in enumerate(alpha):
     
 # TIME SCALES
 ax = fig.add_subplot(bottom[0, 1])
-ax.plot(alpha, tau_a1, label = rf"$\tau_{{\alpha_T}}(\upsilon={ups1})$", color = par.colors_main_black[7], ls="-", lw = 3.5)
-ax.plot(alpha, tau_a2, label = rf"$\tau_{{\alpha_T}}(\upsilon={ups2})$", color = "grey", ls="-", lw = 3.5)
+ax.plot(alpha, tau_a1, label = rf"$\tau_{{\alpha_T}}(\upsilon\tau_R/L={ups1})$", color = par.colors_main_black[7], ls="-", lw = 3.5)
+ax.plot(alpha, tau_a2, label = rf"$\tau_{{\alpha_T}}(\upsilon\tau_R/L={ups2})$", color = "grey", ls="-", lw = 3.5)
 ax.plot(alpha, tau_2, label = r"$\tau_{2}$", color = "grey", ls="--", lw = 3.5)
 ax.plot(alpha, tau_p, label = r"$\tau_{p}$", color = "grey", ls=":", lw = 3.5)
-ax.plot(alpha, tau_1, label = r"$\tau_{1}$", color = "grey", ls="-.", lw = 3.5)
+ax.plot(alpha, tau_1, label = r"$\tau_{l}$", color = "grey", ls="-.", lw = 3.5)
 ax.set_xlabel(r"$\alpha$")
 ax.set_ylabel(r"$\tau$")
 ax.yaxis.set_label_coords(-0.1, 0.5)
 ax.set_ylim((0.1,10000))
 ax.set_yscale('log')
-ax.legend(loc='best', fontsize = 15)
+leg = ax.legend(loc='best', fontsize = 15)
+leg.get_frame().set_facecolor('none')   # transparent background
+leg.get_frame().set_edgecolor('none')
 plot.add_caption_letter(ax, '(e)', xloc=-0.15, yloc=1.05)
 
 ax = fig.add_subplot(bottom[0, 0])
@@ -181,4 +189,4 @@ plot.add_caption_letter(ax, '(d)', xloc=-0.15, yloc=1.05)
 ax.axis('off')
 
 # fig.legend(handles, legend, bbox_to_anchor = (0.9,1.05), ncol = 5)
-fig.savefig(f"plots/paper/fig2_v2.png", dpi=200, bbox_inches='tight')
+fig.savefig(f"plots/paper/fig2_v2.png", dpi=200, bbox_inches='tight', transparent=True)
