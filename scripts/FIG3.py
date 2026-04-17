@@ -67,6 +67,9 @@ for column in range(2):
                 inset_ax[column].set_xscale("log")
                 inset_ax[column].set_yscale("log")
                 inset_ax[column].set_xlim(xmin = 0.005)
+            
+            inset_ax[column].set_facecolor("none")
+            
 
         pers_time = r.calc_persistance_time()
         if i==3:
@@ -105,9 +108,13 @@ ax[1].set_xlabel(r'$t/\tau_{R}$')
 ax[0].set_title(r'$\alpha_T=0.7$')
 ax[1].set_title(r'$\alpha_R=0.7$')
 
-ax[0].legend(loc = 'lower right', fontsize=14)
-ax[1].legend(loc = 'upper left', fontsize=14)
+leg = ax[0].legend(loc = 'lower right', fontsize=14)
+leg.get_frame().set_facecolor('none')   # transparent background
+leg.get_frame().set_edgecolor('none')
+leg = ax[1].legend(loc = 'upper left', fontsize=14)
+leg.get_frame().set_facecolor('none')   # transparent background
+leg.get_frame().set_edgecolor('none')
 plot.add_caption_letter(ax[0], '(a)', xloc=-0.15, yloc=1.05)
 plot.add_caption_letter(ax[1], '(b)', xloc=-0.15, yloc=1.05)
 
-fig.savefig(f"plots/paper/fig3.png", dpi=200, bbox_inches='tight')
+fig.savefig(f"plots/paper/fig3_transp.png", dpi=200, bbox_inches='tight', transparent=True)
