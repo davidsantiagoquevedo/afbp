@@ -64,7 +64,7 @@ def plot_trajectory(ax, x, y, mod, k, fig=False):
         with mpl.rc_context(fname="src/plotting_style_colorbar.mplstyle"):  
             fig.colorbar(sc, ax=ax, label=r'$t/\tau_{R}$')
 
-def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', color=None, ci = False, sample = False, max_value = 1, sampling_type = None, sample_size = None, loglin_rat = 0.3, rescale = 1, total_msd = True):
+def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', color=None, ci = False, ci_bars = False, sample = False, max_value = 1, sampling_type = None, sample_size = None, loglin_rat = 0.3, rescale = 1, total_msd = True):
 
     """
     Plots a moment vector (msd or variance).
@@ -94,16 +94,20 @@ def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', co
     if legend:
         if legend_id == 'alpha':
             style['label'] = rf"$\alpha=${env.alpha}"
-        if legend_id == 'alphaQ':
+        elif legend_id == 'alphaQ':
             style['label'] = rf"$\alpha_Q=${env.alpha}"
-        if legend_id == 'alphaR':
+        elif legend_id == 'alphaR':
             if isinstance(env, Angular):
                 style['label'] = rf"$\alpha_R=${env.alpha}"
             else:
                 style['label'] = rf"$\alpha_R=${env.alphaR}"
-        if legend_id == 'alphaT':
+        elif legend_id == 'alphaT':
             style['label'] = rf"$\alpha_T=${env.alpha}"
-        
+        else:
+            style['label'] = legend_id
+    else:
+        style['label'] = None
+
     if variable == 'sim':
         if mom_type=='msd':
             env.compute_msd()
@@ -119,7 +123,7 @@ def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', co
         if sample:
             n = int(moment.shape[0]*max_value)
             idx = get_sampling_indices(upper_limit = n, samplesize = sample_size, type = sampling_type, loglin_rat = loglin_rat)
-            style.update({'ls':'', 'marker':'^', 'markersize':10})
+            style.update({'ls':'', 'marker':'^', 'markersize':8})
         else:
             n = int(time.shape[0]*max_value)
             idx = get_sampling_indices(upper_limit = n, samplesize = n + 1, type = None, loglin_rat = None)
@@ -142,17 +146,24 @@ def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', co
         idx = get_sampling_indices(upper_limit = n, samplesize = n + 1, type = None, loglin_rat = None)
         moment = moment[idx]
         time_s = time_s[idx]
-            
+
     if ci:
         n = int(time.shape[0]*max_value)
-        idx = get_sampling_indices(upper_limit = n, samplesize = n + 1, type = None, loglin_rat = None)
         time = time[idx]
         upper = upper[idx]
         lower = lower[idx]
         if color is not None:
-            ax.fill_between(time, lower/rescale, upper/rescale, alpha=0.5, zorder=0, color=color)
+            if ci_bars:
+                ax.errorbar(time, moment/rescale, yerr=[moment/rescale-lower/rescale, upper/rescale-moment/rescale], fmt='none', capsize = 4, capthick=2, ecolor=color, alpha=0.5, zorder=2)
+            else:
+                idx = get_sampling_indices(upper_limit = n, samplesize = n + 1, type = None, loglin_rat = None)
+                ax.fill_between(time, lower/rescale, upper/rescale, alpha=0.5, zorder=0, color=color)
         else:
-            ax.fill_between(time, lower/rescale, upper/rescale, alpha=0.5, zorder=0)
+            if ci_bars:
+                ax.errorbar(time, moment/rescale, yerr=[moment/rescale-lower/rescale, upper/rescale-moment/rescale], fmt='none', alpha=0.5, zorder=1)
+            else:
+                idx = get_sampling_indices(upper_limit = n, samplesize = n + 1, type = None, loglin_rat = None)
+                ax.fill_between(time, lower/rescale, upper/rescale, alpha=0.5, zorder=0)
     
     line, = ax.plot(time_s, moment/rescale, alpha = 1, **style)
     color = line.get_color()
