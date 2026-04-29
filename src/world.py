@@ -268,7 +268,7 @@ class Angular(Base):
         limit += limit*0.3 
         x = np.arange(-limit, limit, 1e-3)
 
-        variance = self.compute_var_an(time = np.abs((time_index*self.h - tref)), tl = tl)
+        variance = self.compute_msd_an(time = np.abs((time_index*self.h - tref)), tl = tl)
         factor = np.sqrt( 1 / (2*np.pi*variance) )
         argument = (-(x)**2) / (2*variance)
 
