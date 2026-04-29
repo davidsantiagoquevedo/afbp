@@ -132,24 +132,35 @@ class Base:
     def run_numba(self):
         """Run all realizations"""
         self.trajectories = []
-        cnj_array = np.zeros(self.n)
-        for k in range(1, self.n):
-            cnj_array[k] = self.cnj(k)
-        coeff_noise = (self.h ** self.alpha) * gamma(2 - self.alpha)
-
+        if self.L_type == 'L1':   
+            cnj_array = np.zeros(self.n)
+            for k in range(1, self.n):
+                cnj_array[k] = self.cnj(k)
+            coeff_noise = (self.h ** self.alpha) * gamma(2 - self.alpha)
+        else:
+            a, b = nb.precompute_ab(self.n, self.alpha)
+            c = nb.precompute_c(self.n, a, b)
+            coeff_noise_arr = ((self.h ** self.alpha) * gamma(2 - self.alpha)) / np.diag(c)   
 
         for r in tqdm(range(self.realizations)):
             self.make_B_H()
 
             if isinstance(self, Angular):
-                traj = nb.run_one_phi(self.n, self.phi0, cnj_array, coeff_noise, self.dB)
+                if self.L_type == 'L1':   
+                    traj = nb.run_one_phi_L1(self.n, self.phi0, cnj_array, coeff_noise, self.dB)
+                elif self.L_type == 'L2':
+                    traj = nb.run_one_phi_L2(self.n, self.phi0, c, coeff_noise_arr, self.dB)
+
             else:
                 if isinstance(self, xDirection):
                     nt_array = nb.nxt_func(self.phi_trajectories[r], self.h)
                 if isinstance(self, yDirection):
                     nt_array = nb.nyt_func(self.phi_trajectories[r], self.h)
-
-                traj = nb.run_one(self.n, self.ups, nt_array, cnj_array, coeff_noise, self.dB, traj0=0)
+                if self.L_type == 'L1':   
+                    traj = nb.run_one(self.n, self.ups, nt_array, cnj_array, coeff_noise, self.dB, traj0=0)
+                elif self.L_type == 'L2':
+                    traj = nb.run_one_L2(self.n, self.ups, nt_array, c, coeff_noise_arr, self.dB, traj0=0)
+                    
             self.trajectories.append(traj)
         self.trajectories = np.array(self.trajectories)
  
@@ -339,6 +350,7 @@ class Angular(Base):
         return c
         
     def run_one_L2(self):
+
         c = self.c
         # Loop over timesteps
         traj = np.zeros(self.n)
