@@ -186,7 +186,7 @@ def plot_pdf(ax, env, mode, time, tl=0, tref=0, xy_label=True, legend=True, lege
     
     #if time == int(env.Tf/(4*env.h)):
     if legend:
-        lg = r"$t/\tau_R = $"+str(time*env.h)
+        lg = rf"$t/\tau_R = {str(time*env.h)}$"
     if legend_an:
         label = "Gaussian Fit"
     

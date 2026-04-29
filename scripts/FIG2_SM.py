@@ -73,7 +73,7 @@ for i, alphaR in enumerate([1.0, 0.7, 0.5, 0.3]):
     
     plotting.add_caption_letter(ax=ax[0,i], cap=caption_letter[i][0], xloc=-0.15, yloc=1.05)
     plotting.add_caption_letter(ax=ax[1,i], cap=caption_letter[i][1], xloc=-0.15, yloc=1.05)
-    ax[0,i].set_title(fr'$\alpha_R={alphaR}, H_R$={HR}')
+    ax[0,i].set_title(fr'$\alpha_R={alphaR}, H_R={HR}$')
     ax[0,i].set_xlabel(rf'$\Delta \phi$')
     ax[1,i].set_xlabel("Theoretical Quantiles")
 ax[0,0].set_ylabel(rf'$P(\Delta \phi,t)$')
