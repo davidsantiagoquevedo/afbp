@@ -3,10 +3,10 @@ from matplotlib.offsetbox import AnchoredText
 import matplotlib as mpl
 import numpy as np
 import plotting_param as par
-import data_analysis
 from world import Angular
 import math
 from scipy.special import gamma
+import statsmodels.api as sm
 
 
 def add_caption_letter(ax, cap, xloc=.07, yloc=.98):
@@ -162,44 +162,40 @@ def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', co
 
     return color
 
-def plot_pdf(ax, env, mode, time, tl=0, tref=0, xy_label=True, legend=True):
+def plot_pdf(ax, env, mode, time, tl=0, tref=0, xy_label=True, legend=True, legend_an=False, color=None, alpha_color=0.5):
     
+           
     trajectories_points = env.trajectories[:, time]
 
     # Analytitcal
 
     label = None
-    variable = '\phi' if mode=='phi' else mode
+    lg = None
+    variable = '\Delta\phi' if mode=='phi' else mode
     
-    if time == int(env.Tf/(4*env.h)):
-        label = r'$\frac{1}{\sqrt{{2\pi(\sigma)^2}}}$'+rf'$e^{{-\frac{{({variable}-\langle {variable} \rangle)^2}}{{2\sigma^2}}}}$'
-
+    #if time == int(env.Tf/(4*env.h)):
+    if legend:
+        lg = r"$t/\tau_R = $"+str(time*env.h)
+    if legend_an:
+        label = "Gaussian Fit"
+    
+    # Gaussian propagator
     x, P = env.propagator(time, tref = tref, tl = tl)
-    ax.plot(x, P, lw=2, ls=":", color = 'black', zorder=2, label = label)
+    ax.plot(x, P, lw=2, ls="-", alpha=alpha_color, color = par.color_analytic, zorder=2, label = label)
 
-    # Histogram and Fit
-    num_bins=40
+    # Histogram
+    num_bins=20
     hist, bin_edges = np.histogram(trajectories_points, density=True, bins=num_bins)
     bin_centres = (bin_edges[:-1] + bin_edges[1:])/2    
-    
-    # Get the fitted curve
-    coeff = data_analysis.gauss_fit(trajectories_points, num_bins)
-    coeff = coeff[0]
-    min = np.min(trajectories_points)
-    max = np.max(trajectories_points)
-    x_fit = np.linspace(min*1.2, max*1.2)
-    hist_fit = data_analysis.gauss(x_fit, *coeff) 
-
-    ax.bar(bin_centres, hist, width=bin_edges[1] - bin_edges[0], alpha=0.5, zorder=0)
-    ax.plot(x_fit, hist_fit, lw=2, label=f'{(round(time*env.h, 2))}', zorder=1)
-
-    ax.set_title(rf'$variable: \alpha = {env.alpha}, H = {env.H}, A_H = {round(env.A_H, 2)}$', fontsize=par.axis_fontsize)
+        
+    ax.bar(bin_centres, hist, width=bin_edges[1] - bin_edges[0], alpha=alpha_color, zorder=0, color = color, label = lg)
+    # edge color
+    ax.set_title(rf'$variable: \alpha = {env.alpha}, H = {env.H}, A_H = {round(env.A_H, 2)}$')
     if xy_label:
-        ax.set_xlabel(rf'${variable}$', fontsize=par.axis_fontsize)
-        ax.set_ylabel(rf'$P({variable},t)$', fontsize=par.axis_fontsize)
-    ax.tick_params(axis='both', labelsize=par.size_ticks)
-    if legend:
-        ax.legend(fontsize = par.legend_size)
+        ax.set_xlabel(rf'${variable}$')
+        ax.set_ylabel(rf'$P({variable},t)$')
+    ax.tick_params(axis='both')
+    
 
 def add_trend(ax, x0, xf, func, y0=1, h=0.05, text = "", xloc = 0, yloc = 0, fontsize = 15, **kwargs):
     t = np.arange(x0,xf,h)
@@ -212,6 +208,20 @@ def add_trend(ax, x0, xf, func, y0=1, h=0.05, text = "", xloc = 0, yloc = 0, fon
         y = func(t)*y0
         ax.plot(t, y, color = 'black', alpha = 1, ls = "-", lw=2, zorder=4)
         ax.text(xloc, yloc, text, fontsize = fontsize, color = 'black')
+
+def qq_plot(data, ax, time, color, alpha_color):
+    data = data[:, time]
+    z = (data - np.mean(data))/np.std(data)
+    sm.qqplot(z,ax=ax, line='45',
+              markerfacecolor=color,   # data points color
+              markeredgecolor=color,
+              alpha = alpha_color)
+    lines = ax.get_lines()
+    if len(lines) > 1:
+        lines[-1].set_color(par.color_analytic)
+        lines[-1].set_linewidth(2)
+    ax.set_xlabel("")
+    ax.set_ylabel("")
 
 def add_pers_time(ax, pers_time, ymax, color):
     ax.axvline(x = pers_time, ymax = ymax, c=color, lw = 4.4, ls=':')
