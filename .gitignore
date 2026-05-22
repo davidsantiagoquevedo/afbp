@@ -2,7 +2,8 @@ data/
 src/__pycache__/
 nohup*
 .DS_Store
-slurm_jobs/
+slurm_scripts/
+.vscode
 .out
 .err
 .slurm
