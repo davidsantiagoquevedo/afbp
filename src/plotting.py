@@ -95,7 +95,7 @@ def plot_moment(ax, env, mom_type, variable, legend = False, legend_id = 'H', co
         if legend_id == 'alpha':
             style['label'] = rf"$\alpha=${env.alpha}"
         elif legend_id == 'alphaQ':
-            style['label'] = rf"$\alpha_Q=${env.alpha}"
+            style['label'] = rf"L$1$, $\alpha_Q=${env.alpha}"
         elif legend_id == 'alphaR':
             if isinstance(env, Angular):
                 style['label'] = rf"$\alpha_R=${env.alpha}"
